@@ -1,0 +1,90 @@
+group 'RuntimeProxy'
+
+apply plugin: 'java'
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+libsDirName = '../prod/lib'
+
+sourceSets {
+    main {
+        java {
+            // srcDir 'src/main'
+        }
+    }
+
+    test {
+        java {
+            // srcDir 'src/test'
+        }
+    }
+}
+
+clean {
+    delete 'classes'
+    delete 'prod/lib'
+    delete fileTree('prod') {
+    }
+}
+
+test {
+    useTestNG()
+}
+
+// https://docs.gradle.org/current/userguide/tutorial_java_projects.html
+// https://mvnrepository.com/
+
+
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    compile group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.28'
+    compile group: 'org.openjdk.jmh', name: 'jmh-generator-reflection', version: '1.28'
+    compile group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
+    compile group: 'org.testng', name: 'testng', version: '7.3.0'
+    compile 'junit:junit:4.13'
+    // compile group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.28'
+    testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.28'
+    testCompile 'org.testng:testng:7.3.0'
+    testCompile 'junit:junit:4.13.1'
+}
+
+
+
+task copyClientLibs(type: Copy) {
+    from {
+        configurations.compile
+    }
+    into 'prod/lib'
+    include '*.jar'
+}
+
+jar {
+    archiveName='benchmarkTestAgent.jar'
+//
+// This will put all the contents from the jars into a single jar
+//    from {
+//        configurations.compile.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+
+    manifest {
+        attributes  'Can-Retransform-Classes': true,
+                    'Can-Redefine-Classes': true,
+                    'Premain-Class': 'BenchmarkTest$BenchmarkTestAgent'
+    }
+}
+
+
+build.finalizedBy(copyClientLibs)
