@@ -7,7 +7,7 @@
         </item>
         <item>
             <key>date</key>
-            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:dateTime">2021-05-11T18:39:38.991+03:00</value>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:dateTime">2021-05-13T12:30:54.800+03:00</value>
         </item>
         <item>
             <key>double</key>

@@ -1,7 +1,10 @@
-group 'RuntimeProxy'
+plugins {
+    id 'maven-publish'
+}
+
+group 'com.gocypher'
 
 apply plugin: 'java'
-
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -83,6 +86,18 @@ jar {
         attributes  'Can-Retransform-Classes': true,
                     'Can-Redefine-Classes': true,
                     'Premain-Class': 'BenchmarkTest$BenchmarkTestAgent'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.gocypher'
+            artifactId = 'testToBenchmarkAgent'
+            version = '1.0'
+
+            from components.java
+        }
     }
 }
 
