@@ -1,4 +1,4 @@
-
+package com.gocypher.cybench;
 
 import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
@@ -48,7 +48,6 @@ public class BenchmarkTest {
     private static final String WORK_DIR = "prod";
     private static final String TEST_DIR = "build" +File.separator+ "classes" +File.separator+ "java" +File.separator+ "test";
     private static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    private static final String COMPILE_SCRIPT = "./compileGenerated.bat";
     private static final String JMH_CORE_JAR = "/lib/jmh-core-1.28.jar";
     private static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
     private static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
@@ -65,9 +64,9 @@ public class BenchmarkTest {
     private static String COMPILER_HINTS_CLASS = "org.openjdk.jmh.runner.CompilerHints";
 
     // The code to put into the JMH methods - call ME and then return MY replacements
-    private static String TAKE_FAKE_ANNOTATIONS = "Object value=BenchmarkTest.buildFakeAnnotatedSet();return value;";
-    private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=BenchmarkTest.getMyBenchmarkList();return value;";
-    private static String TAKE_FAKE_COMPILER_HINTS = "Object value=BenchmarkTest.getMyCompilerHints();return value;";
+    private static String TAKE_FAKE_ANNOTATIONS = "Object value=com.gocypher.cybench.BenchmarkTest.buildFakeAnnotatedSet();return value;";
+    private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=com.gocypher.cybench.BenchmarkTest.getMyBenchmarkList();return value;";
+    private static String TAKE_FAKE_COMPILER_HINTS = "Object value=com.gocypher.cybench.BenchmarkTest.getMyCompilerHints();return value;";
 
 
     public static void main(String[] args) throws Exception {
@@ -87,7 +86,7 @@ public class BenchmarkTest {
                 .measurementIterations(NUMBER_OF_MEASUREMENTS)
                 .build();
         generateBenchmarkList();
-        runProcess(COMPILE_SCRIPT);
+        new com.gocypher.cybench.CompileProcess.WindowsCompileProcess();
         new Runner(opt).run();
     }
 
@@ -151,22 +150,9 @@ public class BenchmarkTest {
         return fileTree;
     }
 
-    private void printLines(String cmd, InputStream ins) throws Exception {
-        String line = null;
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(ins));
-        while ((line = in.readLine()) != null) {
-            log(cmd + " " + line);
-        }
-    }
 
-    private void runProcess(String command) throws Exception {
-        Process pro = Runtime.getRuntime().exec(command);
-        printLines(command + " stdout:", pro.getInputStream());
-        printLines(command + " stderr:", pro.getErrorStream());
-        pro.waitFor();
-        log(command + " exitValue() " + pro.exitValue());
-    }
+
+
 
     /*
      **************** BenchmarkTestAgent
@@ -262,7 +248,7 @@ public class BenchmarkTest {
         }
     }
 
-    static private void log(String msg)
+    static void log(String msg)
     {
         System.out.println(msg);
     }
