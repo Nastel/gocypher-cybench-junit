@@ -34,8 +34,7 @@ public abstract class CompileProcess {
     }
 
     static class WindowsCompileProcess extends CompileProcess {
-
-        //TODO collect and set actual classpath
+        // TODO collect and set actual classpath
         static final String COMPILE = "javac -cp c:\\workspace\\tnt4j-streams2\\build\\tnt4j-streams-1.12.0-SNAPSHOT\\lib\\*;c:\\workspace\\tnt4j-streams2\\build\\tnt4j-streams-1.12.0-SNAPSHOT\\;c:\\workspace\\tnt4j-streams2\\tnt4j-streams-core\\target\\test-classes\\;prod\\lib\\*;build/classes/java/test @";
 
         public WindowsCompileProcess() {
@@ -53,7 +52,7 @@ public abstract class CompileProcess {
             try {
                 PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.java");
                 File f = File.createTempFile("sourcesList", "");
-                //f.deleteOnExit();
+                // f.deleteOnExit();
                 try (FileOutputStream fos = new FileOutputStream(f)) {
                     Files.walk(Paths.get(System.getProperty("buildDir") + "/..")).filter(fw -> matcher.matches(fw))
                             .filter(Files::isRegularFile).forEach(fw -> {
