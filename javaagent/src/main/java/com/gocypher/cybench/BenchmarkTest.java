@@ -1,54 +1,43 @@
 package com.gocypher.cybench;
 
-import javassist.ByteArrayClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import org.openjdk.jmh.annotations.Mode;
-
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import org.openjdk.jmh.runner.CompilerHints;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.generators.core.BenchmarkGenerator;
-import org.openjdk.jmh.generators.core.FileSystemDestination;
-import org.openjdk.jmh.runner.BenchmarkList;
-import org.openjdk.jmh.generators.core.GeneratorSource;
-import org.openjdk.jmh.generators.core.ClassInfo;
-import org.openjdk.jmh.util.HashMultimap;
-import org.openjdk.jmh.util.Multimap;
-
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.instrument.ClassDefinition;
-
-import org.openjdk.jmh.generators.core.MethodInfo;
-import org.openjdk.jmh.generators.reflection.MyClassInfo;
-
+import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.File;
-import java.io.InputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
-import org.testng.annotations.BeforeClass;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.generators.core.*;
+import org.openjdk.jmh.generators.reflection.MyClassInfo;
+import org.openjdk.jmh.runner.BenchmarkList;
+import org.openjdk.jmh.runner.CompilerHints;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.util.HashMultimap;
+import org.openjdk.jmh.util.Multimap;
 import org.testng.annotations.Test;
 
+import javassist.ByteArrayClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
 
 public class BenchmarkTest {
 
     private static final String WORK_DIR = "prod";
-    private static final String TEST_DIR = "build" +File.separator+ "classes" +File.separator+ "java" +File.separator+ "test";
+    private static final String TEST_DIR = "build" + File.separator + "classes" + File.separator + "java"
+            + File.separator + "test";
     private static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    private static final String JMH_CORE_JAR = "/lib/jmh-core-1.28.jar";
+    private static final String JMH_CORE_JAR = "/lib/jmh-core-1.31.jar";
     private static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
     private static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
 
@@ -56,8 +45,9 @@ public class BenchmarkTest {
     private static final int NUMBER_OF_WARMUPS = 0;
     private static final int NUMBER_OF_MEASUREMENTS = 1;
     private static final Mode BENCHMARK_MODE = Mode.All;
-    private static final Class BENCHMARK_ANNOTATION = Test.class;
-    private static final Class BENCHMARK_ANNOTATION2 = org.junit.Test.class;
+    private static final Class<? extends Annotation> BENCHMARK_ANNOTATION = Test.class;
+    private static final Class<? extends Annotation> BENCHMARK_ANNOTATION2 = org.junit.Test.class;
+    private static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
 
     private static String BENCHMARK_GENERATOR_CLASS = "org.openjdk.jmh.generators.core.BenchmarkGenerator";
     private static String BENCHMARK_LIST_CLASS = "org.openjdk.jmh.runner.BenchmarkList";
@@ -68,14 +58,13 @@ public class BenchmarkTest {
     private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=com.gocypher.cybench.BenchmarkTest.getMyBenchmarkList();return value;";
     private static String TAKE_FAKE_COMPILER_HINTS = "Object value=com.gocypher.cybench.BenchmarkTest.getMyCompilerHints();return value;";
 
-
     public static void main(String[] args) throws Exception {
         BenchmarkTest benchmarkTest = new BenchmarkTest();
         benchmarkTest.init();
     }
 
     private void init() throws Exception {
-        // http://javadox.com/org.openjdk.jmh/jmh-core/1.12/org/openjdk/jmh/runner/options/OptionsBuilder.html
+        // http://javadox.com/org.openjdk.jmh/jmh-core/1.31/org/openjdk/jmh/runner/options/OptionsBuilder.html
         Options opt = new OptionsBuilder()
                 .include(".*")
                 .jvmArgsPrepend("-D" + FORKED_PROCESS_MARKER + "=true")
@@ -99,7 +88,6 @@ public class BenchmarkTest {
         gen.complete(myGeneratorSource, dst);
     }
 
-
     Collection<ClassInfo> benchmarkClassList;
 
     class MyGeneratorSource implements GeneratorSource {
@@ -110,17 +98,18 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            Collection<File> includeClassFiles = getUTClasses(new File(TEST_DIR));
+            Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(new File(BenchmarkTest.TEST_DIR));
             for (File classFile : includeClassFiles) {
                 Class clazz = null;
                 try {
                     String path = classFile.getAbsolutePath();
-                    int index = path.indexOf(TEST_DIR);
-                    String className = path.replace(File.separator, ".").substring(index + TEST_DIR.length() +1, path.length() - ".class".length());
+                    int index = path.indexOf(BenchmarkTest.TEST_DIR);
+                    String className = path.replace(File.separator, ".")
+                            .substring(index + BenchmarkTest.TEST_DIR.length() + 1, path.length() - ".class".length());
                     clazz = Class.forName(className);
-                    log("Class: " + clazz);
+                    BenchmarkTest.log("Class: " + clazz);
                 } catch (Throwable t) {
-                    log("ERROR: Cant get class: " + t);
+                    BenchmarkTest.log("ERROR: Cant get class: " + t);
                 }
                 benchmarkClassList.add((ClassInfo) new MyClassInfo(clazz));
             }
@@ -134,7 +123,7 @@ public class BenchmarkTest {
     }
 
     private static Collection<File> getUTClasses(File dir) {
-        Set<File> fileTree = new HashSet<File>();
+        Set<File> fileTree = new HashSet<>();
         if (dir == null || dir.listFiles() == null) {
             return fileTree;
         }
@@ -150,26 +139,24 @@ public class BenchmarkTest {
         return fileTree;
     }
 
-
-
-
-
     /*
      **************** BenchmarkTestAgent
      *
      */
-
 
     private static MyGeneratorSource myGeneratorSource;
 
     public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
         Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
         for (ClassInfo currentClass : myGeneratorSource.getClasses()) {
-            if (currentClass.isAbstract()) continue;
+            if (currentClass.isAbstract()) {
+                continue;
+            }
             for (MethodInfo mi : currentClass.getMethods()) {
-                Object ann = mi.getAnnotation(BENCHMARK_ANNOTATION);
-                Object ann2 = mi.getAnnotation(BENCHMARK_ANNOTATION2);
-                if (ann != null || ann2 != null) {
+                Annotation ann = mi.getAnnotation(BENCHMARK_ANNOTATION);
+                Annotation ann2 = mi.getAnnotation(BENCHMARK_ANNOTATION2);
+                Annotation ann3 = mi.getAnnotation(BENCHMARK_ANNOTATION3);
+                if (ann != null || ann2 != null || ann3 != null) {
                     result.put(currentClass, mi);
                 }
             }
@@ -192,22 +179,28 @@ public class BenchmarkTest {
         public static void premain(String agentArgs, Instrumentation inst) {
             try {
                 // It's the Runner...skip the agent
-                if (System.getProperty(FORKED_PROCESS_MARKER) != null) {
+                if (System.getProperty(BenchmarkTest.FORKED_PROCESS_MARKER) != null) {
                     return;
                 }
                 instrumentation = inst;
-                log("Agent Premain called...");
-                JarFile jarFile = new JarFile(WORK_DIR + BenchmarkTest.JMH_CORE_JAR);
-                byte[] benchmarkListBytes = getJMHBytesForClass(jarFile, BENCHMARK_LIST_CLASS.replace(".", "/") + ".class");
-                byte[] compilerHintsBytes = getJMHBytesForClass(jarFile, COMPILER_HINTS_CLASS.replace(".", "/") + ".class");
-                byte[] benchmarkGeneratorBytes = getJMHBytesForClass(jarFile, BENCHMARK_GENERATOR_CLASS.replace(".", "/") + ".class");
+                BenchmarkTest.log("Agent Premain called...");
+                JarFile jarFile = new JarFile(BenchmarkTest.WORK_DIR + BenchmarkTest.JMH_CORE_JAR);
+                byte[] benchmarkListBytes = getJMHBytesForClass(jarFile,
+                        BenchmarkTest.BENCHMARK_LIST_CLASS.replace(".", "/") + ".class");
+                byte[] compilerHintsBytes = getJMHBytesForClass(jarFile,
+                        BenchmarkTest.COMPILER_HINTS_CLASS.replace(".", "/") + ".class");
+                byte[] benchmarkGeneratorBytes = getJMHBytesForClass(jarFile,
+                        BenchmarkTest.BENCHMARK_GENERATOR_CLASS.replace(".", "/") + ".class");
                 // Put in code to basically call MY replacement methods and return MY values - instead of JMH
-                replaceCode(BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet", TAKE_FAKE_ANNOTATIONS, benchmarkGeneratorBytes);
-                replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
-                replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_FAKE_COMPILER_HINTS, compilerHintsBytes);
+                replaceCode(BenchmarkTest.BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet",
+                        BenchmarkTest.TAKE_FAKE_ANNOTATIONS, benchmarkGeneratorBytes);
+                replaceCode(BenchmarkTest.BENCHMARK_LIST_CLASS, "defaultList", BenchmarkTest.TAKE_FAKE_BENCHMARK_LIST,
+                        benchmarkListBytes);
+                replaceCode(BenchmarkTest.COMPILER_HINTS_CLASS, "defaultList", BenchmarkTest.TAKE_FAKE_COMPILER_HINTS,
+                        compilerHintsBytes);
             } catch (Exception e) {
                 e.printStackTrace();
-                log("Error: " + e);
+                BenchmarkTest.log("Error: " + e);
             }
         }
 
@@ -220,9 +213,9 @@ public class BenchmarkTest {
                 methods[0].insertBefore(code);
                 ClassDefinition definition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
                 instrumentation.redefineClasses(definition);
-                log("Modified " + className + "." + methodName);
+                BenchmarkTest.log("Modified " + className + "." + methodName);
             } catch (Throwable t) {
-                log("Could not create the class creation: " + t);
+                BenchmarkTest.log("Could not create the class creation: " + t);
             }
         }
 
@@ -232,24 +225,27 @@ public class BenchmarkTest {
         }
 
         static byte[] streamToByteArray(InputStream stream) throws IOException {
-            byte[] buffer = new byte[1024];
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try {
+                byte[] buffer = new byte[1024];
+                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                    int line = 0;
+                    // read bytes from stream, and store them in buffer
+                    while ((line = stream.read(buffer)) != -1) {
+                        // Writes bytes from byte array (buffer) into output stream.
+                        os.write(buffer, 0, line);
+                    }
 
-            int line = 0;
-            // read bytes from stream, and store them in buffer
-            while ((line = stream.read(buffer)) != -1) {
-                // Writes bytes from byte array (buffer) into output stream.
-                os.write(buffer, 0, line);
+                    os.flush();
+
+                    return os.toByteArray();
+                }
+            } finally {
+                stream.close();
             }
-            stream.close();
-            os.flush();
-            os.close();
-            return os.toByteArray();
         }
     }
 
-    static void log(String msg)
-    {
+    static void log(String msg) {
         System.out.println(msg);
     }
 
