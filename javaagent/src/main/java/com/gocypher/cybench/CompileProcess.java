@@ -1,13 +1,13 @@
 package com.gocypher.cybench;
 
+import static com.gocypher.cybench.BenchmarkTest.log;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-
-import static com.gocypher.cybench.BenchmarkTest.log;
 
 public abstract class CompileProcess {
     static final String COMPILE_SCRIPT = "./compileGenerated.bat";

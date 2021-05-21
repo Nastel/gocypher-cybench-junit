@@ -22,7 +22,8 @@ import org.testng.annotations.Test;
 public class BenchmarkTest {
 
     static final String WORK_DIR = System.getProperty("buildDir");
-    static final String TEST_DIR = System.getProperty("buildDir") + File.separator + ".." + File.separator + "test-classes" + File.separator;
+    static final String TEST_DIR = System.getProperty("buildDir") + File.separator + ".." + File.separator
+            + "test-classes" + File.separator;
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
     static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
     static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
@@ -131,10 +132,12 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            final File testDir = new File(BenchmarkTest.TEST_DIR).getAbsoluteFile();
+            File testDir = new File(BenchmarkTest.TEST_DIR).getAbsoluteFile();
             Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
 
-            if (!testDir.exists()) log("NO TEST DIR" + testDir.getAbsolutePath());
+            if (!testDir.exists()) {
+                BenchmarkTest.log ("NO TEST DIR" + testDir.getAbsolutePath());
+            }
             for (File classFile : includeClassFiles) {
                 Class<?> clazz = null;
                 try {
