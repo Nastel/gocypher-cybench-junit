@@ -34,9 +34,9 @@ public abstract class CompileProcess {
     }
 
     static class WindowsCompileProcess extends CompileProcess {
-        // TODO: fix path - shall not be absolute path...
+
+        //TODO collect and set actual classpath
         static final String COMPILE = "javac -cp c:\\workspace\\tnt4j-streams2\\build\\tnt4j-streams-1.12.0-SNAPSHOT\\lib\\*;c:\\workspace\\tnt4j-streams2\\build\\tnt4j-streams-1.12.0-SNAPSHOT\\;c:\\workspace\\tnt4j-streams2\\tnt4j-streams-core\\target\\test-classes\\;prod\\lib\\*;build/classes/java/test @";
-        static final String CLEANUP = "rm sources.txt";
 
         public WindowsCompileProcess() {
             try {
