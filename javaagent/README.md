@@ -2,7 +2,7 @@
 
 ## Java agent implementation
 
-* Step 1: to run maven agent from maven edit POM first:
+* Step 1: to run maven agent from maven, edit POM of your project first by adding these plugins and configurations:
 ```xml
     <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -46,14 +46,14 @@
 mvn initialize test-compile exec:exec 
 ```
 **Note:**
-* `initialize` = set variable ${com.gocypher:testToBenchmarkAgent:jar} using maven-dependency-plugin
+* `initialize` = set variable `${com.gocypher:testToBenchmarkAgent:jar}` using maven-dependency-plugin
 * `test-compile` = you need to compile tests
 * `exec:exec` = and run the command
 
 ## DEVNotes (a.k.a TODO)
 
-* delete temp file for `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:56
-* (DONE) set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:39
+* delete temp file for `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:57
+* (DONE) set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:46
 
 ```cmd
 mvndebug initialize test-compile exec:exec 
