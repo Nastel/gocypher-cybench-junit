@@ -55,7 +55,7 @@ exec:exec = and run the command
 ## DEVNotes (a.k.a TODO)
 
 delete temp file for `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:56
-set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:39
+(DONE) set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:39 
 
 ```
 mvndebug initialize test-compile exec:exec 
