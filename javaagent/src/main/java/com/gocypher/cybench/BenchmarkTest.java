@@ -21,11 +21,9 @@ import org.testng.annotations.Test;
 
 public class BenchmarkTest {
 
-    static final String WORK_DIR = "prod";
-    static final String TEST_DIR = "build" + File.separator + "classes" + File.separator + "java" + File.separator
-            + "test";
+    static final String WORK_DIR = System.getProperty("buildDir");
+    static final String TEST_DIR = System.getProperty("buildDir") + File.separator + ".." + File.separator + "test-classes" + File.separator;
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    static final String JMH_CORE_JAR = "/lib/jmh-core-1.31.jar";
     static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
     static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
 
@@ -38,10 +36,66 @@ public class BenchmarkTest {
     static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
 
     // The code to put into the JMH methods - call ME and then return MY replacements
+    private static MyGeneratorSource myGeneratorSource;
+    Collection<ClassInfo> benchmarkClassList;
 
     public static void main(String[] args) throws Exception {
+        log("Main started");
         BenchmarkTest benchmarkTest = new BenchmarkTest();
         benchmarkTest.init();
+    }
+
+    private static Collection<File> getUTClasses(File dir) {
+        Set<File> fileTree = new HashSet<>();
+        if (dir == null || dir.listFiles() == null) {
+            return fileTree;
+        }
+        for (File entry : dir.listFiles()) {
+            if (entry.isFile()) {
+
+                if (entry.getName().endsWith(".class")) {
+                    fileTree.add(entry);
+                }
+            } else {
+                fileTree.addAll(getUTClasses(entry));
+            }
+        }
+        return fileTree;
+    }
+
+    public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
+        Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
+        for (ClassInfo currentClass : myGeneratorSource.getClasses()) {
+            if (currentClass.isAbstract()) {
+                continue;
+            }
+            for (MethodInfo mi : currentClass.getMethods()) {
+                Annotation ann = mi.getAnnotation(BENCHMARK_ANNOTATION);
+                Annotation ann2 = mi.getAnnotation(BENCHMARK_ANNOTATION2);
+                Annotation ann3 = mi.getAnnotation(BENCHMARK_ANNOTATION3);
+                if (ann != null || ann2 != null || ann3 != null) {
+                    result.put(currentClass, mi);
+                }
+            }
+        }
+        return result;
+    }
+
+    public static BenchmarkList getMyBenchmarkList() {
+        return BenchmarkList.fromFile(MY_BENCHMARK_LIST);
+    }
+
+    /*
+     **************** BenchmarkTestAgent
+     *
+     */
+
+    public static CompilerHints getMyCompilerHints() {
+        return CompilerHints.fromFile(MY_COMPILER_HINTS);
+    }
+
+    static void log(String msg) {
+        System.out.println(msg);
     }
 
     private void init() throws Exception {
@@ -69,8 +123,6 @@ public class BenchmarkTest {
         gen.complete(myGeneratorSource, dst);
     }
 
-    Collection<ClassInfo> benchmarkClassList;
-
     class MyGeneratorSource implements GeneratorSource {
 
         @Override
@@ -79,14 +131,19 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(new File(BenchmarkTest.TEST_DIR));
+            final File testDir = new File(BenchmarkTest.TEST_DIR).getAbsoluteFile();
+            Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
+
+            if (!testDir.exists()) log("NO TEST DIR" + testDir.getAbsolutePath());
             for (File classFile : includeClassFiles) {
                 Class<?> clazz = null;
                 try {
                     String path = classFile.getAbsolutePath();
                     int index = path.indexOf(BenchmarkTest.TEST_DIR);
                     String className = path.replace(File.separator, ".")
-                            .substring(index + BenchmarkTest.TEST_DIR.length() + 1, path.length() - ".class".length());
+                            .substring(index + BenchmarkTest.TEST_DIR.length(), path.length() - ".class".length());
+                    // TODO far from bulletproof
+
                     clazz = Class.forName(className);
                     BenchmarkTest.log("Class: " + clazz);
                 } catch (Throwable t) {
@@ -101,60 +158,6 @@ public class BenchmarkTest {
         public ClassInfo resolveClass(String className) {
             return null;
         }
-    }
-
-    private static Collection<File> getUTClasses(File dir) {
-        Set<File> fileTree = new HashSet<>();
-        if (dir == null || dir.listFiles() == null) {
-            return fileTree;
-        }
-        for (File entry : dir.listFiles()) {
-            if (entry.isFile()) {
-                if (entry.getName().endsWith(".class")) {
-                    fileTree.add(entry);
-                }
-            } else {
-                fileTree.addAll(getUTClasses(entry));
-            }
-        }
-        return fileTree;
-    }
-
-    /*
-     **************** BenchmarkTestAgent
-     *
-     */
-
-    private static MyGeneratorSource myGeneratorSource;
-
-    public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
-        Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
-        for (ClassInfo currentClass : myGeneratorSource.getClasses()) {
-            if (currentClass.isAbstract()) {
-                continue;
-            }
-            for (MethodInfo mi : currentClass.getMethods()) {
-                Annotation ann = mi.getAnnotation(BENCHMARK_ANNOTATION);
-                Annotation ann2 = mi.getAnnotation(BENCHMARK_ANNOTATION2);
-                Annotation ann3 = mi.getAnnotation(BENCHMARK_ANNOTATION3);
-                if (ann != null || ann2 != null || ann3 != null) {
-                    result.put(currentClass, mi);
-                }
-            }
-        }
-        return result;
-    }
-
-    public static BenchmarkList getMyBenchmarkList() {
-        return BenchmarkList.fromFile(MY_BENCHMARK_LIST);
-    }
-
-    public static CompilerHints getMyCompilerHints() {
-        return CompilerHints.fromFile(MY_COMPILER_HINTS);
-    }
-
-    static void log(String msg) {
-        System.out.println(msg);
     }
 
 }

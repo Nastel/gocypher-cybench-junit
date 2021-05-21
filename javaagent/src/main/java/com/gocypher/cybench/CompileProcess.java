@@ -1,7 +1,5 @@
 package com.gocypher.cybench;
 
-import static com.gocypher.cybench.BenchmarkTest.log;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -9,10 +7,17 @@ import java.nio.file.Files;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 
+import static com.gocypher.cybench.BenchmarkTest.log;
+
 public abstract class CompileProcess {
     static final String COMPILE_SCRIPT = "./compileGenerated.bat";
 
+    public static void main(String[] args) {
+        WindowsCompileProcess.makeSourcesList();
+    }
+
     void runProcess(String command) throws Exception {
+        log("Running command: " + command);
         Process pro = Runtime.getRuntime().exec(command);
         printLines(command + " stdout:", pro.getInputStream());
         printLines(command + " stderr:", pro.getErrorStream());
@@ -28,12 +33,7 @@ public abstract class CompileProcess {
         }
     }
 
-    public static void main(String[] args) {
-        WindowsCompileProcess.makeSourcesList();
-    }
-
     static class WindowsCompileProcess extends CompileProcess {
-        static final String MAKE_SOURCES_LIST = "dir /s /B prod\\*.java > sources.txt";
         // TODO: fix path - shall not be absolute path...
         static final String COMPILE = "javac -cp c:\\workspace\\tnt4j-streams2\\build\\tnt4j-streams-1.12.0-SNAPSHOT\\lib\\*;c:\\workspace\\tnt4j-streams2\\build\\tnt4j-streams-1.12.0-SNAPSHOT\\;c:\\workspace\\tnt4j-streams2\\tnt4j-streams-core\\target\\test-classes\\;prod\\lib\\*;build/classes/java/test @";
         static final String CLEANUP = "rm sources.txt";
