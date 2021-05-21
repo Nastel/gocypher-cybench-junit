@@ -44,7 +44,7 @@ jobs:
       - name: Get POM version
         id: get-pom-version
         run: |
-          VERSION=$( mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout --file annProcessor/ pom.xml --no-transfer-progress )
+          VERSION=$( mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout --file annProcessor/pom.xml --no-transfer-progress )
           echo "Found project version: $VERSION"
           echo "::set-output name=pom-version::$VERSION"
 
