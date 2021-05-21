@@ -10,11 +10,6 @@ import java.nio.file.Paths;
 import static com.gocypher.cybench.BenchmarkTest.log;
 
 public abstract class CompileProcess {
-    static final String COMPILE_SCRIPT = "./compileGenerated.bat";
-
-    public static void main(String[] args) {
-        WindowsCompileProcess.makeSourcesList();
-    }
 
     void runProcess(String command) throws Exception {
         log("Running command: " + command);

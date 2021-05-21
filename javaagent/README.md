@@ -62,6 +62,10 @@ exec:exec = and run the command
 delete temp file for javac - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:56
 set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:39
 
+```
+mvndebug initialize test-compile exec:exec 
+```
+this command will let you debug the maven process, note - you cannot set the breakpoint on instrumented class 
 
 
 
