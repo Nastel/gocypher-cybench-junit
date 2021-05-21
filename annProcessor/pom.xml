@@ -29,9 +29,8 @@
 
     <properties>
         <javac.target>1.8</javac.target>
-        <jmh.version>1.29</jmh.version>
+        <jmh.version>1.31</jmh.version>
     </properties>
-
 
     <dependencies>
         <dependency>
@@ -43,7 +42,7 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
-            <version>3.20.2</version>
+            <version>3.22.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.olivergondza</groupId>

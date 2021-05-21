@@ -1,2 +1,3 @@
 # gocypher-cybench-junit
-Benchmarking for JUnit
+
+Benchmarking for JUnit.

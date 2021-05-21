@@ -1,5 +1,5 @@
 plugins {
-    id 'maven-publish'
+  id 'maven-publish'
 }
 
 group 'com.gocypher'
@@ -12,64 +12,59 @@ targetCompatibility = 1.8
 libsDirName = '../prod/lib'
 
 sourceSets {
-    main {
-        java {
-            // srcDir 'src/main'
-        }
+  main {
+    java {
+      // srcDir 'src/main' 
     }
+  }
 
-    test {
-        java {
-            // srcDir 'src/test'
-        }
+  test {
+    java {
+      // srcDir 'src/test'
     }
+  }
 }
 
 clean {
-    delete 'classes'
-    delete 'prod/lib'
-    delete fileTree('prod') {
-    }
+  delete 'classes'
+  delete 'prod/lib'
+  delete fileTree ('prod') {}
 }
 
 test {
-    useTestNG()
+  useTestNG ()
 }
 
 // https://docs.gradle.org/current/userguide/tutorial_java_projects.html
 // https://mvnrepository.com/
 
-
 repositories {
-    mavenCentral()
+  mavenCentral ()
 }
-
-
 
 dependencies {
-    compile group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.28'
-    compile group: 'org.openjdk.jmh', name: 'jmh-generator-reflection', version: '1.28'
-    compile group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
-    compile group: 'org.testng', name: 'testng', version: '7.3.0'
-    compile 'junit:junit:4.13'
-    // compile group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.28'
-    testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.28'
-    testCompile 'org.testng:testng:7.3.0'
-    testCompile 'junit:junit:4.13.1'
+  compile 'org.openjdk.jmh:jmh-core:1.31'
+  compile 'org.openjdk.jmh:jmh-generator-reflection:1.31'
+  compile 'org.javassist:javassist:3.27.0-GA'
+  compile 'org.testng:testng:7.3.0'
+  compile 'junit:junit:4.13.2'
+  compile 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+  // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.31'
+  testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.31'
+  testCompile 'org.testng:testng:7.3.0'
+  testCompile 'junit:junit:4.13.2'
 }
 
-
-
-task copyClientLibs(type: Copy) {
-    from {
-        configurations.compile
-    }
-    into 'prod/lib'
-    include '*.jar'
+task copyClientLibs (type: Copy) {
+  from {
+    configurations.compile
+  }
+  into 'prod/lib'
+  include '*.jar'
 }
 
 jar {
-    archiveName='benchmarkTestAgent.jar'
+  archiveName = 'benchmarkTestAgent.jar'
 //
 // This will put all the contents from the jars into a single jar
 //    from {
@@ -78,28 +73,27 @@ jar {
 //        }
 //    }
 
-    exclude "META-INF/*.SF"
-    exclude "META-INF/*.DSA"
-    exclude "META-INF/*.RSA"
+  exclude "META-INF/*.SF"
+  exclude "META-INF/*.DSA"
+  exclude "META-INF/*.RSA"
 
-    manifest {
-        attributes  'Can-Retransform-Classes': true,
-                    'Can-Redefine-Classes': true,
-                    'Premain-Class': 'BenchmarkTest$BenchmarkTestAgent'
-    }
+  manifest {
+    attributes 'Can-Retransform-Classes': true,
+               'Can-Redefine-Classes': true,
+               'Premain-Class': 'BenchmarkTest$BenchmarkTestAgent'
+  }
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.gocypher'
-            artifactId = 'testToBenchmarkAgent'
-            version = '1.0'
+  publications {
+    maven (MavenPublication) {
+      groupId = 'com.gocypher'
+      artifactId = 'testToBenchmarkAgent'
+      version = '1.0'
 
-            from components.java
-        }
+      from components.java
     }
+  }
 }
 
-
-build.finalizedBy(copyClientLibs)
+build.finalizedBy (copyClientLibs)
