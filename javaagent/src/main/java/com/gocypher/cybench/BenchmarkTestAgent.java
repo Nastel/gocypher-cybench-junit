@@ -1,10 +1,19 @@
 package com.gocypher.cybench;
 
+import javassist.ByteArrayClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import org.openjdk.jmh.annotations.Benchmark;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -33,7 +42,17 @@ public class BenchmarkTestAgent {
             }
             instrumentation = inst;
             BenchmarkTest.log("Agent Premain called...");
-            JarFile jarFile = new JarFile(BenchmarkTest.WORK_DIR + BenchmarkTest.JMH_CORE_JAR);
+
+            Class klass = Benchmark.class;
+            URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
+            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.31/jmh-core-1.31.jar!/org/openjdk/jmh/annotations/Benchmark.class
+            final String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
+            BenchmarkTest.log("JMH:" + split[0]);
+            final File file = Paths.get(split[0]).toFile();
+            BenchmarkTest.log("JMH:" +  file.getAbsolutePath());
+
+            JarFile jarFile = new JarFile(file);
+
             byte[] benchmarkListBytes = getJMHBytesForClass(jarFile, BENCHMARK_LIST_CLASS.replace(".", "/") + ".class");
             byte[] compilerHintsBytes = getJMHBytesForClass(jarFile, COMPILER_HINTS_CLASS.replace(".", "/") + ".class");
             byte[] benchmarkGeneratorBytes = getJMHBytesForClass(jarFile,
