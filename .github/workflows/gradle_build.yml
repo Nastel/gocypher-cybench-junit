@@ -7,13 +7,13 @@ on:
   push:
     branches: [ main ]
     paths:
-      - '**/src/**'
-      - '**/*gradle*'
+      - 'javaagent/src/**'
+      - 'javaagent/*gradle*'
   pull_request:
     branches: [ main ]
     paths:
-      - '**/src/**'
-      - '**/*gradle*'
+      - 'javaagent/src/**'
+      - 'javaagent/*gradle*'
 
   workflow_dispatch:
     inputs:

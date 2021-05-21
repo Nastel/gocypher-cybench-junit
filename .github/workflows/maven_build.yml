@@ -7,13 +7,13 @@ on:
   push:
     branches: [ main ]
     paths:
-      - '**/src/**'
-      - '**/pom.xml'
+      - 'annProcessor/src/**'
+      - 'annProcessor/pom.xml'
   pull_request:
     branches: [ main ]
     paths:
-      - '**/src/**'
-      - '**/pom.xml'
+      - 'annProcessor/src/**'
+      - 'annProcessor/pom.xml'
 
   workflow_dispatch:
     inputs:
