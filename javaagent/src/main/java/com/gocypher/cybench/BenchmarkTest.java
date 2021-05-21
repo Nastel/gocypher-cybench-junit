@@ -33,30 +33,25 @@ import javassist.CtMethod;
 
 public class BenchmarkTest {
 
-    private static final String WORK_DIR = "prod";
-    private static final String TEST_DIR = "build" + File.separator + "classes" + File.separator + "java"
-            + File.separator + "test";
-    private static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    private static final String JMH_CORE_JAR = "/lib/jmh-core-1.31.jar";
-    private static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
-    private static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
+    static final String WORK_DIR = "prod";
+    static final String TEST_DIR = "build" + File.separator + "classes" + File.separator + "java"
+    + File.separator + "test";
+    static final String FORKED_PROCESS_MARKER = "jmh.forked";
+    static final String JMH_CORE_JAR = "/lib/jmh-core-1.31.jar";
+    static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
+    static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
 
-    private static final int NUMBER_OF_FORKS = 1;
-    private static final int NUMBER_OF_WARMUPS = 0;
-    private static final int NUMBER_OF_MEASUREMENTS = 1;
-    private static final Mode BENCHMARK_MODE = Mode.All;
-    private static final Class<? extends Annotation> BENCHMARK_ANNOTATION = Test.class;
-    private static final Class<? extends Annotation> BENCHMARK_ANNOTATION2 = org.junit.Test.class;
+    static final int NUMBER_OF_FORKS = 1;
+    static final int NUMBER_OF_WARMUPS = 0;
+    static final int NUMBER_OF_MEASUREMENTS = 1;
+    static final Mode BENCHMARK_MODE = Mode.All;
+    static final Class BENCHMARK_ANNOTATION = Test.class;
+    static final Class BENCHMARK_ANNOTATION2 = org.junit.Test.class;
     private static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
 
-    private static String BENCHMARK_GENERATOR_CLASS = "org.openjdk.jmh.generators.core.BenchmarkGenerator";
-    private static String BENCHMARK_LIST_CLASS = "org.openjdk.jmh.runner.BenchmarkList";
-    private static String COMPILER_HINTS_CLASS = "org.openjdk.jmh.runner.CompilerHints";
 
     // The code to put into the JMH methods - call ME and then return MY replacements
-    private static String TAKE_FAKE_ANNOTATIONS = "Object value=com.gocypher.cybench.BenchmarkTest.buildFakeAnnotatedSet();return value;";
-    private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=com.gocypher.cybench.BenchmarkTest.getMyBenchmarkList();return value;";
-    private static String TAKE_FAKE_COMPILER_HINTS = "Object value=com.gocypher.cybench.BenchmarkTest.getMyCompilerHints();return value;";
+
 
     public static void main(String[] args) throws Exception {
         BenchmarkTest benchmarkTest = new BenchmarkTest();
@@ -170,79 +165,6 @@ public class BenchmarkTest {
 
     public static CompilerHints getMyCompilerHints() {
         return CompilerHints.fromFile(MY_COMPILER_HINTS);
-    }
-
-    public static class BenchmarkTestAgent {
-
-        static Instrumentation instrumentation;
-
-        public static void premain(String agentArgs, Instrumentation inst) {
-            try {
-                // It's the Runner...skip the agent
-                if (System.getProperty(BenchmarkTest.FORKED_PROCESS_MARKER) != null) {
-                    return;
-                }
-                instrumentation = inst;
-                BenchmarkTest.log("Agent Premain called...");
-                JarFile jarFile = new JarFile(BenchmarkTest.WORK_DIR + BenchmarkTest.JMH_CORE_JAR);
-                byte[] benchmarkListBytes = getJMHBytesForClass(jarFile,
-                        BenchmarkTest.BENCHMARK_LIST_CLASS.replace(".", "/") + ".class");
-                byte[] compilerHintsBytes = getJMHBytesForClass(jarFile,
-                        BenchmarkTest.COMPILER_HINTS_CLASS.replace(".", "/") + ".class");
-                byte[] benchmarkGeneratorBytes = getJMHBytesForClass(jarFile,
-                        BenchmarkTest.BENCHMARK_GENERATOR_CLASS.replace(".", "/") + ".class");
-                // Put in code to basically call MY replacement methods and return MY values - instead of JMH
-                replaceCode(BenchmarkTest.BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet",
-                        BenchmarkTest.TAKE_FAKE_ANNOTATIONS, benchmarkGeneratorBytes);
-                replaceCode(BenchmarkTest.BENCHMARK_LIST_CLASS, "defaultList", BenchmarkTest.TAKE_FAKE_BENCHMARK_LIST,
-                        benchmarkListBytes);
-                replaceCode(BenchmarkTest.COMPILER_HINTS_CLASS, "defaultList", BenchmarkTest.TAKE_FAKE_COMPILER_HINTS,
-                        compilerHintsBytes);
-            } catch (Exception e) {
-                e.printStackTrace();
-                BenchmarkTest.log("Error: " + e);
-            }
-        }
-
-        static void replaceCode(String className, String methodName, String code, byte[] bytes) {
-            try {
-                ClassPool pool = ClassPool.getDefault(); // Edited to simplify
-                pool.insertClassPath(new ByteArrayClassPath(className, bytes));
-                CtClass ctClass = pool.get(className);
-                CtMethod[] methods = ctClass.getDeclaredMethods(methodName);
-                methods[0].insertBefore(code);
-                ClassDefinition definition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
-                instrumentation.redefineClasses(definition);
-                BenchmarkTest.log("Modified " + className + "." + methodName);
-            } catch (Throwable t) {
-                BenchmarkTest.log("Could not create the class creation: " + t);
-            }
-        }
-
-        static byte[] getJMHBytesForClass(JarFile jarFile, String className) throws IOException {
-            JarEntry entry = jarFile.getJarEntry(className);
-            return streamToByteArray(jarFile.getInputStream(entry));
-        }
-
-        static byte[] streamToByteArray(InputStream stream) throws IOException {
-            try {
-                byte[] buffer = new byte[1024];
-                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                    int line = 0;
-                    // read bytes from stream, and store them in buffer
-                    while ((line = stream.read(buffer)) != -1) {
-                        // Writes bytes from byte array (buffer) into output stream.
-                        os.write(buffer, 0, line);
-                    }
-
-                    os.flush();
-
-                    return os.toByteArray();
-                }
-            } finally {
-                stream.close();
-            }
-        }
     }
 
     static void log(String msg) {
