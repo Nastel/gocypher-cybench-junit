@@ -1,18 +1,11 @@
 package com.gocypher.cybench;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.lang.instrument.ClassDefinition;
-import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.generators.core.*;
@@ -26,16 +19,11 @@ import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 import org.testng.annotations.Test;
 
-import javassist.ByteArrayClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-
 public class BenchmarkTest {
 
     static final String WORK_DIR = "prod";
-    static final String TEST_DIR = "build" + File.separator + "classes" + File.separator + "java"
-    + File.separator + "test";
+    static final String TEST_DIR = "build" + File.separator + "classes" + File.separator + "java" + File.separator
+            + "test";
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
     static final String JMH_CORE_JAR = "/lib/jmh-core-1.31.jar";
     static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
@@ -45,13 +33,11 @@ public class BenchmarkTest {
     static final int NUMBER_OF_WARMUPS = 0;
     static final int NUMBER_OF_MEASUREMENTS = 1;
     static final Mode BENCHMARK_MODE = Mode.All;
-    static final Class BENCHMARK_ANNOTATION = Test.class;
-    static final Class BENCHMARK_ANNOTATION2 = org.junit.Test.class;
-    private static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
-
+    static final Class<? extends Annotation> BENCHMARK_ANNOTATION = Test.class;
+    static final Class<? extends Annotation> BENCHMARK_ANNOTATION2 = org.junit.Test.class;
+    static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
 
     // The code to put into the JMH methods - call ME and then return MY replacements
-
 
     public static void main(String[] args) throws Exception {
         BenchmarkTest benchmarkTest = new BenchmarkTest();
@@ -95,7 +81,7 @@ public class BenchmarkTest {
             benchmarkClassList = new ArrayList<>();
             Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(new File(BenchmarkTest.TEST_DIR));
             for (File classFile : includeClassFiles) {
-                Class clazz = null;
+                Class<?> clazz = null;
                 try {
                     String path = classFile.getAbsolutePath();
                     int index = path.indexOf(BenchmarkTest.TEST_DIR);
@@ -106,7 +92,7 @@ public class BenchmarkTest {
                 } catch (Throwable t) {
                     BenchmarkTest.log("ERROR: Cant get class: " + t);
                 }
-                benchmarkClassList.add((ClassInfo) new MyClassInfo(clazz));
+                benchmarkClassList.add(new MyClassInfo(clazz));
             }
             return benchmarkClassList;
         }

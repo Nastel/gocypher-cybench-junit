@@ -20,7 +20,7 @@ public abstract class CompileProcess {
         log(command + " exitValue() " + pro.exitValue());
     }
 
-    void printLines(String cmd, InputStream ins) throws Exception {
+    static void printLines(String cmd, InputStream ins) throws Exception {
         String line;
         BufferedReader in = new BufferedReader(new InputStreamReader(ins));
         while ((line = in.readLine()) != null) {
