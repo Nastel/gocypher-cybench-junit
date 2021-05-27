@@ -17,7 +17,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
-import org.testng.annotations.Test;
 
 public class BenchmarkTest {
 
@@ -136,7 +135,7 @@ public class BenchmarkTest {
             Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
 
             if (!testDir.exists()) {
-                BenchmarkTest.log ("NO TEST DIR" + testDir.getAbsolutePath());
+                BenchmarkTest.log("NO TEST DIR" + testDir.getAbsolutePath());
             }
             for (File classFile : includeClassFiles) {
                 Class<?> clazz = null;
