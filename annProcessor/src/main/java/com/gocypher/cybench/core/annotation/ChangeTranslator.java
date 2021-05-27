@@ -47,7 +47,8 @@ public class ChangeTranslator extends TreeTranslator {
     private boolean containsTest(JCTree.JCClassDecl jcClassDecl) {
         return jcClassDecl.getMembers().stream().filter(e -> e.getKind() == Tree.Kind.METHOD)
                 .map(m -> (JCTree.JCMethodDecl) m).anyMatch(m -> containsAnnotation(m.getModifiers(),
-                        org.junit.Test.class, org.junit.jupiter.api.Test.class)); // FIXME please
+                        org.testng.annotations.Test.class, org.junit.Test.class, org.junit.jupiter.api.Test.class)); // FIXME
+                                                                                                                     // please
     }
 
     private boolean notContainBenchmark(JCTree.JCClassDecl jcClassDecl) {

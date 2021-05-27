@@ -31,7 +31,7 @@ public class BenchmarkTest {
     static final int NUMBER_OF_WARMUPS = 0;
     static final int NUMBER_OF_MEASUREMENTS = 1;
     static final Mode BENCHMARK_MODE = Mode.All;
-    static final Class<? extends Annotation> BENCHMARK_ANNOTATION = Test.class;
+    static final Class<? extends Annotation> BENCHMARK_ANNOTATION = org.testng.annotations.Test.class;
     static final Class<? extends Annotation> BENCHMARK_ANNOTATION2 = org.junit.Test.class;
     static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
 

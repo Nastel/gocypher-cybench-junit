@@ -1,6 +1,8 @@
 
 package com.company;
 
+import org.testng.annotations.Test;
+
 public class CompanyTest {
 
     @Test

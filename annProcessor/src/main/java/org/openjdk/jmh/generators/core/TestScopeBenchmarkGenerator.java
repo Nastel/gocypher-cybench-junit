@@ -176,7 +176,8 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
                 continue;
             }
             for (MethodInfo mi : currentClass.getMethods()) {
-                Annotation ann = getAnnotation(mi, org.junit.Test.class, org.junit.jupiter.api.Test.class);
+                Annotation ann = getAnnotation(mi, org.testng.annotations.Test.class, org.junit.Test.class,
+                        org.junit.jupiter.api.Test.class);
                 if (ann != null) {
                     result.put(currentClass, mi);
                 }

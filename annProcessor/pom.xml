@@ -71,6 +71,11 @@
             <version>${jmh.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>
