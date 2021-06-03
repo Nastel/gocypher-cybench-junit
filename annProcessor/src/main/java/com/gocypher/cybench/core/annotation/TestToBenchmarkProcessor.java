@@ -27,7 +27,7 @@ import com.sun.source.util.Trees;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.TreeMaker;
 
-@SupportedAnnotationTypes({ "org.junit.Test", "org.junit.jupiter.api.Test" })
+@SupportedAnnotationTypes({ "org.junit.Test", "org.junit.jupiter.api.Test", "org.testng.annotations.Test" })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class TestToBenchmarkProcessor extends AbstractProcessor {

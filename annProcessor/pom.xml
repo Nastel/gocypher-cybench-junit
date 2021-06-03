@@ -28,7 +28,16 @@
     <version>1.0</version>
 
     <properties>
-        <javac.target>1.8</javac.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.resources.encoding>UTF-8</project.resources.encoding>
+        <project.java.version>1.8</project.java.version>
+        <java.source.version>${project.java.version}</java.source.version>
+        <java.target.version>${project.java.version}</java.target.version>
+        <java.compiler.version>${project.java.version}</java.compiler.version>
+        <java.compiler.debuglevel>source,lines,vars</java.compiler.debuglevel>
+        <java.compiler.verbose>false</java.compiler.verbose>
+
         <jmh.version>1.31</jmh.version>
     </properties>
 
@@ -43,11 +52,6 @@
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
             <version>3.22.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.olivergondza</groupId>
-            <artifactId>maven-jdk-tools-wrapper</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -78,22 +82,101 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>java9-plus</id>
+            <activation>
+                <jdk>[9.0,)</jdk>
+            </activation>
+            <properties>
+                <project.java.version>${java.specification.version}</project.java.version>
+                <java.source.version>${project.java.version}</java.source.version>
+                <java.target.version>${project.java.version}</java.target.version>
+                <java.compiler.version>${project.java.version}</java.compiler.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <configuration>
+                            <verbose>${java.compiler.verbose}</verbose>
+                            <compilerVersion>${java.compiler.version}</compilerVersion>
+                            <source>${java.source.version}</source>
+                            <target>${java.target.version}</target>
+                            <debuglevel>${java.compiler.debuglevel}</debuglevel>
+                            <compilerArgs>
+                                <arg>--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                                <arg>--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                                <arg>--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                                <arg>--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                                <arg>--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                                <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                                <arg>--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                                <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                                <arg>--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                                <arg>--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.launcher=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.launcher=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.platform=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.platform=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>-->
+                                <!--                                <arg>&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>-->
+                            </compilerArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>up-to-java9</id>
+            <activation>
+                <jdk>(,9.0)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>${project.java.version}</version>
+                    <scope>system</scope>
+                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <build>
         <defaultGoal>clean install</defaultGoal>
 
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <compilerVersion>${javac.target}</compilerVersion>
-                    <source>${javac.target}</source>
-                    <target>${javac.target}</target>
+                    <verbose>${java.compiler.verbose}</verbose>
+                    <compilerVersion>${java.compiler.version}</compilerVersion>
+                    <source>${java.source.version}</source>
+                    <target>${java.target.version}</target>
+                    <debuglevel>${java.compiler.debuglevel}</debuglevel>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
