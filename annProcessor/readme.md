@@ -23,6 +23,8 @@ Setup compiler to run AnnotationProcessors selected
                         </annotationProcessors>
                     </configuration>
                 </plugin>
+            </plugins>
+        </pluginManagement>
 ```
 Setup Maven to append test sources to compile:
 ```
@@ -45,6 +47,7 @@ Setup Maven to append test sources to compile:
                     </execution>
                 </executions>
             </plugin>
+        </plugins>
 ```
 NB!
 Add java property -DgenerateBenchmarkFromTest=true on compile
