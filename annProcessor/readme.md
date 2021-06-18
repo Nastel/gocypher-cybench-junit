@@ -1,16 +1,16 @@
 To setup Maven, you need to:
 
 Add Cybench Maven dependencies
-<..>
+```
         <dependency>
             <groupId>com.gocypher.cybench</groupId>
             <artifactId>gocypher-cybench-t2b-annotations</artifactId>
             <version>1.0</version>
         </dependency>
 
-<..>
+```
 Setup compiler to run AnnotationProcessors selected
-<..>
+```
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -23,9 +23,9 @@ Setup compiler to run AnnotationProcessors selected
                         </annotationProcessors>
                     </configuration>
                 </plugin>
-<..>
+```
 Setup Maven to append test sources to compile:
-<..>
+```
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -45,7 +45,6 @@ Setup Maven to append test sources to compile:
                     </execution>
                 </executions>
             </plugin>
-<..>
-
+```
 NB!
 Add java property -DgenerateBenchmarkFromTest=true on compile
