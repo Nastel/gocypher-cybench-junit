@@ -17,13 +17,11 @@ Setup compiler to run AnnotationProcessors selected
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
-
                         <annotationProcessors>
                             <annotationProcessor>org.openjdk.jmh.generators.BenchmarkProcessor</annotationProcessor>
                             <annotationProcessor>com.gocypher.cybench.core.annotation.TestToBenchmarkProcessor</annotationProcessor>
                         </annotationProcessors>
                     </configuration>
-
                 </plugin>
 <..>
 Setup Maven to append test sources to compile:
