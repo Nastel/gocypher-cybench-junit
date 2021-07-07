@@ -37,7 +37,7 @@ public class BenchmarkTestAgent {
                 return;
             }
             instrumentation = inst;
-            BenchmarkTest.log("Agent Premain called...");
+            BenchmarkTest.log("Test2Benchmark Agent Premain called...");
 
             Class<?> klass = Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
@@ -58,8 +58,8 @@ public class BenchmarkTestAgent {
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
             replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_FAKE_COMPILER_HINTS, compilerHintsBytes);
         } catch (Exception e) {
+            BenchmarkTest.err("ERROR: failed to initialize agent, exc: " + e);
             e.printStackTrace();
-            BenchmarkTest.log("Error: " + e);
         }
     }
 
@@ -74,7 +74,7 @@ public class BenchmarkTestAgent {
             instrumentation.redefineClasses(definition);
             BenchmarkTest.log("Modified " + className + "." + methodName);
         } catch (Throwable t) {
-            BenchmarkTest.log("Could not create the class creation: " + t);
+            BenchmarkTest.log("Could not modify class method: " + className + "." + methodName + ", exc: " + t);
         }
     }
 

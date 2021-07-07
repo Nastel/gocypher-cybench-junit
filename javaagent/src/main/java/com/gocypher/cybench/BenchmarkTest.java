@@ -82,7 +82,7 @@ public class BenchmarkTest {
     Collection<ClassInfo> benchmarkClassList;
 
     public static void main(String[] args) throws Exception {
-        log("Main started");
+        log("Starting Test2Benchmark transformer app...");
         BenchmarkTest benchmarkTest = new BenchmarkTest();
         benchmarkTest.init();
     }
@@ -217,7 +217,7 @@ public class BenchmarkTest {
             testDir = testDir.getAbsoluteFile();
 
             if (!testDir.exists()) {
-                BenchmarkTest.log("NO TEST DIR" + testDir);
+                BenchmarkTest.err("ERROR: test dir does not exist: " + testDir);
             } else {
                 Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
                 for (File classFile : includeClassFiles) {
@@ -232,7 +232,7 @@ public class BenchmarkTest {
                         clazz = Class.forName(className);
                         BenchmarkTest.log("Class: " + clazz);
                     } catch (Throwable t) {
-                        BenchmarkTest.log("ERROR: Can't get class: " + t);
+                        BenchmarkTest.err("ERROR: Can't get class: " + t);
                     }
                     benchmarkClassList.add(new MyClassInfo(clazz));
                 }

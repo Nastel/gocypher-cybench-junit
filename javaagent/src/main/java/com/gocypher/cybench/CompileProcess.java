@@ -1,7 +1,5 @@
 package com.gocypher.cybench;
 
-import static com.gocypher.cybench.BenchmarkTest.log;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -21,18 +19,18 @@ public abstract class CompileProcess {
         String line;
         BufferedReader in = new BufferedReader(new InputStreamReader(ins));
         while ((line = in.readLine()) != null) {
-            log(cmd + " " + line);
+            BenchmarkTest.log(cmd + " " + line);
         }
     }
 
     static void runProcess(String command) throws Exception {
         int cmdId = command.hashCode();
-        log(">" + cmdId + "> Running command: " + command);
+        BenchmarkTest.log(">" + cmdId + "> Running command: " + command);
         Process pro = Runtime.getRuntime().exec(command);
         printLines(">" + cmdId + "> >> stdout:", pro.getInputStream());
         printLines(">" + cmdId + "> >> stderr:", pro.getErrorStream());
         pro.waitFor();
-        log("<" + cmdId + "< exitValue() " + pro.exitValue());
+        BenchmarkTest.log("<" + cmdId + "< exitValue() " + pro.exitValue());
     }
 
     static class WindowsCompileProcess extends CompileProcess {
@@ -61,7 +59,7 @@ public abstract class CompileProcess {
                     CompileProcess.runProcess(COMPILE.replace("<CLASSPATH>", cp) + s);
                     // runProcess(CLEANUP);
                 } catch (Exception e) {
-                    log("Cannot run compile");
+                    BenchmarkTest.err("Cannot run compile");
                     e.printStackTrace();
                 }
             }
@@ -84,7 +82,7 @@ public abstract class CompileProcess {
                             });
                     fos.flush();
                 }
-                log("Created temp sources file: " + f.getAbsolutePath());
+                BenchmarkTest.log("Created temp sources file: " + f.getAbsolutePath());
 
                 return f.getAbsolutePath();
             } catch (IOException e) {
