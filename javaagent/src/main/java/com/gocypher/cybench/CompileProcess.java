@@ -3,6 +3,8 @@ package com.gocypher.cybench;
 import static com.gocypher.cybench.BenchmarkTest.log;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -24,30 +26,44 @@ public abstract class CompileProcess {
     }
 
     static void runProcess(String command) throws Exception {
-        log("Running command: " + command);
+        int cmdId = command.hashCode();
+        log(">" + cmdId + "> Running command: " + command);
         Process pro = Runtime.getRuntime().exec(command);
-        printLines(command + " stdout:", pro.getInputStream());
-        printLines(command + " stderr:", pro.getErrorStream());
+        printLines(">" + cmdId + "> >> stdout:", pro.getInputStream());
+        printLines(">" + cmdId + "> >> stderr:", pro.getErrorStream());
         pro.waitFor();
-        log(command + " exitValue() " + pro.exitValue());
+        log("<" + cmdId + "< exitValue() " + pro.exitValue());
     }
 
     static class WindowsCompileProcess extends CompileProcess {
         static final String COMPILE = "javac -cp <CLASSPATH> @";
 
-        public WindowsCompileProcess() {
+        public WindowsCompileProcess() throws Exception {
             ClassLoader classloader = ClassLoader.getSystemClassLoader();
-            URL[] urls = ((URLClassLoader) classloader).getURLs();
-            String cp = Stream.of(urls).map(u -> u.getPath()).map(s -> s.substring(1)).peek(System.out::println)
-                    .collect(Collectors.joining(System.getProperty("path.separator")));
+            if (classloader != null) {
+                URL[] urls;
+                if (classloader instanceof URLClassLoader) {
+                    urls = ((URLClassLoader) classloader).getURLs();
+                } else {
+                    Class<?> clCls = classloader.getClass();
+                    Field ucpField = clCls.getDeclaredField("ucp");
+                    ucpField.setAccessible(true);
+                    Object ucp = ucpField.get(classloader);
+                    Method getUrlsMethod = ucp.getClass().getDeclaredMethod("getURLs");
+                    getUrlsMethod.setAccessible(true);
+                    urls = (URL[]) getUrlsMethod.invoke(ucp);
+                }
+                String cp = Stream.of(urls).map(u -> u.getPath()).map(s -> s.substring(1)).peek(System.out::println)
+                        .collect(Collectors.joining(System.getProperty("path.separator")));
 
-            try {
-                String s = makeSourcesList();
-                CompileProcess.runProcess(COMPILE.replace("<CLASSPATH>", cp) + s);
-                // runProcess(CLEANUP);
-            } catch (Exception e) {
-                log("Cannot run compile");
-                e.printStackTrace();
+                try {
+                    String s = makeSourcesList();
+                    CompileProcess.runProcess(COMPILE.replace("<CLASSPATH>", cp) + s);
+                    // runProcess(CLEANUP);
+                } catch (Exception e) {
+                    log("Cannot run compile");
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -68,7 +84,7 @@ public abstract class CompileProcess {
                             });
                     fos.flush();
                 }
-                log("Created sources file" + f.getAbsolutePath());
+                log("Created temp sources file: " + f.getAbsolutePath());
 
                 return f.getAbsolutePath();
             } catch (IOException e) {
