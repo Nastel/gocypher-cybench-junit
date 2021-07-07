@@ -21,7 +21,10 @@ import org.openjdk.jmh.util.Multimap;
 public class BenchmarkTest {
 
     static final String WORK_DIR = System.getProperty("buildDir");
-    static final String TEST_DIR = WORK_DIR + File.separator + ".." + File.separator + "test-classes" + File.separator;
+    static final String TEST_DIR = System.getProperty("testDir");
+    static final String TEST_DIR_MVN = WORK_DIR + File.separator + ".." + File.separator + "test-classes"
+            + File.separator;
+    static final String TEST_DIR_GRD = WORK_DIR + File.separator + ".." + File.separator + "test" + File.separator;
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
     static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
     static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
@@ -199,27 +202,40 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            File testDir = new File(BenchmarkTest.TEST_DIR).getAbsoluteFile();
-            Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
+            String testDirPath = BenchmarkTest.TEST_DIR;
+            File testDir;
+            if (testDirPath == null || testDirPath.isEmpty()) {
+                testDirPath = BenchmarkTest.TEST_DIR_MVN;
+                testDir = new File(testDirPath);
+                if (!testDir.exists()) {
+                    testDirPath = BenchmarkTest.TEST_DIR_GRD;
+                    testDir = new File(testDirPath);
+                }
+            } else {
+                testDir = new File(testDirPath);
+            }
+            testDir = testDir.getAbsoluteFile();
 
             if (!testDir.exists()) {
-                BenchmarkTest.log("NO TEST DIR" + testDir.getAbsolutePath());
-            }
-            for (File classFile : includeClassFiles) {
-                Class<?> clazz = null;
-                try {
-                    String path = classFile.getAbsolutePath();
-                    int index = path.indexOf(BenchmarkTest.TEST_DIR);
-                    String className = path.replace(File.separator, ".")
-                            .substring(index + BenchmarkTest.TEST_DIR.length(), path.length() - ".class".length());
-                    // TODO far from bulletproof
+                BenchmarkTest.log("NO TEST DIR" + testDir);
+            } else {
+                Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
+                for (File classFile : includeClassFiles) {
+                    Class<?> clazz = null;
+                    try {
+                        String path = classFile.getAbsolutePath();
+                        int index = path.indexOf(testDirPath);
+                        String className = path.replace(File.separator, ".").substring(index + testDirPath.length(),
+                                path.length() - ".class".length());
+                        // TODO far from bulletproof
 
-                    clazz = Class.forName(className);
-                    BenchmarkTest.log("Class: " + clazz);
-                } catch (Throwable t) {
-                    BenchmarkTest.log("ERROR: Can't get class: " + t);
+                        clazz = Class.forName(className);
+                        BenchmarkTest.log("Class: " + clazz);
+                    } catch (Throwable t) {
+                        BenchmarkTest.log("ERROR: Can't get class: " + t);
+                    }
+                    benchmarkClassList.add(new MyClassInfo(clazz));
                 }
-                benchmarkClassList.add(new MyClassInfo(clazz));
             }
             return benchmarkClassList;
         }
