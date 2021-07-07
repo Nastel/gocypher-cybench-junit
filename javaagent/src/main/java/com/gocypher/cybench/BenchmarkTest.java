@@ -21,8 +21,7 @@ import org.openjdk.jmh.util.Multimap;
 public class BenchmarkTest {
 
     static final String WORK_DIR = System.getProperty("buildDir");
-    static final String TEST_DIR = System.getProperty("buildDir") + File.separator + ".." + File.separator
-            + "test-classes" + File.separator;
+    static final String TEST_DIR = WORK_DIR + File.separator + ".." + File.separator + "test-classes" + File.separator;
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
     static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
     static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
@@ -31,9 +30,49 @@ public class BenchmarkTest {
     static final int NUMBER_OF_WARMUPS = 0;
     static final int NUMBER_OF_MEASUREMENTS = 1;
     static final Mode BENCHMARK_MODE = Mode.All;
-    static final Class<? extends Annotation> BENCHMARK_ANNOTATION = org.testng.annotations.Test.class;
-    static final Class<? extends Annotation> BENCHMARK_ANNOTATION2 = org.junit.Test.class;
-    static final Class<? extends Annotation> BENCHMARK_ANNOTATION3 = org.junit.jupiter.api.Test.class;
+
+    private static AnnotationCondition ANN_COND_JU = new AnnotationCondition(org.junit.Test.class,
+            org.junit.Ignore.class) {
+
+        @Override
+        public MethodState isAnnotationSkippable(Annotation ann) {
+            org.junit.Test tAnn = (org.junit.Test) ann;
+            if (tAnn.expected() != org.junit.Test.None.class) {
+                return MethodState.EXCEPTION_EXPECTED;
+            }
+            return MethodState.VALID;
+        }
+    };
+    private static AnnotationCondition ANN_COND_JU5 = new AnnotationCondition(org.junit.jupiter.api.Test.class,
+            org.junit.jupiter.api.Disabled.class) {
+
+        @Override
+        public MethodState isAnnotationSkippable(Annotation ann) {
+            return MethodState.VALID;
+        }
+    };
+    private static AnnotationCondition ANN_COND_NG = new AnnotationCondition(org.testng.annotations.Test.class,
+            org.testng.annotations.Ignore.class) {
+
+        @Override
+        public MethodState isAnnotationSkippable(Annotation ann) {
+            org.testng.annotations.Test tAnn = (org.testng.annotations.Test) ann;
+            if (!tAnn.enabled()) {
+                return MethodState.DISABLED;
+            }
+            if (tAnn.expectedExceptions().length > 0) {
+                return MethodState.EXCEPTION_EXPECTED;
+            }
+
+            return MethodState.VALID;
+        }
+    };
+
+    public static final AnnotationCondition[] BENCHMARK_ANNOTATIONS = new AnnotationCondition[] { //
+            ANN_COND_NG//
+            , ANN_COND_JU //
+            , ANN_COND_JU5 //
+    };
 
     // The code to put into the JMH methods - call ME and then return MY replacements
     private static MyGeneratorSource myGeneratorSource;
@@ -52,7 +91,6 @@ public class BenchmarkTest {
         }
         for (File entry : dir.listFiles()) {
             if (entry.isFile()) {
-
                 if (entry.getName().endsWith(".class")) {
                     fileTree.add(entry);
                 }
@@ -65,20 +103,36 @@ public class BenchmarkTest {
 
     public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
         Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
-        for (ClassInfo currentClass : myGeneratorSource.getClasses()) {
-            if (currentClass.isAbstract()) {
+        for (ClassInfo classInfo : myGeneratorSource.getClasses()) {
+            if (classInfo.isAbstract()) {
                 continue;
             }
-            for (MethodInfo mi : currentClass.getMethods()) {
-                Annotation ann = mi.getAnnotation(BENCHMARK_ANNOTATION);
-                Annotation ann2 = mi.getAnnotation(BENCHMARK_ANNOTATION2);
-                Annotation ann3 = mi.getAnnotation(BENCHMARK_ANNOTATION3);
-                if (ann != null || ann2 != null || ann3 != null) {
-                    result.put(currentClass, mi);
+
+            for (MethodInfo methodInfo : classInfo.getMethods()) {
+                AnnotationCondition.MethodState testValid = isValidTest(methodInfo, BENCHMARK_ANNOTATIONS);
+                if (testValid == AnnotationCondition.MethodState.VALID) {
+                    result.put(classInfo, methodInfo);
+                } else if (testValid != AnnotationCondition.MethodState.NOT_TEST) {
+                    log("SKIPPING: " + methodInfo.getQualifiedName() + ", REASON: " + testValid.name());
                 }
             }
         }
         return result;
+    }
+
+    private static AnnotationCondition.MethodState isValidTest(MethodInfo mi, AnnotationCondition... aConds) {
+        if (aConds != null) {
+            for (AnnotationCondition aCond : aConds) {
+                AnnotationCondition.MethodState ms = aCond.isValid(mi);
+                if (ms == AnnotationCondition.MethodState.NOT_TEST) {
+                    continue;
+                } else {
+                    return ms;
+                }
+            }
+        }
+
+        return AnnotationCondition.MethodState.NOT_TEST;
     }
 
     public static BenchmarkList getMyBenchmarkList() {
@@ -98,6 +152,10 @@ public class BenchmarkTest {
         System.out.println(msg);
     }
 
+    static void err(String msg) {
+        System.err.println(msg);
+    }
+
     private void init() throws Exception {
         // http://javadox.com/org.openjdk.jmh/jmh-core/1.31/org/openjdk/jmh/runner/options/OptionsBuilder.html
         Options opt = new OptionsBuilder()
@@ -105,7 +163,6 @@ public class BenchmarkTest {
                 .jvmArgsPrepend("-D" + FORKED_PROCESS_MARKER + "=true")
                 .warmupIterations(NUMBER_OF_WARMUPS)
                 .mode(BENCHMARK_MODE)
-                .forks(NUMBER_OF_FORKS)
                 .forks(NUMBER_OF_FORKS)
                 .measurementIterations(NUMBER_OF_MEASUREMENTS)
                 .build();
@@ -121,6 +178,17 @@ public class BenchmarkTest {
         myGeneratorSource = new MyGeneratorSource();
         gen.generate(myGeneratorSource, dst);
         gen.complete(myGeneratorSource, dst);
+
+        if (dst.hasErrors()) {
+            for (SourceError se : dst.getErrors()) {
+                err("ERROR: " + se.toString());
+            }
+        }
+        if (dst.hasWarnings()) {
+            for (SourceWarning sw : dst.getWarnings()) {
+                log("WARNING: " + sw.toString());
+            }
+        }
     }
 
     class MyGeneratorSource implements GeneratorSource {
@@ -149,7 +217,7 @@ public class BenchmarkTest {
                     clazz = Class.forName(className);
                     BenchmarkTest.log("Class: " + clazz);
                 } catch (Throwable t) {
-                    BenchmarkTest.log("ERROR: Cant get class: " + t);
+                    BenchmarkTest.log("ERROR: Can't get class: " + t);
                 }
                 benchmarkClassList.add(new MyClassInfo(clazz));
             }
