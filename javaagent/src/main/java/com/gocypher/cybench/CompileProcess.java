@@ -53,7 +53,7 @@ public abstract class CompileProcess {
             try {
                 PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.java");
                 File f = File.createTempFile("sourcesList", "");
-                // f.deleteOnExit();
+                f.deleteOnExit();
                 try (FileOutputStream fos = new FileOutputStream(f)) {
                     Files.walk(Paths.get(BenchmarkTest.BENCH_DIR)).filter(fw -> matcher.matches(fw))
                             .filter(Files::isRegularFile).forEach(fw -> {

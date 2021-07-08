@@ -34,6 +34,8 @@
             <arguments combine.self="override">
                 <argument>-javaagent:${com.gocypher:testToBenchmarkAgent:jar}</argument>
                 <argument>-DbuildDir=${project.build.outputDirectory}</argument>
+                <!--<argument>-DtestDir=${project.build.testOutputDirectory}</argument>-->
+                <!--<argument>-DbenchDir=${project.build.directory}/t2b</argument>-->
                 <argument>-cp</argument>
                 <classpath/>
                 <argument>com.gocypher.cybench.BenchmarkTest</argument>
@@ -52,8 +54,18 @@ mvn initialize test-compile exec:exec
 
 ## DEVNotes (a.k.a TODO)
 
-* delete temp file for `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:57
+* (DONE) delete temp file for `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:57
 * (DONE) set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:46
+* Simplify class path definition by automatically adding app/test/benchmark classes
+* Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
+* Make gradle plugin
+* Make maven plugin  
+* (KNOWN BUG) If test class has methods having same name just different casing, on Windows it creates file and class having different casing and benchmarks 
+compile fails with:
+  ```
+  class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
+  ```
+  On linux it shall be OK, since files are case sensitive. 
 
 ```cmd
 mvndebug initialize test-compile exec:exec 
