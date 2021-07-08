@@ -29,37 +29,44 @@ import javassist.bytecode.annotation.EnumMemberValue;
 
 public class BenchmarkTest {
 
-    static final String WORK_DIR = System.getProperty("buildDir");
-    static final String TEST_DIR = System.getProperty("testDir");
-    static String APP_TEST_DIR;
+    static final String WORK_DIR_ARG = System.getProperty("buildDir");
+    static final String TEST_DIR_ARG = System.getProperty("testDir");
+    static final String BENCH_DIR_ARG = System.getProperty("benchDir");
+    static String TEST_DIR;
     static {
-        if (TEST_DIR == null || TEST_DIR.isEmpty()) {
+        if (TEST_DIR_ARG == null || TEST_DIR_ARG.isEmpty()) {
             // Maven layout
-            File testDirMvn = new File(WORK_DIR + "/test-classes");
+            File testDirMvn = new File(WORK_DIR_ARG + "/test-classes");
             if (testDirMvn.exists()) {
-                APP_TEST_DIR = testDirMvn.getAbsolutePath();
+                TEST_DIR = testDirMvn.getAbsolutePath();
             } else {
                 // Gradle layout
-                File testDirGrd = new File(WORK_DIR + "/classes/java/test");
+                File testDirGrd = new File(WORK_DIR_ARG + "/classes/java/test");
                 if (testDirMvn.exists()) {
-                    APP_TEST_DIR = testDirGrd.getAbsolutePath();
+                    TEST_DIR = testDirGrd.getAbsolutePath();
                 } else {
                     // Use build dir
-                    APP_TEST_DIR = WORK_DIR;
+                    TEST_DIR = WORK_DIR_ARG;
                 }
             }
         } else {
-            APP_TEST_DIR = TEST_DIR;
+            TEST_DIR = TEST_DIR_ARG;
         }
 
-        log("*** Setting Test Classes dir to use: " + new File(APP_TEST_DIR).getAbsolutePath());
+        log("*** Setting Test Classes dir to use: " + new File(TEST_DIR).getAbsolutePath());
     }
-    static String BENCHMARK_DIR = APP_TEST_DIR + "/../t2b";
+    static String BENCH_DIR;
     static {
-        File benchDir = new File(BENCHMARK_DIR);
+        if (BENCH_DIR_ARG == null || BENCH_DIR_ARG.isEmpty()) {
+            BENCH_DIR = TEST_DIR + "/../t2b";
+        } else {
+            BENCH_DIR = BENCH_DIR_ARG;
+        }
+        File benchDir = new File(BENCH_DIR);
+        log("*** Setting Benchmarks dir to use: " + benchDir.getAbsolutePath());
         if (benchDir.exists()) {
-            log("*** Removing existing benchmarks dir: " + benchDir.getAbsolutePath());
             try {
+                log("*** Removing existing benchmarks dir: " + benchDir.getCanonicalPath());
                 Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             } catch (Exception exc) {
                 err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
@@ -69,8 +76,8 @@ public class BenchmarkTest {
 
     static final String NEW_CLASS_NAME_SUFIX = "_JMH_State";
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    static final String MY_BENCHMARK_LIST = BENCHMARK_DIR + "/META-INF/BenchmarkList";
-    static final String MY_COMPILER_HINTS = BENCHMARK_DIR + "/META-INF/CompilerHints";
+    static final String MY_BENCHMARK_LIST = BENCH_DIR + "/META-INF/BenchmarkList";
+    static final String MY_COMPILER_HINTS = BENCH_DIR + "/META-INF/CompilerHints";
 
     static final int NUMBER_OF_FORKS = 1;
     static final int NUMBER_OF_WARMUPS = 0;
@@ -263,7 +270,7 @@ public class BenchmarkTest {
         annotationsAttribute.setAnnotation(annotation);
 
         classFile.addAttribute(annotationsAttribute);
-        ctClass.writeFile(new File(BENCHMARK_DIR).getCanonicalPath());
+        ctClass.writeFile(new File(BENCH_DIR).getCanonicalPath());
         return ctClass.toClass();
     }
 
@@ -319,7 +326,7 @@ public class BenchmarkTest {
     }
 
     private void generateBenchmarkList() throws Exception {
-        File prodF = new File(BENCHMARK_DIR);
+        File prodF = new File(BENCH_DIR);
         FileSystemDestination dst = new FileSystemDestination(prodF, prodF);
         BenchmarkGenerator gen = new BenchmarkGenerator();
         myGeneratorSource = new MyGeneratorSource();
@@ -346,7 +353,7 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            File testDir = new File(BenchmarkTest.APP_TEST_DIR).getAbsoluteFile();
+            File testDir = new File(BenchmarkTest.TEST_DIR).getAbsoluteFile();
             String testDirPath = testDir.getPath();
             if (!testDirPath.endsWith(File.separator)) {
                 testDirPath += File.separator;
