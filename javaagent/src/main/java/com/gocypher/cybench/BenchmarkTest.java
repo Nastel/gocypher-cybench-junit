@@ -2,12 +2,15 @@ package com.gocypher.cybench;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.generators.core.*;
 import org.openjdk.jmh.generators.reflection.MyClassInfo;
 import org.openjdk.jmh.runner.BenchmarkList;
@@ -18,6 +21,13 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.annotation.EnumMemberValue;
+
 public class BenchmarkTest {
 
     static final String WORK_DIR = System.getProperty("buildDir");
@@ -25,9 +35,24 @@ public class BenchmarkTest {
     static final String TEST_DIR_MVN = WORK_DIR + File.separator + ".." + File.separator + "test-classes"
             + File.separator;
     static final String TEST_DIR_GRD = WORK_DIR + File.separator + ".." + File.separator + "test" + File.separator;
+    static String APP_TEST_DIR;
+    static {
+        if (TEST_DIR == null || TEST_DIR.isEmpty()) {
+            File testDir = new File(TEST_DIR_MVN);
+            if (testDir.exists()) {
+                APP_TEST_DIR = TEST_DIR_MVN;
+            } else {
+                APP_TEST_DIR = TEST_DIR_GRD;
+            }
+        } else {
+            APP_TEST_DIR = TEST_DIR;
+        }
+    }
+
+    static final String NEW_CLASS_NAME_SUFIX = "_JMH_State";
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    static final String MY_BENCHMARK_LIST = WORK_DIR + "/META-INF/BenchmarkList";
-    static final String MY_COMPILER_HINTS = WORK_DIR + "/META-INF/CompilerHints";
+    static final String MY_BENCHMARK_LIST = APP_TEST_DIR + "/META-INF/BenchmarkList";
+    static final String MY_COMPILER_HINTS = APP_TEST_DIR + "/META-INF/CompilerHints";
 
     static final int NUMBER_OF_FORKS = 1;
     static final int NUMBER_OF_WARMUPS = 0;
@@ -106,9 +131,37 @@ public class BenchmarkTest {
 
     public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
         Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
-        for (ClassInfo classInfo : myGeneratorSource.getClasses()) {
+        Collection<ClassInfo> testClasses = myGeneratorSource.getClasses();
+        log("Starting Test Classes Analysis: >>>>>>>>>>>>>>>>>>>>");
+        for (ClassInfo classInfo : testClasses) {
             if (classInfo.isAbstract()) {
                 continue;
+            }
+
+            boolean hasNonStaticFields = false;
+            for (FieldInfo fieldInfo : getAllFields(classInfo)) {
+                if (!fieldInfo.isStatic()) {
+                    hasNonStaticFields = true;
+                    break;
+                }
+            }
+
+            if (hasNonStaticFields) {
+                Annotation stateAnnotation = classInfo.getAnnotation(State.class);
+                if (stateAnnotation == null) {
+                    String clsName = getClassName(classInfo);
+                    String statedClassName = getStatedClassName(clsName);
+                    Class<?> annotatedClass;
+                    try {
+                        annotatedClass = Class.forName(statedClassName);
+                        classInfo = new MyClassInfo(annotatedClass);
+                    } catch (Exception exc) {
+                        annotatedClass = annotateClass(clsName);
+                        if (annotatedClass != null) {
+                            classInfo = new MyClassInfo(annotatedClass);
+                        }
+                    }
+                }
             }
 
             for (MethodInfo methodInfo : classInfo.getMethods()) {
@@ -116,11 +169,84 @@ public class BenchmarkTest {
                 if (testValid == AnnotationCondition.MethodState.VALID) {
                     result.put(classInfo, methodInfo);
                 } else if (testValid != AnnotationCondition.MethodState.NOT_TEST) {
-                    log("SKIPPING: " + methodInfo.getQualifiedName() + ", REASON: " + testValid.name());
+                    log(String.format("%-20.20s: %s", "Skipping Test Method",
+                            methodInfo.getQualifiedName() + ", reason: " + testValid.name()));
                 }
             }
         }
+        log("Completed Test Classes Analysis: <<<<<<<<<<<<<<<<<<<");
+
         return result;
+    }
+
+    public static Collection<FieldInfo> getAllFields(ClassInfo ci) {
+        Collection<FieldInfo> ls = new ArrayList<>();
+        do {
+            ls.addAll(ci.getFields());
+        } while ((ci = ci.getSuperClass()) != null);
+        return ls;
+    }
+
+    public static String getClassName(ClassInfo classInfo) {
+        try {
+            Field f = classInfo.getClass().getSuperclass().getDeclaredField("klass");
+            f.setAccessible(true);
+            Class<?> cls = (Class<?>) f.get(classInfo);
+            return cls.getName();
+        } catch (Throwable exc) {
+            return classInfo.getQualifiedName();
+        }
+    }
+
+    public static String getStatedClassName(String className) {
+        if (className.contains("$")) {
+            String[] cnt = className.split("\\$");
+            cnt[0] = cnt[0] + NEW_CLASS_NAME_SUFIX;
+            return String.join("$", cnt);
+        } else {
+            return className + NEW_CLASS_NAME_SUFIX;
+        }
+    }
+
+    public static Class<?> annotateClass(String clsName) {
+        try {
+            Class<?> annotatedClass = addAnnotation(clsName, State.class.getName(), Scope.class.getName(),
+                    Scope.Benchmark.name());
+            Annotation stateAnnotation = annotatedClass.getAnnotation(State.class);
+            if (stateAnnotation != null) {
+                return annotatedClass;
+            }
+            log(String.format("%-20.20s: %s", "Added",
+                    "@State annotation for class " + clsName + " and named it " + annotatedClass.getName()));
+        } catch (Exception exc) {
+            err("Failed to add @State annotation for " + clsName + ", reason " + exc.getLocalizedMessage());
+            exc.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static Class<?> addAnnotation(String className, String annotationName, String typeName, String valueName)
+            throws Exception {
+        ClassPool pool = ClassPool.getDefault();
+        CtClass ctClass = pool.getAndRename(className, getStatedClassName(className));
+
+        ClassFile classFile = ctClass.getClassFile();
+        ConstPool constpool = classFile.getConstPool();
+
+        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constpool,
+                AnnotationsAttribute.visibleTag);
+        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
+                annotationName, constpool);
+        EnumMemberValue emv = new EnumMemberValue(constpool);
+        emv.setType(typeName);
+        emv.setValue(valueName);
+        annotation.addMemberValue("value", emv);
+        annotationsAttribute.setAnnotation(annotation);
+
+        classFile.addAttribute(annotationsAttribute);
+        ctClass.writeFile(new File(APP_TEST_DIR).getCanonicalPath());
+        return ctClass.toClass();
     }
 
     private static AnnotationCondition.MethodState isValidTest(MethodInfo mi, AnnotationCondition... aConds) {
@@ -156,11 +282,11 @@ public class BenchmarkTest {
     }
 
     static void err(String msg) {
-        System.err.println(msg);
+        System.out.println("ERROR: " + msg);
     }
 
     private void init() throws Exception {
-        // http://javadox.com/org.openjdk.jmh/jmh-core/1.31/org/openjdk/jmh/runner/options/OptionsBuilder.html
+        // http://javadox.com/org.openjdk.jmh/jmh-core/1.32/org/openjdk/jmh/runner/options/OptionsBuilder.html
         Options opt = new OptionsBuilder()
                 .include(".*")
                 .jvmArgsPrepend("-D" + FORKED_PROCESS_MARKER + "=true")
@@ -175,7 +301,7 @@ public class BenchmarkTest {
     }
 
     private void generateBenchmarkList() throws Exception {
-        File prodF = new File(WORK_DIR);
+        File prodF = new File(APP_TEST_DIR);
         FileSystemDestination dst = new FileSystemDestination(prodF, prodF);
         BenchmarkGenerator gen = new BenchmarkGenerator();
         myGeneratorSource = new MyGeneratorSource();
@@ -184,7 +310,7 @@ public class BenchmarkTest {
 
         if (dst.hasErrors()) {
             for (SourceError se : dst.getErrors()) {
-                err("ERROR: " + se.toString());
+                err(se.toString());
             }
         }
         if (dst.hasWarnings()) {
@@ -202,40 +328,30 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            String testDirPath = BenchmarkTest.TEST_DIR;
-            File testDir;
-            if (testDirPath == null || testDirPath.isEmpty()) {
-                testDirPath = BenchmarkTest.TEST_DIR_MVN;
-                testDir = new File(testDirPath);
-                if (!testDir.exists()) {
-                    testDirPath = BenchmarkTest.TEST_DIR_GRD;
-                    testDir = new File(testDirPath);
-                }
-            } else {
-                testDir = new File(testDirPath);
-            }
-            testDir = testDir.getAbsoluteFile();
+            File testDir = new File(BenchmarkTest.APP_TEST_DIR).getAbsoluteFile();
 
             if (!testDir.exists()) {
-                BenchmarkTest.err("ERROR: test dir does not exist: " + testDir);
+                BenchmarkTest.err("Test dir does not exist: " + testDir);
             } else {
+                BenchmarkTest.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
                 Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
                 for (File classFile : includeClassFiles) {
                     Class<?> clazz = null;
                     try {
                         String path = classFile.getAbsolutePath();
-                        int index = path.indexOf(testDirPath);
-                        String className = path.replace(File.separator, ".").substring(index + testDirPath.length(),
-                                path.length() - ".class".length());
+                        int index = path.indexOf(BenchmarkTest.APP_TEST_DIR);
+                        String className = path.replace(File.separator, ".").substring(
+                                index + BenchmarkTest.APP_TEST_DIR.length(), path.length() - ".class".length());
                         // TODO far from bulletproof
 
                         clazz = Class.forName(className);
-                        BenchmarkTest.log("Class: " + clazz);
+                        BenchmarkTest.log("Found Test Class: " + clazz);
                     } catch (Throwable t) {
-                        BenchmarkTest.err("ERROR: Can't get class: " + t);
+                        BenchmarkTest.err("Can't get test class: " + t);
                     }
                     benchmarkClassList.add(new MyClassInfo(clazz));
                 }
+                BenchmarkTest.log("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");
             }
             return benchmarkClassList;
         }

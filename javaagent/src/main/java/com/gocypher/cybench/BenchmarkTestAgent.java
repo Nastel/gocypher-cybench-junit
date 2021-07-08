@@ -41,7 +41,7 @@ public class BenchmarkTestAgent {
 
             Class<?> klass = Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
-            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.31/jmh-core-1.31.jar!/org/openjdk/jmh/annotations/Benchmark.class
+            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.32/jmh-core-1.32.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
             BenchmarkTest.log("JMH:" + split[0]);
             File file = Paths.get(split[0]).toFile();
@@ -58,7 +58,7 @@ public class BenchmarkTestAgent {
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
             replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_FAKE_COMPILER_HINTS, compilerHintsBytes);
         } catch (Exception e) {
-            BenchmarkTest.err("ERROR: failed to initialize agent, exc: " + e);
+            BenchmarkTest.err("Failed to initialize agent, exc: " + e);
             e.printStackTrace();
         }
     }
