@@ -43,15 +43,15 @@ repositories {
 }
 
 dependencies {
-  compile 'org.openjdk.jmh:jmh-core:1.31'
-  compile 'org.openjdk.jmh:jmh-generator-reflection:1.31'
-  compile 'org.javassist:javassist:3.27.0-GA'
-  compile 'org.testng:testng:7.3.0'
+  compile 'org.openjdk.jmh:jmh-core:1.32'
+  compile 'org.openjdk.jmh:jmh-generator-reflection:1.32'
+  compile 'org.javassist:javassist:3.28.0-GA'
+  compile 'org.testng:testng:7.4.0'
   compile 'junit:junit:4.13.2'
-  compile 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-  // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.31'
-  testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.31'
-  testCompile 'org.testng:testng:7.3.0'
+  compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+  // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+  testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+  testCompile 'org.testng:testng:7.4.0'
   testCompile 'junit:junit:4.13.2'
 }
 
