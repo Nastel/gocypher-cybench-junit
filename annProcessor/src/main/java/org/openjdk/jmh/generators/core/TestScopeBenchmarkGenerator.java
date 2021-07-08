@@ -38,6 +38,12 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     private final BenchmarkGeneratorSession session;
     private ProcessingEnvironment processingEnv;
 
+    public static final Class<? extends Annotation>[] BENCHMARK_ANNOTATIONS = new Class[] {
+            org.testng.annotations.Test.class //
+            , org.junit.Test.class //
+            , org.junit.jupiter.api.Test.class //
+    };
+
     public TestScopeBenchmarkGenerator() {
         benchmarkInfos = new HashSet<>();
         processedBenchmarks = new HashSet<>();
@@ -176,8 +182,7 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
                 continue;
             }
             for (MethodInfo mi : currentClass.getMethods()) {
-                Annotation ann = getAnnotation(mi, org.testng.annotations.Test.class, org.junit.Test.class,
-                        org.junit.jupiter.api.Test.class);
+                Annotation ann = getAnnotation(mi, BENCHMARK_ANNOTATIONS);
                 if (ann != null) {
                     result.put(currentClass, mi);
                 }

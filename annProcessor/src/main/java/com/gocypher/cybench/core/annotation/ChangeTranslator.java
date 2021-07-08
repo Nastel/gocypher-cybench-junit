@@ -9,6 +9,7 @@ import javax.lang.model.element.Element;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.generators.core.TestScopeBenchmarkGenerator;
 
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Symbol;
@@ -46,9 +47,9 @@ public class ChangeTranslator extends TreeTranslator {
 
     private boolean containsTest(JCTree.JCClassDecl jcClassDecl) {
         return jcClassDecl.getMembers().stream().filter(e -> e.getKind() == Tree.Kind.METHOD)
-                .map(m -> (JCTree.JCMethodDecl) m).anyMatch(m -> containsAnnotation(m.getModifiers(),
-                        org.testng.annotations.Test.class, org.junit.Test.class, org.junit.jupiter.api.Test.class)); // FIXME
-                                                                                                                     // please
+                .map(m -> (JCTree.JCMethodDecl) m)
+                .anyMatch(m -> containsAnnotation(m.getModifiers(), TestScopeBenchmarkGenerator.BENCHMARK_ANNOTATIONS)); // FIXME
+                                                                                                                         // please
     }
 
     private boolean notContainBenchmark(JCTree.JCClassDecl jcClassDecl) {
