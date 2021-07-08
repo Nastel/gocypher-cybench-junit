@@ -3,10 +3,9 @@ package com.gocypher.cybench;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -32,27 +31,46 @@ public class BenchmarkTest {
 
     static final String WORK_DIR = System.getProperty("buildDir");
     static final String TEST_DIR = System.getProperty("testDir");
-    static final String TEST_DIR_MVN = WORK_DIR + File.separator + ".." + File.separator + "test-classes"
-            + File.separator;
-    static final String TEST_DIR_GRD = WORK_DIR + File.separator + ".." + File.separator + "test" + File.separator;
     static String APP_TEST_DIR;
     static {
         if (TEST_DIR == null || TEST_DIR.isEmpty()) {
-            File testDir = new File(TEST_DIR_MVN);
-            if (testDir.exists()) {
-                APP_TEST_DIR = TEST_DIR_MVN;
+            // Maven layout
+            File testDirMvn = new File(WORK_DIR + "/test-classes");
+            if (testDirMvn.exists()) {
+                APP_TEST_DIR = testDirMvn.getAbsolutePath();
             } else {
-                APP_TEST_DIR = TEST_DIR_GRD;
+                // Gradle layout
+                File testDirGrd = new File(WORK_DIR + "/classes/java/test");
+                if (testDirMvn.exists()) {
+                    APP_TEST_DIR = testDirGrd.getAbsolutePath();
+                } else {
+                    // Use build dir
+                    APP_TEST_DIR = WORK_DIR;
+                }
             }
         } else {
             APP_TEST_DIR = TEST_DIR;
+        }
+
+        log("*** Setting Test Classes dir to use: " + new File(APP_TEST_DIR).getAbsolutePath());
+    }
+    static String BENCHMARK_DIR = APP_TEST_DIR + "/../t2b";
+    static {
+        File benchDir = new File(BENCHMARK_DIR);
+        if (benchDir.exists()) {
+            log("*** Removing existing benchmarks dir: " + benchDir.getAbsolutePath());
+            try {
+                Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            } catch (Exception exc) {
+                err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
+            }
         }
     }
 
     static final String NEW_CLASS_NAME_SUFIX = "_JMH_State";
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    static final String MY_BENCHMARK_LIST = APP_TEST_DIR + "/META-INF/BenchmarkList";
-    static final String MY_COMPILER_HINTS = APP_TEST_DIR + "/META-INF/CompilerHints";
+    static final String MY_BENCHMARK_LIST = BENCHMARK_DIR + "/META-INF/BenchmarkList";
+    static final String MY_COMPILER_HINTS = BENCHMARK_DIR + "/META-INF/CompilerHints";
 
     static final int NUMBER_OF_FORKS = 1;
     static final int NUMBER_OF_WARMUPS = 0;
@@ -214,10 +232,10 @@ public class BenchmarkTest {
                     Scope.Benchmark.name());
             Annotation stateAnnotation = annotatedClass.getAnnotation(State.class);
             if (stateAnnotation != null) {
+                log(String.format("%-20.20s: %s", "Added",
+                        "@State annotation for class " + clsName + " and named it " + annotatedClass.getName()));
                 return annotatedClass;
             }
-            log(String.format("%-20.20s: %s", "Added",
-                    "@State annotation for class " + clsName + " and named it " + annotatedClass.getName()));
         } catch (Exception exc) {
             err("Failed to add @State annotation for " + clsName + ", reason " + exc.getLocalizedMessage());
             exc.printStackTrace();
@@ -245,7 +263,7 @@ public class BenchmarkTest {
         annotationsAttribute.setAnnotation(annotation);
 
         classFile.addAttribute(annotationsAttribute);
-        ctClass.writeFile(new File(APP_TEST_DIR).getCanonicalPath());
+        ctClass.writeFile(new File(BENCHMARK_DIR).getCanonicalPath());
         return ctClass.toClass();
     }
 
@@ -287,13 +305,13 @@ public class BenchmarkTest {
 
     private void init() throws Exception {
         // http://javadox.com/org.openjdk.jmh/jmh-core/1.32/org/openjdk/jmh/runner/options/OptionsBuilder.html
-        Options opt = new OptionsBuilder()
-                .include(".*")
-                .jvmArgsPrepend("-D" + FORKED_PROCESS_MARKER + "=true")
-                .warmupIterations(NUMBER_OF_WARMUPS)
-                .mode(BENCHMARK_MODE)
-                .forks(NUMBER_OF_FORKS)
-                .measurementIterations(NUMBER_OF_MEASUREMENTS)
+        Options opt = new OptionsBuilder() //
+                .include(".*") //
+                .jvmArgsPrepend("-D" + FORKED_PROCESS_MARKER + "=true") //
+                .warmupIterations(NUMBER_OF_WARMUPS) //
+                .mode(BENCHMARK_MODE) //
+                .forks(NUMBER_OF_FORKS) //
+                .measurementIterations(NUMBER_OF_MEASUREMENTS) //
                 .build();
         generateBenchmarkList();
         new com.gocypher.cybench.CompileProcess.WindowsCompileProcess();
@@ -301,7 +319,7 @@ public class BenchmarkTest {
     }
 
     private void generateBenchmarkList() throws Exception {
-        File prodF = new File(APP_TEST_DIR);
+        File prodF = new File(BENCHMARK_DIR);
         FileSystemDestination dst = new FileSystemDestination(prodF, prodF);
         BenchmarkGenerator gen = new BenchmarkGenerator();
         myGeneratorSource = new MyGeneratorSource();
@@ -329,6 +347,10 @@ public class BenchmarkTest {
             }
             benchmarkClassList = new ArrayList<>();
             File testDir = new File(BenchmarkTest.APP_TEST_DIR).getAbsoluteFile();
+            String testDirPath = testDir.getPath();
+            if (!testDirPath.endsWith(File.separator)) {
+                testDirPath += File.separator;
+            }
 
             if (!testDir.exists()) {
                 BenchmarkTest.err("Test dir does not exist: " + testDir);
@@ -339,9 +361,9 @@ public class BenchmarkTest {
                     Class<?> clazz = null;
                     try {
                         String path = classFile.getAbsolutePath();
-                        int index = path.indexOf(BenchmarkTest.APP_TEST_DIR);
-                        String className = path.replace(File.separator, ".").substring(
-                                index + BenchmarkTest.APP_TEST_DIR.length(), path.length() - ".class".length());
+                        int index = path.indexOf(testDirPath);
+                        String className = path.replace(File.separator, ".") //
+                                .substring(index + testDirPath.length(), path.length() - ".class".length());
                         // TODO far from bulletproof
 
                         clazz = Class.forName(className);

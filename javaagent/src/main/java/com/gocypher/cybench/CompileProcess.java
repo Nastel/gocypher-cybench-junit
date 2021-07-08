@@ -55,7 +55,7 @@ public abstract class CompileProcess {
                 File f = File.createTempFile("sourcesList", "");
                 // f.deleteOnExit();
                 try (FileOutputStream fos = new FileOutputStream(f)) {
-                    Files.walk(Paths.get(BenchmarkTest.APP_TEST_DIR)).filter(fw -> matcher.matches(fw))
+                    Files.walk(Paths.get(BenchmarkTest.BENCHMARK_DIR)).filter(fw -> matcher.matches(fw))
                             .filter(Files::isRegularFile).forEach(fw -> {
                                 try {
                                     fos.write(fw.toAbsolutePath().toString().getBytes(StandardCharsets.UTF_8));
