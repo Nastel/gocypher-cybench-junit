@@ -31,7 +31,7 @@ public abstract class CompileProcess {
         static final String COMPILE = "javac -cp <CLASSPATH> @";
 
         public WindowsCompileProcess() throws Exception {
-            String classPath = System.getProperty("java.class.path");
+            String classPath = T2BUtils.getSysClassPath();
             BenchmarkTest.log("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
             String[] cps = classPath.split(System.getProperty("path.separator"));
             for (String cpe : cps) {

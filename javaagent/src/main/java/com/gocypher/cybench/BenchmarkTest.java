@@ -2,10 +2,11 @@ package com.gocypher.cybench;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -20,13 +21,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.ConstPool;
-import javassist.bytecode.annotation.EnumMemberValue;
-
 public class BenchmarkTest {
 
     static final String WORK_DIR_ARG = System.getProperty("buildDir");
@@ -39,11 +33,13 @@ public class BenchmarkTest {
             File testDirMvn = new File(WORK_DIR_ARG + "/test-classes");
             if (testDirMvn.exists()) {
                 TEST_DIR = testDirMvn.getAbsolutePath();
+                addClassPath(new File(WORK_DIR_ARG + "/classes"));
             } else {
                 // Gradle layout
                 File testDirGrd = new File(WORK_DIR_ARG + "/classes/java/test");
                 if (testDirMvn.exists()) {
                     TEST_DIR = testDirGrd.getAbsolutePath();
+                    addClassPath(new File(WORK_DIR_ARG + "/classes/java/main"));
                 } else {
                     // Use build dir
                     TEST_DIR = WORK_DIR_ARG;
@@ -53,7 +49,9 @@ public class BenchmarkTest {
             TEST_DIR = TEST_DIR_ARG;
         }
 
-        log("*** Setting Test Classes dir to use: " + new File(TEST_DIR).getAbsolutePath());
+        File testDir = new File(TEST_DIR);
+        log("*** Setting Test Classes dir to use: " + testDir.getAbsolutePath());
+        addClassPath(testDir);
     }
     static String BENCH_DIR;
     static {
@@ -72,9 +70,9 @@ public class BenchmarkTest {
                 err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
             }
         }
+        addClassPath(benchDir);
     }
 
-    static final String NEW_CLASS_NAME_SUFIX = "_JMH_State";
     static final String FORKED_PROCESS_MARKER = "jmh.forked";
     static final String MY_BENCHMARK_LIST = BENCH_DIR + "/META-INF/BenchmarkList";
     static final String MY_COMPILER_HINTS = BENCH_DIR + "/META-INF/CompilerHints";
@@ -137,21 +135,12 @@ public class BenchmarkTest {
         benchmarkTest.init();
     }
 
-    private static Collection<File> getUTClasses(File dir) {
-        Set<File> fileTree = new HashSet<>();
-        if (dir == null || dir.listFiles() == null) {
-            return fileTree;
+    private static void addClassPath(File classDir) {
+        try {
+            T2BUtils.addClassPath(classDir);
+        } catch (Exception exc) {
+            err("Failed to add classpath entry: " + classDir.getAbsolutePath() + ", exc: " + exc.getLocalizedMessage());
         }
-        for (File entry : dir.listFiles()) {
-            if (entry.isFile()) {
-                if (entry.getName().endsWith(".class")) {
-                    fileTree.add(entry);
-                }
-            } else {
-                fileTree.addAll(getUTClasses(entry));
-            }
-        }
-        return fileTree;
     }
 
     public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
@@ -164,7 +153,7 @@ public class BenchmarkTest {
             }
 
             boolean hasNonStaticFields = false;
-            for (FieldInfo fieldInfo : getAllFields(classInfo)) {
+            for (FieldInfo fieldInfo : T2BUtils.getAllFields(classInfo)) {
                 if (!fieldInfo.isStatic()) {
                     hasNonStaticFields = true;
                     break;
@@ -174,8 +163,8 @@ public class BenchmarkTest {
             if (hasNonStaticFields) {
                 Annotation stateAnnotation = classInfo.getAnnotation(State.class);
                 if (stateAnnotation == null) {
-                    String clsName = getClassName(classInfo);
-                    String statedClassName = getStatedClassName(clsName);
+                    String clsName = T2BUtils.getClassName(classInfo);
+                    String statedClassName = T2BUtils.getStatedClassName(clsName);
                     Class<?> annotatedClass;
                     try {
                         annotatedClass = Class.forName(statedClassName);
@@ -204,39 +193,10 @@ public class BenchmarkTest {
         return result;
     }
 
-    public static Collection<FieldInfo> getAllFields(ClassInfo ci) {
-        Collection<FieldInfo> ls = new ArrayList<>();
-        do {
-            ls.addAll(ci.getFields());
-        } while ((ci = ci.getSuperClass()) != null);
-        return ls;
-    }
-
-    public static String getClassName(ClassInfo classInfo) {
-        try {
-            Field f = classInfo.getClass().getSuperclass().getDeclaredField("klass");
-            f.setAccessible(true);
-            Class<?> cls = (Class<?>) f.get(classInfo);
-            return cls.getName();
-        } catch (Throwable exc) {
-            return classInfo.getQualifiedName();
-        }
-    }
-
-    public static String getStatedClassName(String className) {
-        if (className.contains("$")) {
-            String[] cnt = className.split("\\$");
-            cnt[0] = cnt[0] + NEW_CLASS_NAME_SUFIX;
-            return String.join("$", cnt);
-        } else {
-            return className + NEW_CLASS_NAME_SUFIX;
-        }
-    }
-
     public static Class<?> annotateClass(String clsName) {
         try {
-            Class<?> annotatedClass = addAnnotation(clsName, State.class.getName(), Scope.class.getName(),
-                    Scope.Benchmark.name());
+            Class<?> annotatedClass = T2BUtils.addAnnotation(clsName, State.class.getName(), Scope.class.getName(),
+                    Scope.Benchmark.name(), BENCH_DIR);
             Annotation stateAnnotation = annotatedClass.getAnnotation(State.class);
             if (stateAnnotation != null) {
                 log(String.format("%-20.20s: %s", "Added",
@@ -249,29 +209,6 @@ public class BenchmarkTest {
         }
 
         return null;
-    }
-
-    private static Class<?> addAnnotation(String className, String annotationName, String typeName, String valueName)
-            throws Exception {
-        ClassPool pool = ClassPool.getDefault();
-        CtClass ctClass = pool.getAndRename(className, getStatedClassName(className));
-
-        ClassFile classFile = ctClass.getClassFile();
-        ConstPool constpool = classFile.getConstPool();
-
-        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constpool,
-                AnnotationsAttribute.visibleTag);
-        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constpool);
-        EnumMemberValue emv = new EnumMemberValue(constpool);
-        emv.setType(typeName);
-        emv.setValue(valueName);
-        annotation.addMemberValue("value", emv);
-        annotationsAttribute.setAnnotation(annotation);
-
-        classFile.addAttribute(annotationsAttribute);
-        ctClass.writeFile(new File(BENCH_DIR).getCanonicalPath());
-        return ctClass.toClass();
     }
 
     private static AnnotationCondition.MethodState isValidTest(MethodInfo mi, AnnotationCondition... aConds) {
@@ -363,7 +300,7 @@ public class BenchmarkTest {
                 BenchmarkTest.err("Test dir does not exist: " + testDir);
             } else {
                 BenchmarkTest.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
-                Collection<File> includeClassFiles = BenchmarkTest.getUTClasses(testDir);
+                Collection<File> includeClassFiles = T2BUtils.getUTClasses(testDir);
                 for (File classFile : includeClassFiles) {
                     Class<?> clazz = null;
                     try {

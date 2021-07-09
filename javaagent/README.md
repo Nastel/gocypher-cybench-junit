@@ -54,18 +54,16 @@ mvn initialize test-compile exec:exec
 
 ## DEVNotes (a.k.a TODO)
 
-* (DONE) delete temp file for `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:57
-* (DONE) set the classpath to `javac` - com.gocypher.cybench.CompileProcess.WindowsCompileProcess:46
-* Simplify class path definition by automatically adding app/test/benchmark classes
+* Add cybench annotations
 * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
 * Make gradle plugin
-* Make maven plugin  
+* Make maven plugin
 * (KNOWN BUG) If test class has methods having same name just different casing, on Windows it creates file and class having different casing and benchmarks 
 compile fails with:
   ```
   class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
   ```
-  On linux it shall be OK, since files are case sensitive. 
+  On linux it shall be OK, since files are case sensitive.
 
 ```cmd
 mvndebug initialize test-compile exec:exec 
