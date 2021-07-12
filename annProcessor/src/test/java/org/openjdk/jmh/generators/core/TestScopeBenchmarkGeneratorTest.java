@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 public class TestScopeBenchmarkGeneratorTest {
 
     @Test
-    public void getAndRunPrivateMethod() {
+    public void getAndRunPrivateMethod() throws Exception {
         TestScopeBenchmarkGenerator gen = new TestScopeBenchmarkGenerator();
         A a = new A();
-        // System.out.println(gen._getAndRunPrivateMethod( a, "privMethod", "a"));
+        System.out.println(gen._getAndRunPrivateMethod(a, "privMethod", "a"));
     }
 
     public static class A extends B {
