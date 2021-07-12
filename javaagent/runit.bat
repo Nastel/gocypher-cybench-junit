@@ -7,7 +7,7 @@ set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams
 set TEST_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\tnt4j-streams-core"
 set CLASS_PATH="%LIB_PATH%\lib\*;prod\lib\*"
 set AGENT_OPTS=-DbuildDir=%TEST_PATH%\target
-rem set AGENT_OPTS=-DbuildDir=%TEST_PATH%\target -DtestDir=%TEST_PATH%\target\test-classes
+rem set AGENT_OPTS=-DbuildDir=%TEST_PATH%\target -DtestDir=%TEST_PATH%\target\test-classes  -DbenchDir=%TEST_PATH%\target\t2b
 rem ########################
 
 rem #### AnnProcessor config ####

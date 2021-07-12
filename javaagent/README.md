@@ -55,9 +55,11 @@ mvn initialize test-compile exec:exec
 ## DEVNotes (a.k.a TODO)
 
 * Add cybench annotations
+* Switch runner to `com.gocypher.cybench.launcher.BenchmarkRunner`
 * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
 * Make gradle plugin
 * Make maven plugin
+* Make skip with reason: throw exception with message from annotation
 * (KNOWN BUG) If test class has methods having same name just different casing, on Windows it creates file and class having different casing and benchmarks 
 compile fails with:
   ```
