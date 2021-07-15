@@ -1,23 +1,18 @@
 package com.gocypher.cybench;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 
-import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.generators.core.*;
 import org.openjdk.jmh.generators.reflection.MyClassInfo;
 import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.CompilerHints;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
@@ -26,61 +21,9 @@ public class BenchmarkTest {
     static final String WORK_DIR_ARG = System.getProperty("buildDir");
     static final String TEST_DIR_ARG = System.getProperty("testDir");
     static final String BENCH_DIR_ARG = System.getProperty("benchDir");
+
     static String TEST_DIR;
-    static {
-        if (TEST_DIR_ARG == null || TEST_DIR_ARG.isEmpty()) {
-            // Maven layout
-            File testDirMvn = new File(WORK_DIR_ARG + "/test-classes");
-            if (testDirMvn.exists()) {
-                TEST_DIR = testDirMvn.getAbsolutePath();
-                addClassPath(new File(WORK_DIR_ARG + "/classes"));
-            } else {
-                // Gradle layout
-                File testDirGrd = new File(WORK_DIR_ARG + "/classes/java/test");
-                if (testDirMvn.exists()) {
-                    TEST_DIR = testDirGrd.getAbsolutePath();
-                    addClassPath(new File(WORK_DIR_ARG + "/classes/java/main"));
-                } else {
-                    // Use build dir
-                    TEST_DIR = WORK_DIR_ARG;
-                }
-            }
-        } else {
-            TEST_DIR = TEST_DIR_ARG;
-        }
-
-        File testDir = new File(TEST_DIR);
-        log("*** Setting Test Classes dir to use: " + testDir.getAbsolutePath());
-        addClassPath(testDir);
-    }
     static String BENCH_DIR;
-    static {
-        if (BENCH_DIR_ARG == null || BENCH_DIR_ARG.isEmpty()) {
-            BENCH_DIR = TEST_DIR + "/../t2b";
-        } else {
-            BENCH_DIR = BENCH_DIR_ARG;
-        }
-        File benchDir = new File(BENCH_DIR);
-        log("*** Setting Benchmarks dir to use: " + benchDir.getAbsolutePath());
-        if (benchDir.exists()) {
-            try {
-                log("*** Removing existing benchmarks dir: " + benchDir.getCanonicalPath());
-                Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-            } catch (Exception exc) {
-                err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
-            }
-        }
-        addClassPath(benchDir);
-    }
-
-    static final String FORKED_PROCESS_MARKER = "jmh.forked";
-    static final String MY_BENCHMARK_LIST = BENCH_DIR + "/META-INF/BenchmarkList";
-    static final String MY_COMPILER_HINTS = BENCH_DIR + "/META-INF/CompilerHints";
-
-    static final int NUMBER_OF_FORKS = 1;
-    static final int NUMBER_OF_WARMUPS = 0;
-    static final int NUMBER_OF_MEASUREMENTS = 1;
-    static final Mode BENCHMARK_MODE = Mode.All;
 
     private static AnnotationCondition ANN_COND_JU = new AnnotationCondition(org.junit.Test.class,
             org.junit.Ignore.class) {
@@ -120,7 +63,7 @@ public class BenchmarkTest {
     };
 
     public static final AnnotationCondition[] BENCHMARK_ANNOTATIONS = new AnnotationCondition[] { //
-            ANN_COND_NG//
+            ANN_COND_NG //
             , ANN_COND_JU //
             , ANN_COND_JU5 //
     };
@@ -129,7 +72,64 @@ public class BenchmarkTest {
     private static MyGeneratorSource myGeneratorSource;
     Collection<ClassInfo> benchmarkClassList;
 
-    public static void main(String[] args) throws Exception {
+    BenchmarkTest() {
+        TEST_DIR = initTestDir();
+        BENCH_DIR = initBenchDir();
+    }
+
+    private String initTestDir() {
+        String testDirPath;
+        if (TEST_DIR_ARG == null || TEST_DIR_ARG.isEmpty()) {
+            // Maven layout
+            File testDirMvn = new File(WORK_DIR_ARG + "/test-classes");
+            if (testDirMvn.exists()) {
+                testDirPath = testDirMvn.getAbsolutePath();
+                addClassPath(new File(WORK_DIR_ARG + "/classes"));
+            } else {
+                // Gradle layout
+                File testDirGrd = new File(WORK_DIR_ARG + "/classes/java/test");
+                if (testDirMvn.exists()) {
+                    testDirPath = testDirGrd.getAbsolutePath();
+                    addClassPath(new File(WORK_DIR_ARG + "/classes/java/main"));
+                } else {
+                    // Use build dir
+                    testDirPath = WORK_DIR_ARG;
+                }
+            }
+        } else {
+            testDirPath = TEST_DIR_ARG;
+        }
+
+        File testDir = new File(testDirPath);
+        log("*** Setting Test Classes dir to use: " + testDir.getAbsolutePath());
+        addClassPath(testDir);
+
+        return testDirPath;
+    }
+
+    private String initBenchDir() {
+        String benchDirPath;
+        if (BENCH_DIR_ARG == null || BENCH_DIR_ARG.isEmpty()) {
+            benchDirPath = TEST_DIR + "/../t2b";
+        } else {
+            benchDirPath = BENCH_DIR_ARG;
+        }
+        File benchDir = new File(benchDirPath);
+        log("*** Setting Benchmarks dir to use: " + benchDir.getAbsolutePath());
+        if (benchDir.exists()) {
+            try {
+                log("*** Removing existing benchmarks dir: " + benchDir.getCanonicalPath());
+                // Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            } catch (Exception exc) {
+                err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
+            }
+        }
+        addClassPath(benchDir);
+
+        return benchDirPath;
+    }
+
+    public static void main(String... args) throws Exception {
         log("Starting Test2Benchmark transformer app...");
         BenchmarkTest benchmarkTest = new BenchmarkTest();
         benchmarkTest.init();
@@ -227,7 +227,7 @@ public class BenchmarkTest {
     }
 
     public static BenchmarkList getMyBenchmarkList() {
-        return BenchmarkList.fromFile(MY_BENCHMARK_LIST);
+        return BenchmarkList.fromFile(BENCH_DIR + "/META-INF/BenchmarkList");
     }
 
     /*
@@ -236,7 +236,7 @@ public class BenchmarkTest {
      */
 
     public static CompilerHints getMyCompilerHints() {
-        return CompilerHints.fromFile(MY_COMPILER_HINTS);
+        return CompilerHints.fromFile(BENCH_DIR + "/META-INF/CompilerHints");
     }
 
     static void log(String msg) {
@@ -248,18 +248,11 @@ public class BenchmarkTest {
     }
 
     private void init() throws Exception {
-        // http://javadox.com/org.openjdk.jmh/jmh-core/1.32/org/openjdk/jmh/runner/options/OptionsBuilder.html
-        Options opt = new OptionsBuilder() //
-                .include(".*") //
-                .jvmArgsPrepend("-D" + FORKED_PROCESS_MARKER + "=true") //
-                .warmupIterations(NUMBER_OF_WARMUPS) //
-                .mode(BENCHMARK_MODE) //
-                .forks(NUMBER_OF_FORKS) //
-                .measurementIterations(NUMBER_OF_MEASUREMENTS) //
-                .build();
         generateBenchmarkList();
-        new com.gocypher.cybench.CompileProcess.WindowsCompileProcess();
-        new Runner(opt).run();
+        CompileProcess.WindowsCompileProcess compileProcess = new CompileProcess.WindowsCompileProcess();
+        compileProcess.compile();
+        String cp = compileProcess.getCompileClassPath();
+        writePropsToFile(BENCH_DIR, cp);
     }
 
     private void generateBenchmarkList() throws Exception {
@@ -279,6 +272,24 @@ public class BenchmarkTest {
             for (SourceWarning sw : dst.getWarnings()) {
                 log("WARNING: " + sw.toString());
             }
+        }
+    }
+
+    private void writePropsToFile(String benchDir, String classPath) {
+        try {
+            File f = new File(".benchRunProps");
+            if (f.exists()) {
+                f.delete();
+            }
+            try (FileWriter fos = new FileWriter(f)) {
+                fos.write("BENCH_DIR=" + benchDir);
+                fos.write('\n');
+                fos.write("RUN_CLASS_PATH=" + classPath);
+                fos.write('\n');
+                fos.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

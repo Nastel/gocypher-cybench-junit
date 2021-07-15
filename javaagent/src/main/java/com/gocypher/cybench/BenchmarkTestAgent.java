@@ -32,10 +32,6 @@ public class BenchmarkTestAgent {
 
     public static void premain(String agentArgs, Instrumentation inst) {
         try {
-            // It's the Runner...skip the agent
-            if (System.getProperty(BenchmarkTest.FORKED_PROCESS_MARKER) != null) {
-                return;
-            }
             instrumentation = inst;
             BenchmarkTest.log("Test2Benchmark Agent Premain called...");
 

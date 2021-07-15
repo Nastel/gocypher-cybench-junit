@@ -27,10 +27,18 @@ public abstract class CompileProcess {
         BenchmarkTest.log("<" + cmdId + "< exitValue() " + pro.exitValue());
     }
 
+    public abstract void compile();
+
     static class WindowsCompileProcess extends CompileProcess {
-        static final String COMPILE = "javac -cp <CLASSPATH> @";
+        static final String CMD_COMPILE = "javac -cp <CLASSPATH> @";
+
+        private final String classPath;
 
         public WindowsCompileProcess() throws Exception {
+            classPath = getClassPath();
+        }
+
+        private String getClassPath() throws Exception {
             String classPath = T2BUtils.getSysClassPath();
             BenchmarkTest.log("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
             String[] cps = classPath.split(System.getProperty("path.separator"));
@@ -39,10 +47,14 @@ public abstract class CompileProcess {
             }
             BenchmarkTest.log("Completed Class Path Listing: <<<<<<<<<<<<<<<<<<<<<<");
 
+            return classPath;
+        }
+
+        @Override
+        public void compile() {
             try {
                 String s = makeSourcesList();
-                CompileProcess.runProcess(COMPILE.replace("<CLASSPATH>", classPath) + s);
-                // runProcess(CLEANUP);
+                CompileProcess.runProcess(CMD_COMPILE.replace("<CLASSPATH>", classPath) + s);
             } catch (Throwable e) {
                 BenchmarkTest.err("Cannot run compile");
                 e.printStackTrace();
@@ -52,8 +64,7 @@ public abstract class CompileProcess {
         private static String makeSourcesList() {
             try {
                 PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.java");
-                File f = File.createTempFile("sourcesList", "");
-                f.deleteOnExit();
+                File f = new File(BenchmarkTest.BENCH_DIR, ".sourceList");
                 try (FileOutputStream fos = new FileOutputStream(f)) {
                     Files.walk(Paths.get(BenchmarkTest.BENCH_DIR)).filter(fw -> matcher.matches(fw))
                             .filter(Files::isRegularFile).forEach(fw -> {
@@ -66,7 +77,7 @@ public abstract class CompileProcess {
                             });
                     fos.flush();
                 }
-                BenchmarkTest.log("Created temp sources file: " + f.getAbsolutePath());
+                BenchmarkTest.log("Created sources file: " + f.getAbsolutePath());
 
                 return f.getAbsolutePath();
             } catch (IOException e) {
@@ -74,6 +85,10 @@ public abstract class CompileProcess {
             }
 
             return null;
+        }
+
+        public String getCompileClassPath() {
+            return classPath;
         }
     }
 }
