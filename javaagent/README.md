@@ -54,16 +54,16 @@ mvn initialize test-compile exec:exec
 
 ## DEVNotes (a.k.a TODO)
 
-* P1 tasks (must be for 2021-07-23):
+* **P1** tasks (must be for 2021-07-23):
     * Run from Maven using `exec` plugin
     * Run from Gradle using `application` plugin
-* P2 tasks (optional for 2021-07-23): 
+* **P2** tasks (optional for 2021-07-23): 
     * Add cybench annotations: id, metadata
-* P3 tasks (optional for 2021-07-23):
+* **P3** tasks (optional for 2021-07-23):
     * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
     * Make skip with reason: throw exception with message from annotation
     * Large reports
-* P4 tasks (optional at all):
+* **P4** tasks (optional at all):
     * Make gradle plugin
     * Make maven plugin
     * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH runner, `-r cyb` - run using 
@@ -75,7 +75,7 @@ mvn initialize test-compile exec:exec
     ```
     class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
     ```
-  On linux it shall be OK, since files are case sensitive.
+    On linux it shall be OK, since files are case sensitive.
 
 ```cmd
 mvndebug initialize test-compile exec:exec 
