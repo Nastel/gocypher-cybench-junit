@@ -54,17 +54,27 @@ mvn initialize test-compile exec:exec
 
 ## DEVNotes (a.k.a TODO)
 
-* Add cybench annotations: id, metadata
-* Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
-* Make skip with reason: throw exception with message from annotation
-* Large reports
-* Make gradle plugin
-* Make maven plugin
-* (KNOWN BUG) If test class has methods having same name just different casing, on Windows it creates file and class having different casing and benchmarks 
-compile fails with:
-  ```
-  class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
-  ```
+* P1 tasks (must be for 2021-07-23):
+    * Run from Maven using `exec` plugin
+    * Run from Gradle using `application` plugin
+* P2 tasks (optional for 2021-07-23): 
+    * Add cybench annotations: id, metadata
+* P3 tasks (optional for 2021-07-23):
+    * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
+    * Make skip with reason: throw exception with message from annotation
+    * Large reports
+* P4 tasks (optional at all):
+    * Make gradle plugin
+    * Make maven plugin
+    * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH runner, `-r cyb` - run using 
+    CyBench runner
+    * Make sh script
+* **Known Bugs**
+    * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
+    benchmarks compile fails with:
+    ```
+    class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
+    ```
   On linux it shall be OK, since files are case sensitive.
 
 ```cmd

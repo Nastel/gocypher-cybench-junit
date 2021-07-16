@@ -1,6 +1,4 @@
 @echo off
-set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
-set JAVA11_OPTS=--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
 
 rem #### Streams config ####
 set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams-1.11.7"
@@ -17,8 +15,24 @@ set AGENT_OPTS=-DbuildDir=%BUILD_PATH%
 rem set AGENT_OPTS=-DbuildDir=%BUILD_PATH% -DtestDir=%BUILD_PATH%\test-classes  -DbenchDir=%BUILD_PATH%\t2b
 
 set JAVA_HOME="D:\JAVA\jdk180"
+set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 set JAVA_DEBUGGER=
-set JAVA11_OPTS=
+
+for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_HOME%\bin\java -fullversion 2^>^&1') do set "jver=%%j%%k"
+rem for early access versions replace "ea" part with "00" to get comparable number
+set jver=%jver:ea=00%
+
+IF %jver% GTR 18 set JAVA11_OPTS="--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED" "--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED"
+
+rem ### use arguments to determine actions flow ###
+rem setlocal enabledelayedexpansion
+
+rem set argCount=0
+rem for %%x in (%*) do (
+rem    set /A argCount+=1
+rem    set "args[!argCount!]=%%~x"
+rem )
+rem ###############################################
 
 :do
     cls
