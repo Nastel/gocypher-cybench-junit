@@ -1,3 +1,4 @@
+@setlocal
 @echo off
 
 rem #### Streams config ####
