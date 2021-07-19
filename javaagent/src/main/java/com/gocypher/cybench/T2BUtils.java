@@ -29,7 +29,7 @@ public final class T2BUtils {
     private T2BUtils() {
     }
 
-    public static String getCurrentClassPath() throws Exception {
+    public static String getSysClassPath() throws Exception {
         ClassLoader classloader = ClassLoader.getSystemClassLoader();
         if (classloader != null) {
             URL[] urls;
@@ -47,19 +47,54 @@ public final class T2BUtils {
             String classPath = Stream.of(urls) //
                     .map(u -> u.getPath()) //
                     .map(s -> s.substring(1)) //
-                    .collect(Collectors.joining(System.getProperty("path.separator")));
+                    .collect(Collectors.joining(File.pathSeparator));
 
             return classPath;
         }
-        return null;
+        return "";
     }
 
-    public static String getSysClassPath() throws Exception {
+    public static String getSysPropClassPath() throws Exception {
         return System.getProperty("java.class.path");
     }
 
+    public static String getCurrentClassPath() throws Exception {
+        String cp = "";
+        ClassLoader sys = ClassLoader.getSystemClassLoader();
+        ClassLoader cl = T2BUtils.class.getClassLoader();
+        boolean clEq = cl == sys;
+        for (; cl != null; cl = cl.getParent()) {
+            if (cl == sys && !clEq) {
+                break;
+            }
+
+            URL[] urls;
+            if (cl instanceof URLClassLoader) {
+                urls = ((URLClassLoader) cl).getURLs();
+            } else {
+                Class<?> clCls = cl.getClass();
+                Field ucpField = clCls.getDeclaredField("ucp");
+                ucpField.setAccessible(true);
+                Object ucp = ucpField.get(cl);
+                Method getUrlsMethod = ucp.getClass().getDeclaredMethod("getURLs");
+                getUrlsMethod.setAccessible(true);
+                urls = (URL[]) getUrlsMethod.invoke(ucp);
+            }
+
+            cp += Stream.of(urls) //
+                    .map(u -> u.getPath()) //
+                    .map(s -> s.substring(1)) //
+                    .collect(Collectors.joining(File.pathSeparator));
+
+            if (cl == sys && clEq) {
+                break;
+            }
+        }
+        return cp;
+    }
+
     public static void addClassPath(File classDir) throws Exception {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        ClassLoader classLoader = T2BUtils.class.getClassLoader();
         if (classLoader != null) {
             URL url = classDir.toURI().toURL();
 
@@ -71,7 +106,7 @@ public final class T2BUtils {
             addURLMethod.setAccessible(true);
             addURLMethod.invoke(ucp, url);
         }
-        String cpp = getSysClassPath();
+        String cpp = getSysPropClassPath();
         cpp += File.pathSeparator + classDir.getAbsolutePath();
         System.setProperty("java.class.path", cpp);
     }

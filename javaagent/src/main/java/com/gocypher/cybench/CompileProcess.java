@@ -39,9 +39,9 @@ public abstract class CompileProcess {
         }
 
         private String getClassPath() throws Exception {
-            String classPath = T2BUtils.getSysClassPath();
+            String classPath = T2BUtils.getCurrentClassPath();
             BenchmarkTest.log("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
-            String[] cps = classPath.split(System.getProperty("path.separator"));
+            String[] cps = classPath.split(File.pathSeparator);
             for (String cpe : cps) {
                 BenchmarkTest.log("Class Path Entry: " + cpe);
             }
@@ -54,7 +54,7 @@ public abstract class CompileProcess {
         public void compile() {
             try {
                 String s = makeSourcesList();
-                CompileProcess.runProcess(CMD_COMPILE.replace("<CLASSPATH>", classPath) + s);
+                CompileProcess.runProcess(CMD_COMPILE.replace("<CLASSPATH>", "\"" + classPath + "\"") + s);
             } catch (Throwable e) {
                 BenchmarkTest.err("Cannot run compile");
                 e.printStackTrace();
