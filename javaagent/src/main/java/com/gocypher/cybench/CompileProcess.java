@@ -30,12 +30,37 @@ public abstract class CompileProcess {
     public abstract void compile();
 
     static class WindowsCompileProcess extends CompileProcess {
-        static final String CMD_COMPILE = "javac -cp <CLASSPATH> @";
+        final String CMD_COMPILE;
 
         private final String classPath;
 
         public WindowsCompileProcess() throws Exception {
             classPath = getClassPath();
+            CMD_COMPILE = getJavacCmd();
+        }
+
+        private String getJavacCmd() {
+            String javac = "javac";
+            String prop = System.getProperty("t2b.jdkHome");
+            if (prop == null || prop.isEmpty()) {
+                String libPath = System.getProperty("java.library.path");
+                prop = libPath.substring(0, libPath.indexOf(';'));
+                if (prop != null && !prop.isEmpty()) {
+                    String tJavac = prop + "/javac";
+                    String osName = System.getProperty("os.name");
+                    if (osName.startsWith("Windows")) {
+                        tJavac += ".exe";
+                    }
+
+                    File javacFile = new File(tJavac);
+                    if (javacFile.exists()) {
+                        javac = tJavac;
+                    }
+                }
+            } else {
+                javac = prop + "/bin/javac";
+            }
+            return javac + " -cp <CLASSPATH> @";
         }
 
         private String getClassPath() throws Exception {
