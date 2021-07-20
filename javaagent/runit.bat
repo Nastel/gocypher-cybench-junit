@@ -12,8 +12,8 @@ set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProces
 set CLASS_PATH="prod\lib\*"
 rem #############################
 
-set AGENT_OPTS=-DbuildDir=%BUILD_PATH%
-rem set AGENT_OPTS=-DbuildDir=%BUILD_PATH% -DtestDir=%BUILD_PATH%\test-classes  -DbenchDir=%BUILD_PATH%\t2b
+set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH%
+rem set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH% -Dt2b.testDir=%BUILD_PATH%\test-classes  -Dt2b.benchDir=%BUILD_PATH%\t2b
 
 set JAVA_HOME="D:\JAVA\jdk180"
 set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"

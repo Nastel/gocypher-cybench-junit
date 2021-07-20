@@ -33,9 +33,9 @@
             <mainClass>com.gocypher.cybench.Test2Benchmark</mainClass>
             <arguments combine.self="override">
                 <argument>-javaagent:${com.gocypher:test2BenchmarkAgent:jar}</argument>
-                <argument>-DbuildDir=${project.build.outputDirectory}</argument>
-                <!--<argument>-DtestDir=${project.build.testOutputDirectory}</argument>-->
-                <!--<argument>-DbenchDir=${project.build.directory}/t2b</argument>-->
+                <argument>-Dt2b.buildDir=${project.build.outputDirectory}</argument>
+                <!--<argument>-Dt2b.testDir=${project.build.testOutputDirectory}</argument>-->
+                <!--<argument>-Dt2b.benchDir=${project.build.directory}/t2b</argument>-->
                 <argument>-cp</argument>
                 <classpath/>
                 <argument>com.gocypher.cybench.Test2Benchmark</argument>
