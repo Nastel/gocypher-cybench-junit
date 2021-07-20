@@ -1,5 +1,5 @@
-@setlocal
 @echo off
+setlocal
 
 rem #### Streams config ####
 set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams-1.11.7"

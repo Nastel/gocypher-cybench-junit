@@ -22,6 +22,7 @@ public class BenchmarkTest {
     static final String TEST_DIR_ARG = System.getProperty("testDir");
     static final String BENCH_DIR_ARG = System.getProperty("benchDir");
 
+    static String WORK_DIR;
     static String TEST_DIR;
     static String BENCH_DIR;
 
@@ -73,27 +74,41 @@ public class BenchmarkTest {
     Collection<ClassInfo> benchmarkClassList;
 
     BenchmarkTest() {
+        WORK_DIR = initWorkDir();
         TEST_DIR = initTestDir();
         BENCH_DIR = initBenchDir();
+    }
+
+    private String initWorkDir() {
+        String workDirPath;
+        if (WORK_DIR_ARG == null || WORK_DIR_ARG.isEmpty()) {
+            workDirPath = System.getProperty("user.dir");
+        } else {
+            workDirPath = WORK_DIR_ARG;
+        }
+        File workDir = new File(workDirPath);
+        log("*** Setting Work dir to use: " + workDir.getAbsolutePath());
+
+        return workDirPath;
     }
 
     private String initTestDir() {
         String testDirPath;
         if (TEST_DIR_ARG == null || TEST_DIR_ARG.isEmpty()) {
             // Maven layout
-            File testDirMvn = new File(WORK_DIR_ARG + "/test-classes");
+            File testDirMvn = new File(WORK_DIR + "/test-classes");
             if (testDirMvn.exists()) {
                 testDirPath = testDirMvn.getAbsolutePath();
-                addClassPath(new File(WORK_DIR_ARG + "/classes"));
+                addClassPath(new File(WORK_DIR + "/classes"));
             } else {
                 // Gradle layout
-                File testDirGrd = new File(WORK_DIR_ARG + "/classes/java/test");
+                File testDirGrd = new File(WORK_DIR + "/classes/java/test");
                 if (testDirMvn.exists()) {
                     testDirPath = testDirGrd.getAbsolutePath();
-                    addClassPath(new File(WORK_DIR_ARG + "/classes/java/main"));
+                    addClassPath(new File(WORK_DIR + "/classes/java/main"));
                 } else {
                     // Use build dir
-                    testDirPath = WORK_DIR_ARG;
+                    testDirPath = WORK_DIR;
                 }
             }
         } else {
@@ -313,7 +328,6 @@ public class BenchmarkTest {
                 BenchmarkTest.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
                 Collection<File> includeClassFiles = T2BUtils.getUTClasses(testDir);
                 for (File classFile : includeClassFiles) {
-                    Class<?> clazz = null;
                     try {
                         String path = classFile.getAbsolutePath();
                         int index = path.indexOf(testDirPath);
@@ -321,12 +335,12 @@ public class BenchmarkTest {
                                 .substring(index + testDirPath.length(), path.length() - ".class".length());
                         // TODO far from bulletproof
 
-                        clazz = Class.forName(className);
+                        Class<?> clazz = Class.forName(className);
                         BenchmarkTest.log("Found Test Class: " + clazz);
+                        benchmarkClassList.add(new MyClassInfo(clazz));
                     } catch (Throwable t) {
                         BenchmarkTest.err("Can't get test class: " + t);
                     }
-                    benchmarkClassList.add(new MyClassInfo(clazz));
                 }
                 BenchmarkTest.log("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");
             }
