@@ -18,7 +18,7 @@ Setup compiler to run AnnotationProcessors selected
                 <configuration>
                     <annotationProcessors>
                         <annotationProcessor>org.openjdk.jmh.generators.BenchmarkProcessor</annotationProcessor>
-                        <annotationProcessor>com.gocypher.cybench.core.annotation.TestToBenchmarkProcessor</annotationProcessor>
+                        <annotationProcessor>com.gocypher.cybench.core.annotation.Test2BenchmarkProcessor</annotationProcessor>
                     </annotationProcessors>
                 </configuration>
             </plugin>
@@ -48,4 +48,4 @@ Setup Maven to append test sources to compile:
         </plugin>
     </plugins>
 ```
-**NOTE:** Add java property -DgenerateBenchmarkFromTest=true on compile.
+**NOTE:** Add java property -Dt2b.generateBenchmarkFromTest=true on compile.

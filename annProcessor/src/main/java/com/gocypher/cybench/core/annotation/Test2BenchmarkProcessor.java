@@ -89,9 +89,9 @@ public class Test2BenchmarkProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (System.getProperty("generateBenchmarkFromTest") == null) {
+        if (System.getProperty("t2b.generateBenchmarkFromTest") == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                    "Test2BenchmarkProcessor processor not enabled by default. You need to set property \"generateBenchmarkFromTest\"");
+                    "Test2BenchmarkProcessor processor not enabled by default. You need to set property \"t2b.generateBenchmarkFromTest\"");
             return false;
         }
         // if (!roundEnv.processingOver()) {
