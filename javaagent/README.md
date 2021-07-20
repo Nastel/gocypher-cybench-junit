@@ -30,15 +30,15 @@
         <configuration>
             <executable>java</executable>
             <classpathScope>test</classpathScope>
-            <mainClass>com.gocypher.cybench.BenchmarkTest</mainClass>
+            <mainClass>com.gocypher.cybench.Test2Benchmark</mainClass>
             <arguments combine.self="override">
-                <argument>-javaagent:${com.gocypher:testToBenchmarkAgent:jar}</argument>
+                <argument>-javaagent:${com.gocypher:test2BenchmarkAgent:jar}</argument>
                 <argument>-DbuildDir=${project.build.outputDirectory}</argument>
                 <!--<argument>-DtestDir=${project.build.testOutputDirectory}</argument>-->
                 <!--<argument>-DbenchDir=${project.build.directory}/t2b</argument>-->
                 <argument>-cp</argument>
                 <classpath/>
-                <argument>com.gocypher.cybench.BenchmarkTest</argument>
+                <argument>com.gocypher.cybench.Test2Benchmark</argument>
             </arguments>
         </configuration>
     </plugin>
@@ -48,7 +48,7 @@
 mvn initialize test-compile exec:exec 
 ```
 **Note:**
-* `initialize` = set variable `${com.gocypher:testToBenchmarkAgent:jar}` using maven-dependency-plugin
+* `initialize` = set variable `${com.gocypher:test2BenchmarkAgent:jar}` using maven-dependency-plugin
 * `test-compile` = you need to compile tests
 * `exec:exec` = and run the command
 

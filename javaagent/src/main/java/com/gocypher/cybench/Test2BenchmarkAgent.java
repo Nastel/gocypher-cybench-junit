@@ -18,13 +18,13 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-public class BenchmarkTestAgent {
+public class Test2BenchmarkAgent {
 
     static Instrumentation instrumentation;
 
-    private static String TAKE_FAKE_ANNOTATIONS = "Object value=com.gocypher.cybench.BenchmarkTest.buildFakeAnnotatedSet();return value;";
-    private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=com.gocypher.cybench.BenchmarkTest.getMyBenchmarkList();return value;";
-    private static String TAKE_FAKE_COMPILER_HINTS = "Object value=com.gocypher.cybench.BenchmarkTest.getMyCompilerHints();return value;";
+    private static String TAKE_FAKE_ANNOTATIONS = "Object value=com.gocypher.cybench.Test2Benchmark.buildFakeAnnotatedSet();return value;";
+    private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=com.gocypher.cybench.Test2Benchmark.getMyBenchmarkList();return value;";
+    private static String TAKE_FAKE_COMPILER_HINTS = "Object value=com.gocypher.cybench.Test2Benchmark.getMyCompilerHints();return value;";
 
     private static String BENCHMARK_GENERATOR_CLASS = "org.openjdk.jmh.generators.core.BenchmarkGenerator";
     private static String BENCHMARK_LIST_CLASS = "org.openjdk.jmh.runner.BenchmarkList";
@@ -33,15 +33,15 @@ public class BenchmarkTestAgent {
     public static void premain(String agentArgs, Instrumentation inst) {
         try {
             instrumentation = inst;
-            BenchmarkTest.log("Test2Benchmark Agent Premain called...");
+            Test2Benchmark.log("Test2Benchmark Agent Premain called...");
 
             Class<?> klass = Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
             // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.32/jmh-core-1.32.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
-            BenchmarkTest.log("JMH:" + split[0]);
+            Test2Benchmark.log("JMH:" + split[0]);
             File file = Paths.get(split[0]).toFile();
-            BenchmarkTest.log("JMH:" + file.getAbsolutePath());
+            Test2Benchmark.log("JMH:" + file.getAbsolutePath());
 
             JarFile jarFile = new JarFile(file);
 
@@ -54,7 +54,7 @@ public class BenchmarkTestAgent {
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
             replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_FAKE_COMPILER_HINTS, compilerHintsBytes);
         } catch (Exception e) {
-            BenchmarkTest.err("Failed to initialize agent, exc: " + e);
+            Test2Benchmark.err("Failed to initialize agent, exc: " + e);
             e.printStackTrace();
         }
     }
@@ -68,9 +68,9 @@ public class BenchmarkTestAgent {
             methods[0].insertBefore(code);
             ClassDefinition definition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
             instrumentation.redefineClasses(definition);
-            BenchmarkTest.log("Modified " + className + "." + methodName);
+            Test2Benchmark.log("Modified " + className + "." + methodName);
         } catch (Throwable t) {
-            BenchmarkTest.log("Could not modify class method: " + className + "." + methodName + ", exc: " + t);
+            Test2Benchmark.log("Could not modify class method: " + className + "." + methodName + ", exc: " + t);
         }
     }
 

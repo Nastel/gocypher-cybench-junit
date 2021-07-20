@@ -68,7 +68,7 @@ task copyClientLibs (type: Copy) {
 }
 
 jar {
-  archiveName = 'benchmarkTestAgent.jar'
+  archiveName = 'test2BenchmarkAgent.jar'
 //
 // This will put all the contents from the jars into a single jar
 //    from {
@@ -84,7 +84,7 @@ jar {
   manifest {
     attributes 'Can-Retransform-Classes': true,
                'Can-Redefine-Classes': true,
-               'Premain-Class': 'com.gocypher.cybench.BenchmarkTestAgent'
+               'Premain-Class': 'com.gocypher.cybench.Test2BenchmarkAgent'
   }
 }
 
@@ -92,7 +92,7 @@ publishing {
   publications {
     maven (MavenPublication) {
       groupId = 'com.gocypher'
-      artifactId = 'testToBenchmarkAgent'
+      artifactId = 'test2BenchmarkAgent'
       version = '1.0'
 
       from components.java

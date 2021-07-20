@@ -13,18 +13,18 @@ public abstract class CompileProcess {
         String line;
         BufferedReader in = new BufferedReader(new InputStreamReader(ins));
         while ((line = in.readLine()) != null) {
-            BenchmarkTest.log(cmd + " " + line);
+            Test2Benchmark.log(cmd + " " + line);
         }
     }
 
     static void runProcess(String command) throws Exception {
         int cmdId = command.hashCode();
-        BenchmarkTest.log(">" + cmdId + "> Running command: " + command);
+        Test2Benchmark.log(">" + cmdId + "> Running command: " + command);
         Process pro = Runtime.getRuntime().exec(command);
         printLines(">" + cmdId + "> >> stdout:", pro.getInputStream());
         printLines(">" + cmdId + "> >> stderr:", pro.getErrorStream());
         pro.waitFor();
-        BenchmarkTest.log("<" + cmdId + "< exitValue() " + pro.exitValue());
+        Test2Benchmark.log("<" + cmdId + "< exitValue() " + pro.exitValue());
     }
 
     public abstract void compile();
@@ -40,12 +40,12 @@ public abstract class CompileProcess {
 
         private String getClassPath() throws Exception {
             String classPath = T2BUtils.getCurrentClassPath();
-            BenchmarkTest.log("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
+            Test2Benchmark.log("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
             String[] cps = classPath.split(File.pathSeparator);
             for (String cpe : cps) {
-                BenchmarkTest.log("Class Path Entry: " + cpe);
+                Test2Benchmark.log("Class Path Entry: " + cpe);
             }
-            BenchmarkTest.log("Completed Class Path Listing: <<<<<<<<<<<<<<<<<<<<<<");
+            Test2Benchmark.log("Completed Class Path Listing: <<<<<<<<<<<<<<<<<<<<<<");
 
             return classPath;
         }
@@ -56,7 +56,7 @@ public abstract class CompileProcess {
                 String s = makeSourcesList();
                 CompileProcess.runProcess(CMD_COMPILE.replace("<CLASSPATH>", "\"" + classPath + "\"") + s);
             } catch (Throwable e) {
-                BenchmarkTest.err("Cannot run compile");
+                Test2Benchmark.err("Cannot run compile");
                 e.printStackTrace();
             }
         }
@@ -64,10 +64,12 @@ public abstract class CompileProcess {
         private static String makeSourcesList() {
             try {
                 PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.java");
-                File f = new File(BenchmarkTest.BENCH_DIR, ".sourceList");
+                File f = new File(Test2Benchmark.BENCH_DIR, ".sourceList");
                 try (FileOutputStream fos = new FileOutputStream(f)) {
-                    Files.walk(Paths.get(BenchmarkTest.BENCH_DIR)).filter(fw -> matcher.matches(fw))
-                            .filter(Files::isRegularFile).forEach(fw -> {
+                    Files.walk(Paths.get(Test2Benchmark.BENCH_DIR)) //
+                            .filter(fw -> matcher.matches(fw)) //
+                            .filter(Files::isRegularFile) //
+                            .forEach(fw -> {
                                 try {
                                     fos.write(fw.toAbsolutePath().toString().getBytes(StandardCharsets.UTF_8));
                                     fos.write('\n');
@@ -77,7 +79,7 @@ public abstract class CompileProcess {
                             });
                     fos.flush();
                 }
-                BenchmarkTest.log("Created sources file: " + f.getAbsolutePath());
+                Test2Benchmark.log("Created sources file: " + f.getAbsolutePath());
 
                 return f.getAbsolutePath();
             } catch (IOException e) {

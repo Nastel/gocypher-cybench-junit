@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -16,7 +19,7 @@ import org.openjdk.jmh.runner.CompilerHints;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
-public class BenchmarkTest {
+public class Test2Benchmark {
 
     static final String WORK_DIR_ARG = System.getProperty("buildDir");
     static final String TEST_DIR_ARG = System.getProperty("testDir");
@@ -73,26 +76,32 @@ public class BenchmarkTest {
     private static MyGeneratorSource myGeneratorSource;
     Collection<ClassInfo> benchmarkClassList;
 
-    BenchmarkTest() {
+    Test2Benchmark() throws IOException {
         WORK_DIR = initWorkDir();
         TEST_DIR = initTestDir();
         BENCH_DIR = initBenchDir();
     }
 
-    private String initWorkDir() {
+    private String initWorkDir() throws IOException {
         String workDirPath;
         if (WORK_DIR_ARG == null || WORK_DIR_ARG.isEmpty()) {
-            workDirPath = System.getProperty("user.dir");
+            String udProp = System.getProperty("user.dir");
+            if (udProp == null || udProp.isEmpty()) {
+                workDirPath = ".";
+            } else {
+                workDirPath = udProp;
+            }
         } else {
             workDirPath = WORK_DIR_ARG;
         }
         File workDir = new File(workDirPath);
-        log("*** Setting Work dir to use: " + workDir.getAbsolutePath());
+        workDirPath = workDir.getCanonicalPath();
+        log("*** Setting Work dir to use: " + workDirPath);
 
         return workDirPath;
     }
 
-    private String initTestDir() {
+    private String initTestDir() throws IOException {
         String testDirPath;
         if (TEST_DIR_ARG == null || TEST_DIR_ARG.isEmpty()) {
             // Maven layout
@@ -116,38 +125,49 @@ public class BenchmarkTest {
         }
 
         File testDir = new File(testDirPath);
-        log("*** Setting Test Classes dir to use: " + testDir.getAbsolutePath());
-        addClassPath(testDir);
+        testDirPath = testDir.getCanonicalPath();
+        log("*** Setting Test Classes dir to use: " + testDirPath);
+        addClassPath(testDir.getCanonicalFile());
 
         return testDirPath;
     }
 
-    private String initBenchDir() {
+    private String initBenchDir() throws IOException {
         String benchDirPath;
         if (BENCH_DIR_ARG == null || BENCH_DIR_ARG.isEmpty()) {
-            benchDirPath = TEST_DIR + "/../t2b";
+            if (WORK_DIR.equals(TEST_DIR)) {
+                benchDirPath = TEST_DIR + "/t2b";
+            } else {
+                benchDirPath = TEST_DIR + "/../t2b";
+            }
         } else {
             benchDirPath = BENCH_DIR_ARG;
         }
         File benchDir = new File(benchDirPath);
-        log("*** Setting Benchmarks dir to use: " + benchDir.getAbsolutePath());
+        benchDirPath = benchDir.getCanonicalPath();
+        log("*** Setting Benchmarks dir to use: " + benchDirPath);
         if (benchDir.exists()) {
             try {
-                log("*** Removing existing benchmarks dir: " + benchDir.getCanonicalPath());
-                // Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                log("*** Removing existing benchmarks dir: " + benchDirPath);
+                Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             } catch (Exception exc) {
                 err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
             }
         }
-        addClassPath(benchDir);
+        addClassPath(benchDir.getCanonicalFile());
 
         return benchDirPath;
     }
 
     public static void main(String... args) throws Exception {
         log("Starting Test2Benchmark transformer app...");
-        BenchmarkTest benchmarkTest = new BenchmarkTest();
-        benchmarkTest.init();
+        try {
+            Test2Benchmark test2Benchmark = new Test2Benchmark();
+            test2Benchmark.buildBenchmarks();
+        } catch (Throwable t) {
+            err("Failure occurred while running Test2Benchmark transformer app, exc: " + t.getLocalizedMessage());
+            t.printStackTrace();
+        }
     }
 
     private static void addClassPath(File classDir) {
@@ -246,7 +266,7 @@ public class BenchmarkTest {
     }
 
     /*
-     **************** BenchmarkTestAgent
+     **************** Test2BenchmarkAgent
      *
      */
 
@@ -262,7 +282,7 @@ public class BenchmarkTest {
         System.out.println("ERROR: " + msg);
     }
 
-    private void init() throws Exception {
+    private void buildBenchmarks() throws Exception {
         generateBenchmarkList();
         CompileProcess.WindowsCompileProcess compileProcess = new CompileProcess.WindowsCompileProcess();
         compileProcess.compile();
@@ -303,8 +323,9 @@ public class BenchmarkTest {
                 fos.write('\n');
                 fos.flush();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exc) {
+            err("Failed to write benchmark run configuration properties, exc: " + exc.getLocalizedMessage());
+            exc.printStackTrace();
         }
     }
 
@@ -316,16 +337,16 @@ public class BenchmarkTest {
                 return benchmarkClassList;
             }
             benchmarkClassList = new ArrayList<>();
-            File testDir = new File(BenchmarkTest.TEST_DIR).getAbsoluteFile();
+            File testDir = new File(Test2Benchmark.TEST_DIR).getAbsoluteFile();
             String testDirPath = testDir.getPath();
             if (!testDirPath.endsWith(File.separator)) {
                 testDirPath += File.separator;
             }
 
             if (!testDir.exists()) {
-                BenchmarkTest.err("Test dir does not exist: " + testDir);
+                Test2Benchmark.err("Test dir does not exist: " + testDir);
             } else {
-                BenchmarkTest.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
+                Test2Benchmark.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
                 Collection<File> includeClassFiles = T2BUtils.getUTClasses(testDir);
                 for (File classFile : includeClassFiles) {
                     try {
@@ -336,13 +357,13 @@ public class BenchmarkTest {
                         // TODO far from bulletproof
 
                         Class<?> clazz = Class.forName(className);
-                        BenchmarkTest.log("Found Test Class: " + clazz);
+                        Test2Benchmark.log("Found Test Class: " + clazz);
                         benchmarkClassList.add(new MyClassInfo(clazz));
                     } catch (Throwable t) {
-                        BenchmarkTest.err("Can't get test class: " + t);
+                        Test2Benchmark.err("Can't get test class: " + t);
                     }
                 }
-                BenchmarkTest.log("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");
+                Test2Benchmark.log("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");
             }
             return benchmarkClassList;
         }

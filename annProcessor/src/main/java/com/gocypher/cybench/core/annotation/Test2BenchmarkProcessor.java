@@ -30,7 +30,7 @@ import com.sun.tools.javac.tree.TreeMaker;
 @SupportedAnnotationTypes({ "org.junit.Test", "org.junit.jupiter.api.Test", "org.testng.annotations.Test" })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-public class TestToBenchmarkProcessor extends AbstractProcessor {
+public class Test2BenchmarkProcessor extends AbstractProcessor {
     private final BenchmarkGenerator generator = new TestScopeBenchmarkGenerator();
     private Trees trees;
     private ChangeTranslator visitor;
@@ -91,7 +91,7 @@ public class TestToBenchmarkProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (System.getProperty("generateBenchmarkFromTest") == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                    "TestToBenchmarkProcessor processor not enabled by default. You need to set property \"generateBenchmarkFromTest\"");
+                    "Test2BenchmarkProcessor processor not enabled by default. You need to set property \"generateBenchmarkFromTest\"");
             return false;
         }
         // if (!roundEnv.processingOver()) {
@@ -110,7 +110,7 @@ public class TestToBenchmarkProcessor extends AbstractProcessor {
                     return super.newResource(resourcePath);
                 } catch (FilerException e) {
                     return new FileOutputStream(
-                            TestToBenchmarkProcessor.getAlreadyCreatedFile(processingEnv, resourcePath), true);
+                            Test2BenchmarkProcessor.getAlreadyCreatedFile(processingEnv, resourcePath), true);
                 }
             }
         };

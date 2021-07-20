@@ -46,7 +46,7 @@ rem ###############################################
      set /p yn= Type a number :
         if [%yn%] == [1] (
             rem ### Compile Tests to benchmarks ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA11_OPTS% -javaagent:prod/lib/benchmarkTestAgent.jar -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.BenchmarkTest
+            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA11_OPTS% -javaagent:prod/lib/test2BenchmarkAgent.jar -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
             goto done
             )
         if [%yn%] == [2] (
