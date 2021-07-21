@@ -1,5 +1,19 @@
 # cybench-t2b-agent
 
+* Maven dependency to use:
+```xml
+<dependency>
+    <groupId>com.gocypher.cybench</groupId>
+    <artifactId>cybench-t2b-agent</artifactId>
+    <version>1.0-SNAPSHOT</version>    
+</dependency>
+```
+
+* Gradle dependency to use:
+```gradle
+compile 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+``` 
+
 ## Configuration
 
 ### Test2Benchmark (T2B) configuration
@@ -44,6 +58,19 @@ TBD
             </profile>
             <profile>
                 <id>test-2-bench</id>
+                <!-- @@@ Maven central snapshots repository to get artifact snapshot releases @@@ -->
+                <repositories>
+                    <repository>
+                        <id>oss.sonatype.org</id>
+                        <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+                        <releases>
+                            <enabled>false</enabled>
+                        </releases>
+                        <snapshots>
+                            <enabled>true</enabled>
+                        </snapshots>
+                    </repository>
+                </repositories>
                 <dependencies>
                     <!-- @@@ T2B agent app dependency @@@ -->
                     <dependency>
