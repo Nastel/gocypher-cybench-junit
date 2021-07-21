@@ -182,17 +182,6 @@
     phases must go after `test-compile` phase, since we are dealing with the product of this phase.
     * `-f pom.xml` - you can replace it with any path and file name to match your environment
 
-#### Debugging
-```cmd
-mvndebug clean validate -f pom.xml -P test-2-bench
-```
-this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
-
-Or simply enable java debugging agent using `t2b.debug` property:
-```xml
-<t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>
-```
-
 ### Gradle
 
 TBD
@@ -234,3 +223,14 @@ TBD
       class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
       ```
       On linux it shall be OK, since files are case sensitive.
+
+### Debugging
+```cmd
+mvndebug clean validate -f pom.xml -P test-2-bench
+```
+this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
+
+Or simply enable java debugging agent using `t2b.debug` property:
+```xml
+<t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>
+```
