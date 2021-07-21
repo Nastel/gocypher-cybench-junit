@@ -35,7 +35,7 @@
                     <dependency>
                         <groupId>com.gocypher</groupId>
                         <artifactId>test2BenchmarkAgent</artifactId>
-                        <version>1.0</version>
+                        <version>1.0-SNAPSHOT</version>
                         <scope>runtime</scope>
                     </dependency>
                     <!-- @@@ CyBench runner dependency @@@ -->

@@ -93,7 +93,7 @@ publishing {
     maven (MavenPublication) {
       groupId = 'com.gocypher'
       artifactId = 'test2BenchmarkAgent'
-      version = '1.0'
+      version = '1.0-SNAPSHOT'
 
       from components.java
     }
