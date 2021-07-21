@@ -213,6 +213,7 @@ TBD
 
 * **P1** tasks (must be for 2021-07-23):
     * Run from Gradle using `application` plugin
+    * Wiki/Docs
 * **P2** tasks (optional for 2021-07-23): 
     * Add cybench annotations: id, metadata
 * **P3** tasks (optional for 2021-07-23):
@@ -229,7 +230,7 @@ TBD
 * **Known Bugs**
     * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
     benchmarks compile fails with:
-        ```
-        class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
-        ```
-        On linux it shall be OK, since files are case sensitive.
+      ```
+      class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
+      ```
+      On linux it shall be OK, since files are case sensitive.
