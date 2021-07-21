@@ -1,49 +1,40 @@
+/*
+ * Copyright (C) 2021, K2N.IO.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ */
+
 plugins {
   id 'maven-publish'
+  id 'java'
+  id 'maven'
+  id 'signing'
 }
-
-group 'com.gocypher'
-
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-libsDirName = '../prod/lib'
-
-sourceSets {
-  main {
-    java {
-      // srcDir 'src/main' 
-    }
-  }
-
-  test {
-    java {
-      // srcDir 'src/test'
-    }
-  }
-}
-
-clean {
-  delete 'classes'
-  delete 'prod/lib'
-  delete fileTree ('prod') {}
-}
-
-test {
-  useTestNG ()
-}
-
-// https://docs.gradle.org/current/userguide/tutorial_java_projects.html
-// https://mvnrepository.com/
 
 repositories {
   mavenCentral ()
-  maven {
-    url "https://s01.oss.sonatype.org/content/repositories/snapshots"
-  }
+  maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots" }
+  mavenLocal ()
 }
+
+group = 'com.gocypher.cybench'
+archivesBaseName = 'cybench-t2b-agent'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
   compile 'org.openjdk.jmh:jmh-core:1.32'
@@ -59,6 +50,87 @@ dependencies {
   testCompile 'junit:junit:4.13.2'
 }
 
+task javadocJar (type: Jar, dependsOn: javadoc) {
+  classifier "javadoc"
+  from javadoc.destinationDir
+}
+task sourceJar (type: Jar) {
+  classifier "sources"
+  from sourceSets.main.allJava
+}
+artifacts {
+  archives javadocJar, sourceJar
+}
+
+signing {
+  required { gradle.taskGraph.hasTask ("uploadArchives") }
+  useGpgCmd ()
+  sign configurations.archives
+}
+
+// Build, sign, and upload
+uploadArchives {
+  repositories {
+    mavenDeployer {
+
+      // Sign POM
+      beforeDeployment { MavenDeployment deployment -> signing.signPom (deployment) }
+
+      // Destination
+      repository (url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication (userName: sonatypeUsername, password: sonatypePassword)
+      }
+      snapshotRepository (url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        authentication (userName: sonatypeUsername, password: sonatypePassword)
+      }
+
+      // Add required metadata to POM
+      pom.project {
+        name project.property ('archivesBaseName')
+        description 'Builds JMH benchmarks for unit tests.'
+        url 'https://github.com/K2NIO/gocypher-cybench-junit'
+        packaging 'jar'
+
+        scm {
+          url 'https://github.com/K2NIO/gocypher-cybench-junit'
+          connection 'scm:git:git://github.com/K2NIO/gocypher-cybench-junit'
+          developerConnection 'scm:git:git//github.com/K2NIO/gocypher-cybench-junit'
+        }
+        organization {
+          name 'K2N.IO'
+          url 'https://cybench.io'
+        }
+        licenses {
+          license {
+            name 'Apache License 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0'
+          }
+        }
+
+        developers {
+          developer {
+            name 'CyBench Team'
+            email 'info@cybench.io'
+            organizationUrl 'https://cybench.io'
+          }
+        }
+      }
+    }
+  }
+}
+
+task release (type: Zip) {
+  from 'build/libs/'
+  include '*'
+  destinationDir (file ('./release'))
+}
+
+clean {
+  delete 'classes'
+  delete 'prod/lib'
+  delete fileTree ('prod') {}
+}
+
 task copyClientLibs (type: Copy) {
   from {
     configurations.compile
@@ -68,7 +140,6 @@ task copyClientLibs (type: Copy) {
 }
 
 jar {
-  archiveName = 'test2BenchmarkAgent.jar'
 //
 // This will put all the contents from the jars into a single jar
 //    from {
@@ -91,9 +162,9 @@ jar {
 publishing {
   publications {
     maven (MavenPublication) {
-      groupId = 'com.gocypher'
-      artifactId = 'test2BenchmarkAgent'
-      version = '1.0-SNAPSHOT'
+      groupId = project.property ('group')
+      artifactId = project.property ('archivesBaseName')
+      version = project.property ('version')
 
       from components.java
     }
