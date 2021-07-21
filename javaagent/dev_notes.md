@@ -16,13 +16,6 @@
     * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH runner, `-r cyb` - run using 
     CyBench runner
     * Make sh script
-* **Known Bugs**
-    * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
-    benchmarks compile fails with:
-      ```
-      class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
-      ```
-      On linux it shall be OK, since files are case sensitive.
 
 ### Debugging
 ```cmd

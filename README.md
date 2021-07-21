@@ -11,6 +11,6 @@ Supported unit testing frameworks:
 
 ### Test2Benchmark (T2B) agent
 
-Build JMH benchmarks for unit tests running as java agent.
+Java agent lib building JMH benchmarks for unit tests.
 
-See [javaagent](javaagent)[readme](javaagent/README.md) file for usage details. 
+See [javaagent](javaagent) [readme](javaagent/README.md) file for usage details. 

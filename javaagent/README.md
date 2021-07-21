@@ -197,3 +197,11 @@ Use [runit.bat](runit.bat) batch script file to run.
 Use [runit.sh](runit.sh) bash script file to run.
 
 TBD
+
+## Known Bugs
+* If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
+benchmarks compile fails with:
+  ```
+  class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
+  ```
+  On linux it shall be OK, since files are case sensitive.
