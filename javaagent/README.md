@@ -163,6 +163,7 @@
     </project>
     ```
     **Note:** configurable sections are marked with comments starting `<!-- ###`.
+
     **Note:** to run CyBench runner you'll need configuration file [cybench-launcher.properties](src/main/resources/cybench-launcher.properties).
     Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
     ```xml
@@ -228,7 +229,7 @@ TBD
 * **Known Bugs**
     * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
     benchmarks compile fails with:
-    ```
-    class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
-    ```
-    On linux it shall be OK, since files are case sensitive.
+        ```
+        class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
+        ```
+        On linux it shall be OK, since files are case sensitive.
