@@ -200,6 +200,6 @@ phases must go after `test-compile` phase, since we are dealing with the product
     On linux it shall be OK, since files are case sensitive.
 
 ```cmd
-mvndebug initialize test-compile exec:exec 
+mvndebug clean validate -f pom.xml -P test-2-bench  
 ```
 this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
