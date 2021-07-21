@@ -1,5 +1,19 @@
 # cybench-t2b-agent
 
+## Configuration
+
+### Test2Benchmark (T2B) configuration
+
+TBD
+
+### CyBench Launcher configuration
+
+TBD
+
+### JMH Runner configuration (optional)
+
+TBD  
+
 ## Running Test2Benchmark (T2B)
 
 ### From Maven
@@ -33,8 +47,8 @@
                 <dependencies>
                     <!-- @@@ T2B agent app dependency @@@ -->
                     <dependency>
-                        <groupId>com.gocypher</groupId>
-                        <artifactId>test2BenchmarkAgent</artifactId>
+                        <groupId>com.gocypher.cybench</groupId>
+                        <artifactId>cybench-t2b-agent</artifactId>
                         <version>1.0-SNAPSHOT</version>
                         <scope>runtime</scope>
                     </dependency>
@@ -130,8 +144,13 @@
                                     <configuration>
                                         <executable>${t2b.exec.java}</executable>
                                         <classpathScope>test</classpathScope>
-                                        <commandlineArgs>${t2b.debug} ${t2b.module.prop} -javaagent:${com.gocypher:test2BenchmarkAgent:jar} -cp
-                                            ${t2b.compile.classpath} ${t2b.sys.props} com.gocypher.cybench.Test2Benchmark
+                                        <commandlineArgs>
+                                            ${t2b.debug}
+                                            ${t2b.module.prop}
+                                            -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
+                                            -cp ${t2b.compile.classpath}
+                                            ${t2b.sys.props}
+                                            com.gocypher.cybench.Test2Benchmark
                                         </commandlineArgs>
                                     </configuration>
                                 </execution>
@@ -147,7 +166,11 @@
                                         <skip>${t2b.bench.runner.skip}</skip>
                                         <executable>${t2b.exec.java}</executable>
                                         <classpathScope>test</classpathScope>
-                                        <commandlineArgs>${t2b.debug} ${t2b.module.prop} -cp ${RUN_CLASS_PATH} ${t2b.bench.runner.class}
+                                        <commandlineArgs>
+                                            ${t2b.debug}
+                                            ${t2b.module.prop}
+                                            -cp ${RUN_CLASS_PATH}
+                                            ${t2b.bench.runner.class}
                                             ${t2b.bench.runner.class.args}
                                         </commandlineArgs>
                                     </configuration>
@@ -196,7 +219,11 @@ Use [runit.bat](runit.bat) batch script file to run.
 
 Use [runit.sh](runit.sh) bash script file to run.
 
-TBD
+To change configuration making it to meet your needs, please edit these shell script files. See [Configuration](#configuration) section for 
+details.
+
+TODO: make shell configuration from properties file. That way both bat and sh shall use same file and there would be no need to change shell
+scripts itself.
 
 ## Known Bugs
 * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
