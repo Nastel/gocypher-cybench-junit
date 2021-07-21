@@ -2,7 +2,7 @@
 
 ## Running Test2Benchmark (T2B)
 
-### From Maven 
+### From Maven
 
 * Step 1: to run maven agent from maven, edit POM of your project first by adding these properties and profiles:
     ```xml
@@ -14,7 +14,7 @@
             <t2b.module.prop></t2b.module.prop>
             <...>
         </properties>
-        <...>    
+        <...>
         <profiles>
             <profile>
                 <id>java9-plus</id>
@@ -27,8 +27,8 @@
                         --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
                     </t2b.module.prop>
                 </properties>
-            </profile>  
-            <profile>                    
+            </profile>
+            <profile>
                 <id>test-2-bench</id>
                 <dependencies>
                     <!-- @@@ T2B agent app dependency @@@ -->
@@ -160,10 +160,15 @@
             <...>
         </profiles>
         <...>
-    </project>    
+    </project>
     ```
     **Note:** configurable sections are marked with comments starting `<!-- ###`.
-    
+    **Note:** to run CyBench runner you'll need configuration file [cybench-launcher.properties](src/main/resources/cybench-launcher.properties).
+    Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
+    ```xml
+    <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
+    ```
+
 * Step 2: run your maven script with `test-2-bench` profile enabled:
     ```cmd
     mvn clean validate -f pom.xml -P test-2-bench 
@@ -173,12 +178,12 @@
     * `clean` - this goal is optional, but in most cases we want to have clean build
     * `validate` - this goal is used to cover full build process lifecycle, since our default benchmark build and run phases are bound to 
     `pre-integration-test` and `integration-test`. But you may change accordingly to adopt your project build lifecycle, but **note** those 
-    phases must go after `test-compile` phase, since we are dealing with the product of this phase.  
+    phases must go after `test-compile` phase, since we are dealing with the product of this phase.
     * `-f pom.xml` - you can replace it with any path and file name to match your environment
 
 #### Debugging
 ```cmd
-mvndebug clean validate -f pom.xml -P test-2-bench  
+mvndebug clean validate -f pom.xml -P test-2-bench
 ```
 this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
 
@@ -189,7 +194,19 @@ Or simply enable java debugging agent using `t2b.debug` property:
 
 ### Gradle
 
+TBD
+
 ### OS shell
+
+* MS Windows
+
+Use [runit.bat](runit.bat) batch script file to run.
+
+* *nix
+
+Use [runit.sh](runit.sh) bash script file to run.
+
+TBD
 
 ## DEVNotes (a.k.a TODO)
 
@@ -215,4 +232,3 @@ Or simply enable java debugging agent using `t2b.debug` property:
     class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
     ```
     On linux it shall be OK, since files are case sensitive.
-
