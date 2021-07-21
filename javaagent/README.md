@@ -1,6 +1,8 @@
 # gocypher-cybench-junit
 
-## Java agent implementation
+## Running Test2Benchmark (T2B)
+
+### From Maven 
 
 * Step 1: to run maven agent from maven, edit POM of your project first by adding these properties and profiles:
 ```xml
@@ -174,6 +176,21 @@ mvn clean validate -f pom.xml -P test-2-bench
 phases must go after `test-compile` phase, since we are dealing with the product of this phase.  
 * `-f pom.xml` - you can replace it with any path and file name to match your environment
 
+#### Debugging
+```cmd
+mvndebug clean validate -f pom.xml -P test-2-bench  
+```
+this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
+
+Or simply enable java debugging agent using `t2b.debug` property:
+```xml
+    <t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>
+```
+
+### Gradle
+
+### OS shell
+
 ## DEVNotes (a.k.a TODO)
 
 * **P1** tasks (must be for 2021-07-23):
@@ -199,7 +216,3 @@ phases must go after `test-compile` phase, since we are dealing with the product
     ```
     On linux it shall be OK, since files are case sensitive.
 
-```cmd
-mvndebug clean validate -f pom.xml -P test-2-bench  
-```
-this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
