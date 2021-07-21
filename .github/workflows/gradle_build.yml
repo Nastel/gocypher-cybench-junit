@@ -43,4 +43,4 @@ jobs:
       - name: Build with Gradle
         run: |
           cd javaagent/
-          ./gradlew build
+          ./gradlew jar
