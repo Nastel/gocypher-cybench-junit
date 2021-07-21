@@ -1,17 +1,18 @@
 # cybench-t2b-agent
 
-* Maven dependency to use:
+* Use Maven dependency:
 ```xml
 <dependency>
     <groupId>com.gocypher.cybench</groupId>
     <artifactId>cybench-t2b-agent</artifactId>
-    <version>1.0-SNAPSHOT</version>    
+    <version>1.0-SNAPSHOT</version>  
+    <scope>runtime</scope>  
 </dependency>
 ```
 
-* Gradle dependency to use:
+* Use Gradle dependency:
 ```gradle
-compile 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 ``` 
 
 ## Configuration
@@ -58,7 +59,7 @@ TBD
             </profile>
             <profile>
                 <id>test-2-bench</id>
-                <!-- @@@ Maven central snapshots repository to get artifact snapshot releases @@@ -->
+                <!-- @@@ Maven central snapshots repository to get dependency artifacts snapshot releases @@@ -->
                 <repositories>
                     <repository>
                         <id>oss.sonatype.org</id>

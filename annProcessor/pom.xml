@@ -167,7 +167,7 @@
         </profile>
         <profile>
             <id>test-2-bench</id>
-            <!-- @@@ Maven central snapshots repository to get artifact snapshot releases @@@ -->
+            <!-- @@@ Maven central snapshots repository to get dependency artifacts snapshot releases @@@ -->
             <repositories>
                 <repository>
                     <id>oss.sonatype.org</id>
