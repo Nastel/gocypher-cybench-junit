@@ -1,4 +1,4 @@
-# gocypher-cybench-junit
+# cybench-t2b-agent
 
 ## Running Test2Benchmark (T2B)
 
