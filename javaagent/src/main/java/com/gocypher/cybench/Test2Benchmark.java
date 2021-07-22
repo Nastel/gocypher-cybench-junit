@@ -317,9 +317,9 @@ public class Test2Benchmark {
                 f.delete();
             }
             try (FileWriter fos = new FileWriter(f)) {
-                fos.write("BENCH_DIR=" + benchDir);
+                fos.write("BENCH_DIR=\"" + benchDir + "\"");
                 fos.write('\n');
-                fos.write("RUN_CLASS_PATH=" + classPath);
+                fos.write("RUN_CLASS_PATH=\"" + classPath + "\"");
                 fos.write('\n');
                 fos.flush();
             }
