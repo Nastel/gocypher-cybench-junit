@@ -54,11 +54,9 @@ classes. **Optional** property, shall be used if Java used to run this app is fr
 set this property. **NOTE**: to avoid any compatibility issues it is recommended to use same Java level version (`8`, `11`, `15`, etc) JDK 
 as it is Java used to run this app.
 
-#### Application arguments
+#### Application
 
 * Main class: `com.gocypher.cybench.Test2Benchmark`
-
-TBD
 
 ### CyBench Launcher configuration
 
