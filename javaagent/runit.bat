@@ -2,13 +2,14 @@
 setlocal
 
 rem #### Streams config ####
-set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams-1.11.7"
-set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\tnt4j-streams-core\target"
-set CLASS_PATH="%LIB_PATH%\lib\*;prod\lib\*"
+rem set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams-1.11.7"
+rem set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\tnt4j-streams-core\target"
+rem set CLASS_PATH="%LIB_PATH%\lib\*;prod\lib\*"
 rem ########################
 
 rem #### AnnProcessor config ####
 set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
+rem !!! DO not forget to add your app libs to class path !!!
 set CLASS_PATH="prod\lib\*"
 rem #############################
 

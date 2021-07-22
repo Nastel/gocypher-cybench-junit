@@ -188,7 +188,7 @@
                     <version>1.0-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
-                <!-- @@@ CyBench runner dependency @@@ -->
+                <!-- @@@ CyBench Launcher runner dependency @@@ -->
                 <dependency>
                     <groupId>com.gocypher.cybench.client</groupId>
                     <artifactId>gocypher-cybench-runner</artifactId>
@@ -212,7 +212,7 @@
                 <t2b.sys.props>-Dt2b.buildDir=${project.build.directory} -Dt2b.jdkHome=${t2b.jdk.home}</t2b.sys.props>
                 <!-- ### Skip running built benchmarks ### -->
                 <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
-                <!-- ### Config for CyBench runner ### -->
+                <!-- ### Config for CyBench Launcher runner ### -->
                 <t2b.bench.runner.class>com.gocypher.cybench.launcher.BenchmarkRunner</t2b.bench.runner.class>
                 <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
                 <!-- ### Config for JMH runner ### -->

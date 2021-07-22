@@ -1,19 +1,29 @@
 # cybench-t2b-agent
 
-* Use Maven dependency:
+This app running with Java agent builds JMH benchmarks for provided unit tests. It does not copy unit test code into benchmark - it just 
+links unit test to be executed from benchmark, generated for that test. That way there is no need to change already existing unit tests in 
+any way and they can be used for benchmarking.
+
+Supported unit testing frameworks:
+* JUnit4
+* JUnit5
+* TestNG
+
+Dependencies for your project:
+* Maven:
 ```xml
 <dependency>
     <groupId>com.gocypher.cybench</groupId>
     <artifactId>cybench-t2b-agent</artifactId>
-    <version>1.0-SNAPSHOT</version>  
-    <scope>runtime</scope>  
+    <version>1.0-SNAPSHOT</version>
+    <scope>runtime</scope>
 </dependency>
 ```
 
-* Use Gradle dependency:
-```gradle
+* Gradle:
+```groovy
 runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
-``` 
+```
 
 ## Configuration
 
@@ -23,11 +33,40 @@ TBD
 
 ### CyBench Launcher configuration
 
-TBD
+To run [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) you'll need configuration file 
+[cybench-launcher.properties](src/main/resources/cybench-launcher.properties). Put it somewhere in your project scope and set it over 
+`com.gocypher.cybench.launcher.BenchmarkRunner` class argument `cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties`.
+
+Dependencies for your project:
+* Maven:
+```xml
+<dependency>
+    <groupId>com.gocypher.cybench.client</groupId>
+    <artifactId>gocypher-cybench-runner</artifactId>
+    <version>1.1</version>
+    <scope>runtime</scope>
+</dependency>
+```
+
+* Gradle:
+```groovy
+runtimeOnly 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
+```
+
+See [CyBench Launcher Configuration document](https://github.com/K2NIO/gocypher-cybench-java#cybench-launcher-configuration) for 
+configuration options and details.
 
 ### JMH Runner configuration (optional)
 
-TBD  
+[CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) is preferred app to run generated benchmarks and 
+have benchmarking report posted into [CyBench](https://cybench.io/) [repo](https://app.cybench.io/cybench/) for later comparison and 
+evaluation of benchmark results.
+
+But it is also possible to run generated benchmarks using original JMH runner. Difference is that instead of 
+`com.gocypher.cybench.launcher.BenchmarkRunner` class you shall use `org.openjdk.jmh.Main` class.
+
+See [JMH Runner Configuration document](https://github.com/guozheng/jmh-tutorial/blob/master/README.md#jmh-command-line-options) for 
+configuration options and details.
 
 ## Running Test2Benchmark (T2B)
 
@@ -80,7 +119,7 @@ TBD
                         <version>1.0-SNAPSHOT</version>
                         <scope>runtime</scope>
                     </dependency>
-                    <!-- @@@ CyBench runner dependency @@@ -->
+                    <!-- @@@ CyBench Launcher runner dependency @@@ -->
                     <dependency>
                         <groupId>com.gocypher.cybench.client</groupId>
                         <artifactId>gocypher-cybench-runner</artifactId>
@@ -104,7 +143,7 @@ TBD
                     <t2b.sys.props>-Dt2b.buildDir=${project.build.directory} -Dt2b.jdkHome=${t2b.jdk.home}</t2b.sys.props>
                     <!-- ### Skip running built benchmarks ### -->
                     <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
-                    <!-- ### Config for CyBench runner ### -->
+                    <!-- ### Config for CyBench Launcher runner ### -->
                     <t2b.bench.runner.class>com.gocypher.cybench.launcher.BenchmarkRunner</t2b.bench.runner.class>
                     <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
                     <!-- ### Config for JMH runner ### -->
@@ -215,7 +254,7 @@ TBD
     ```
     **Note:** configurable sections are marked with comments starting `<!-- ###`.
 
-    **Note:** to run CyBench runner you'll need configuration file [cybench-launcher.properties](src/main/resources/cybench-launcher.properties).
+    **Note:** to run CyBench Launcher runner you'll need configuration file [cybench-launcher.properties](src/main/resources/cybench-launcher.properties).
     Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
     ```xml
     <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
@@ -245,13 +284,10 @@ Use [runit.bat](runit.bat) batch script file to run.
 
 * *nix
 
-Use [runit.sh](runit.sh) bash script file to run.
+Use [runit.sh](runit.sh) bash script file to run. **NOTE**: not yet complete!!!
 
-To change configuration making it to meet your needs, please edit these shell script files. See [Configuration](#configuration) section for 
-details.
-
-TODO: make shell configuration from properties file. That way both bat and sh shall use same file and there would be no need to change shell
-scripts itself.
+To change configuration to comply your environment needs, please edit these shell script files. See [Configuration](#configuration) section 
+for details.
 
 ## Known Bugs
 * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
