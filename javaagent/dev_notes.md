@@ -20,21 +20,21 @@
     CyBench runner
 
 ### Debugging
-```cmd
-mvndebug clean validate -f pom.xml -P test-2-bench
-```
+    ```cmd
+    mvndebug clean validate -f pom.xml -P test-2-bench
+    ```
 this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
 
 Or simply enable java debugging agent using `t2b.debug` property:
 * Maven
-```xml
-<t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>
-```
+    ```xml
+    <t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>
+    ```
 * Gradle
-```groovy
-TBD
-```
+    ```groovy
+    TBD
+    ```
 * Shell
-```cmd
-set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
-```
+    ```cmd
+    set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
+    ```

@@ -5,25 +5,26 @@ links unit test to be executed from benchmark, generated for that test. That way
 any way and they can be used for benchmarking.
 
 Supported unit testing frameworks:
+
 * JUnit4
 * JUnit5
 * TestNG
 
 Dependencies for your project:
 * Maven:
-```xml
-<dependency>
-    <groupId>com.gocypher.cybench</groupId>
-    <artifactId>cybench-t2b-agent</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <scope>runtime</scope>
-</dependency>
-```
+    ```xml
+    <dependency>
+        <groupId>com.gocypher.cybench</groupId>
+        <artifactId>cybench-t2b-agent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>runtime</scope>
+    </dependency>
+    ```
 
 * Gradle:
-```groovy
-runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
-```
+    ```groovy
+    runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+    ```
 
 ## Configuration
 
@@ -32,14 +33,14 @@ runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 #### Java command arguments
 
 * If Java used to run  this app is version `9+` it is needed to add module access arguments:
-```cmd
---add-exports=java.base/jdk.internal.loader=ALL-UNNAMED
---add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
-```
+    ```cmd
+    --add-exports=java.base/jdk.internal.loader=ALL-UNNAMED
+    --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
+    ```
 * Add Java agent argument:
-```cmd
--javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0-SNAPSHOT.jar
-```
+    ```cmd
+    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0-SNAPSHOT.jar
+    ```
 
 ##### Java system properties
 
@@ -66,19 +67,19 @@ To run [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is
 
 Dependencies for your project:
 * Maven:
-```xml
-<dependency>
-    <groupId>com.gocypher.cybench.client</groupId>
-    <artifactId>gocypher-cybench-runner</artifactId>
-    <version>1.1</version>
-    <scope>runtime</scope>
-</dependency>
-```
+    ```xml
+    <dependency>
+        <groupId>com.gocypher.cybench.client</groupId>
+        <artifactId>gocypher-cybench-runner</artifactId>
+        <version>1.1</version>
+        <scope>runtime</scope>
+    </dependency>
+    ```
 
 * Gradle:
-```groovy
-runtimeOnly 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
-```
+    ```groovy
+    runtimeOnly 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
+    ```
 
 See [CyBench Launcher Configuration document](https://github.com/K2NIO/gocypher-cybench-java#cybench-launcher-configuration) for 
 configuration options and details.
