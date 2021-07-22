@@ -305,7 +305,7 @@ Use [runit.bat](runit.bat) batch script file to run.
 
 * *nix
 
-Use [runit.sh](runit.sh) bash script file to run. TBD
+Use [runit.sh](runit.sh) bash script file to run.
 
 To change configuration to meet your environment, please edit these shell script files. See [Configuration](#configuration) section for 
 details.

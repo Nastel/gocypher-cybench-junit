@@ -3,7 +3,7 @@ setlocal
 
 set JAVA_HOME="D:\JAVA\jdk180"
 
-rem #### AnnProcessor config ####
+rem #### Your project config ####
 set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
 rem !!! DO not forget to add your app libs to class path !!!
 set CLASS_PATH="prod\lib\*"
