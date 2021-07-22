@@ -54,10 +54,12 @@ task javadocJar (type: Jar, dependsOn: javadoc) {
   classifier "javadoc"
   from javadoc.destinationDir
 }
+
 task sourceJar (type: Jar) {
   classifier "sources"
   from sourceSets.main.allJava
 }
+
 artifacts {
   archives javadocJar, sourceJar
 }
@@ -135,6 +137,7 @@ task copyClientLibs (type: Copy) {
   from {
     configurations.compile
   }
+  from jar
   into 'prod/lib'
   include '*.jar'
 }
