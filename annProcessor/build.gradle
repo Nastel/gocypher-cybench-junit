@@ -1,0 +1,110 @@
+plugins {
+  id 'maven-publish'
+  id 'application'
+}
+
+group 'com.gocypher'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+libsDirName = '../prod/lib'
+
+sourceSets {
+  main {
+    java {
+      // srcDir 'src/main'
+    }
+  }
+
+  test {
+    java {
+      // srcDir 'src/test'
+    }
+  }
+}
+
+clean {
+  delete 'classes'
+  delete 'prod/lib'
+  delete fileTree ('prod') {}
+}
+
+test {
+  useTestNG ()
+}
+
+// https://docs.gradle.org/current/userguide/tutorial_java_projects.html
+// https://mvnrepository.com/
+
+repositories {
+  mavenCentral ()
+  maven {
+    url "https://s01.oss.sonatype.org/content/repositories/snapshots"
+  }
+  mavenLocal ()
+}
+
+dependencies {
+  compile 'com.google.auto.service:auto-service:1.0'
+  compile 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
+  compile 'org.openjdk.jmh:jmh-core:1.32'
+  compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+  compile 'org.testng:testng:7.4.0'
+  compile 'junit:junit:4.13.2'
+  compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+  compile files ("${System.properties ['java.home']}/../lib/tools.jar")
+  runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+  runtimeOnly 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+  testCompile 'org.testng:testng:7.4.0'
+  testCompile 'junit:junit:4.13.2'
+  testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+}
+
+task copyClientLibs (type: Copy) {
+  from {
+    configurations.compile
+  }
+  into 'prod/lib'
+  include '*.jar'
+}
+
+jar {
+  archiveName = 't2bAnnotations.jar'
+//
+// This will put all the contents from the jars into a single jar
+//    from {
+//        configurations.compile.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+
+  exclude "META-INF/*.SF"
+  exclude "META-INF/*.DSA"
+  exclude "META-INF/*.RSA"
+
+  manifest {
+    attributes 'Can-Retransform-Classes': true,
+               'Can-Redefine-Classes': true
+  }
+}
+
+publishing {
+  publications {
+    maven (MavenPublication) {
+      groupId = 'com.gocypher'
+      artifactId = 't2bAnnotations'
+      version = '1.0'
+
+      from components.java
+    }
+  }
+}
+
+application {
+
+}
+
+build.finalizedBy (copyClientLibs)

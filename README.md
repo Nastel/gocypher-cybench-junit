@@ -1,6 +1,6 @@
 # gocypher-cybench-junit
 
-Benchmarking for unit tests. 
+Making JMH benchmarks for your project unit tests. 
 
 Supported unit testing frameworks:
 * JUnit4
@@ -11,6 +11,6 @@ Supported unit testing frameworks:
 
 ### Test2Benchmark (T2B) agent
 
-Java agent lib building JMH benchmarks for unit tests.
+Java agent app building JMH benchmarks for compiled unit tests.
 
 See [javaagent](javaagent) [readme](javaagent/README.md) file for usage details. 

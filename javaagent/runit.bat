@@ -11,14 +11,12 @@ set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH%
 rem set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH% -Dt2b.testDir=%BUILD_PATH%\test-classes  -Dt2b.benchDir=%BUILD_PATH%\t2b
 
 set JAVA_HOME="D:\JAVA\jdk180"
-set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
-set JAVA_DEBUGGER=
 
 for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_HOME%\bin\java -fullversion 2^>^&1') do set "jver=%%j%%k"
 rem for early access versions replace "ea" part with "00" to get comparable number
 set jver=%jver:ea=00%
 
-IF %jver% GTR 18 set JAVA11_OPTS="--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED" "--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED"
+IF %jver% GTR 18 set JAVA9_OPTS="--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED" "--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED"
 
 :do
     cls
@@ -31,21 +29,21 @@ IF %jver% GTR 18 set JAVA11_OPTS="--add-exports=java.base/jdk.internal.loader=AL
      set /p yn= Type a number :
         if [%yn%] == [1] (
             rem ### Compile Tests to benchmarks ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA11_OPTS% -javaagent:prod/lib/cybench-t2b-agent.jar -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -javaagent:prod/lib/cybench-t2b-agent.jar -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
             goto done
             )
         if [%yn%] == [2] (
             for /f "delims== tokens=1,2" %%G in (.benchRunProps) do set %%G=%%H
 
             rem ### Run benchmarks using CyBench ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA11_OPTS% -cp %RUN_CLASS_PATH% com.gocypher.cybench.launcher.BenchmarkRunner cfg=src/main/resources/cybench-launcher.properties
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp %RUN_CLASS_PATH% com.gocypher.cybench.launcher.BenchmarkRunner cfg=src/main/resources/cybench-launcher.properties
             goto done
             )
         if [%yn%] == [3] (
             for /f "delims== tokens=1,2" %%G in (.benchRunProps) do set %%G=%%H
-            
+
             rem ### Run benchmarks using JMH Runner ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA11_OPTS% -cp %RUN_CLASS_PATH% org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp %RUN_CLASS_PATH% org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
             goto done
             )
         if [%yn%] == [9] (

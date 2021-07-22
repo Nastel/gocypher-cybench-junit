@@ -25,9 +25,38 @@ Dependencies for your project:
 runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 ```
 
-## Configuration
+## Configuration                                    
 
 ### Test2Benchmark (T2B) configuration
+
+#### Java command arguments
+
+* If Java used to run  this app is version `9+` it is needed to add module access arguments:
+```cmd
+--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED
+--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
+```
+* Add Java agent argument:
+```cmd
+-javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent.jar
+``` 
+
+##### Java system properties
+
+* `t2b.buildDir` - defines path where unit tests are build. It can be root dir for `Maven` or `Gradle` builders. App will find inner paths 
+for compiled app and test classes. **Default value**: java system property `user.dir` if defined, `.` - otherwise.
+* `t2b.testDir` - defines path of built unit tests directory. **Optional** property, shall be used if `t2b.buildDir` fails to find where unit 
+tests are compiled. Most likely it may happen if unit test are build using any other build tool than `Maven` or `Gradle`. Also it may happen
+if your project uses non default `Maven`/`Gradle` build directories layout.   
+* `t2b.benchDir` - defines path where to place generated benchmarks. **Default value**: `${t2b.buildDir}/t2b`.
+* `t2b.jdkHome` - defines JDK home path to be used for benchmarks compilation. Now `javac` command is ued to compile generated benchmark 
+classes. **Optional** property, shall be used if Java used to run this app is from JRE. If app runner Java is from JDK, there is no need to 
+set this property. **NOTE**: to avoid any compatibility issues it is recommended to use same Java level version (`8`, `11`, `15`, etc) JDK 
+as it is Java used to run this app.
+
+#### Application arguments
+
+* Main class: `com.gocypher.cybench.Test2Benchmark`
 
 TBD
 
@@ -128,10 +157,6 @@ configuration options and details.
                     </dependency>
                 </dependencies>
                 <properties>
-                    <!-- ### Debugger Options ### -->
-                    <!--<t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>-->
-                    <!-- @@@ Now we turn them off @@@ -->
-                    <t2b.debug></t2b.debug>
                     <!-- ### JDK home used for javac command, shall match java version running this script to work as expected ### -->
                     <t2b.jdk.home>c:/java/jdk180</t2b.jdk.home>
                     <!-- ### Java executable to use ### -->
@@ -212,7 +237,6 @@ configuration options and details.
                                         <executable>${t2b.exec.java}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
-                                            ${t2b.debug}
                                             ${t2b.module.prop}
                                             -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
                                             -cp ${t2b.compile.classpath}
@@ -234,7 +258,6 @@ configuration options and details.
                                         <executable>${t2b.exec.java}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
-                                            ${t2b.debug}
                                             ${t2b.module.prop}
                                             -cp ${RUN_CLASS_PATH}
                                             ${t2b.bench.runner.class}
@@ -286,8 +309,8 @@ Use [runit.bat](runit.bat) batch script file to run.
 
 Use [runit.sh](runit.sh) bash script file to run. TBD
 
-To change configuration to comply your environment needs, please edit these shell script files. See [Configuration](#configuration) section 
-for details.
+To change configuration to meet your environment, please edit these shell script files. See [Configuration](#configuration) section for 
+details.
 
 ## Known Bugs
 * If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
