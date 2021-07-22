@@ -18,7 +18,6 @@
     * Make shell configuration from properties file. That way both `bat` and `sh` shall use same file and there would be no need to change 
     shell scripts itself. 
     CyBench runner
-    * Make sh script
 
 ### Debugging
 ```cmd
