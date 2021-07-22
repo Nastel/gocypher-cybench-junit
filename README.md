@@ -1,8 +1,9 @@
 # gocypher-cybench-junit
 
-Making JMH benchmarks for your project unit tests. 
+CyBench performance benchmarks (JMH) for your unit tests. 
 
 Supported unit testing frameworks:
+
 * JUnit4
 * JUnit5
 * TestNG
