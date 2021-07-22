@@ -25,7 +25,7 @@ Dependencies for your project:
 runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 ```
 
-## Configuration                                    
+## Configuration
 
 ### Test2Benchmark (T2B) configuration
 
@@ -39,7 +39,7 @@ runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 * Add Java agent argument:
 ```cmd
 -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0-SNAPSHOT.jar
-``` 
+```
 
 ##### Java system properties
 
@@ -47,7 +47,7 @@ runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 for compiled app and test classes. **Default value**: java system property `user.dir` if defined, `.` - otherwise.
 * `t2b.testDir` - defines path of built unit tests directory. **Optional** property, shall be used if `t2b.buildDir` fails to find where unit 
 tests are compiled. Most likely it may happen if unit test are build using any other build tool than `Maven` or `Gradle`. Also it may happen
-if your project uses non default `Maven`/`Gradle` build directories layout.   
+if your project uses non default `Maven`/`Gradle` build directories layout.
 * `t2b.benchDir` - defines path where to place generated benchmarks. **Default value**: `${t2b.buildDir}/t2b`.
 * `t2b.jdkHome` - defines JDK home path to be used for benchmarks compilation. Now `javac` command is ued to compile generated benchmark 
 classes. **Optional** property, shall be used if Java used to run this app is from JRE. If app runner Java is from JDK, there is no need to 

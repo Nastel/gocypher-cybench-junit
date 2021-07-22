@@ -33,7 +33,7 @@ Or simply enable java debugging agent using `t2b.debug` property:
 ```
 * Gradle
 ```groovy
-TDB
+TBD
 ```
 * Shell
 ```cmd

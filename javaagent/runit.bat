@@ -1,16 +1,22 @@
 @echo off
 setlocal
 
+set JAVA_HOME="D:\JAVA\jdk180"
+
 rem #### AnnProcessor config ####
 set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
 rem !!! DO not forget to add your app libs to class path !!!
 set CLASS_PATH="prod\lib\*"
 rem #############################
 
+rem ### Define your project build dir
 set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH%
-rem set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH% -Dt2b.testDir=%BUILD_PATH%\test-classes  -Dt2b.benchDir=%BUILD_PATH%\t2b
-
-set JAVA_HOME="D:\JAVA\jdk180"
+rem ### Define dir where compiled tests are
+rem set AGENT_OPTS=%AGENT_OPTS% -Dt2b.testDir=%BUILD_PATH%\test-classes
+rem ### Define dir where to place generated benchmarks
+rem set AGENT_OPTS=%AGENT_OPTS% -Dt2b.benchDir=%BUILD_PATH%\t2b
+rem ### Set JDK to compile generated benchmark classes in case JAVA_HOME refers JRE. Use same level version (e.g. 8, 11, 15) JDK as runner java defined for JAVA_HOME prop.
+rem set AGENT_OPTS=%AGENT_OPTS% -Dt2b.jdkHome="C:\Program Files\Java\jdk-13.0.2"
 
 for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_HOME%\bin\java -fullversion 2^>^&1') do set "jver=%%j%%k"
 rem for early access versions replace "ea" part with "00" to get comparable number
