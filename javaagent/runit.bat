@@ -1,12 +1,6 @@
 @echo off
 setlocal
 
-rem #### Streams config ####
-rem set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams-1.11.7"
-rem set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\tnt4j-streams-core\target"
-rem set CLASS_PATH="%LIB_PATH%\lib\*;prod\lib\*"
-rem ########################
-
 rem #### AnnProcessor config ####
 set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
 rem !!! DO not forget to add your app libs to class path !!!
@@ -25,16 +19,6 @@ rem for early access versions replace "ea" part with "00" to get comparable numb
 set jver=%jver:ea=00%
 
 IF %jver% GTR 18 set JAVA11_OPTS="--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED" "--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED"
-
-rem ### use arguments to determine actions flow ###
-rem setlocal enabledelayedexpansion
-
-rem set argCount=0
-rem for %%x in (%*) do (
-rem    set /A argCount+=1
-rem    set "args[!argCount!]=%%~x"
-rem )
-rem ###############################################
 
 :do
     cls

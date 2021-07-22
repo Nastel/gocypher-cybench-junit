@@ -284,7 +284,7 @@ Use [runit.bat](runit.bat) batch script file to run.
 
 * *nix
 
-Use [runit.sh](runit.sh) bash script file to run. **NOTE**: not yet complete!!!
+Use [runit.sh](runit.sh) bash script file to run. TBD
 
 To change configuration to comply your environment needs, please edit these shell script files. See [Configuration](#configuration) section 
 for details.
