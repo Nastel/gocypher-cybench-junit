@@ -38,7 +38,7 @@ runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
 ```
 * Add Java agent argument:
 ```cmd
--javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent.jar
+-javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0-SNAPSHOT.jar
 ``` 
 
 ##### Java system properties
