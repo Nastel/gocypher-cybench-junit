@@ -17,13 +17,13 @@ Dependencies for your project:
         <groupId>com.gocypher.cybench</groupId>
         <artifactId>cybench-t2b-agent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <scope>runtime</scope>
+        <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+    runtime 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
     ```
 
 ## Configuration
@@ -72,13 +72,13 @@ Dependencies for your project:
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-runner</artifactId>
         <version>1.1</version>
-        <scope>runtime</scope>
+        <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtimeOnly 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
     ```
 
 See [CyBench Launcher Configuration document](https://github.com/K2NIO/gocypher-cybench-java#cybench-launcher-configuration) for 
@@ -145,14 +145,14 @@ configuration options and details.
                         <groupId>com.gocypher.cybench</groupId>
                         <artifactId>cybench-t2b-agent</artifactId>
                         <version>1.0-SNAPSHOT</version>
-                        <scope>runtime</scope>
+                        <scope>test</scope>
                     </dependency>
                     <!-- @@@ CyBench Launcher runner dependency @@@ -->
                     <dependency>
                         <groupId>com.gocypher.cybench.client</groupId>
                         <artifactId>gocypher-cybench-runner</artifactId>
                         <version>1.2-SNAPSHOT</version>
-                        <scope>runtime</scope>
+                        <scope>test</scope>
                     </dependency>
                 </dependencies>
                 <properties>
