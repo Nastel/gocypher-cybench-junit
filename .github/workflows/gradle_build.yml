@@ -7,13 +7,13 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'javaagent/src/**'
-      - 'javaagent/*gradle*'
+      - 'cybench-t2b-agent/src/**'
+      - 'cybench-t2b-agent/*gradle*'
   pull_request:
     branches: [ main ]
     paths:
-      - 'javaagent/src/**'
-      - 'javaagent/*gradle*'
+      - 'cybench-t2b-agent/src/**'
+      - 'cybench-t2b-agent/*gradle*'
 
   workflow_dispatch:
     inputs:
@@ -39,8 +39,8 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'adopt'
       - name: Grant execute permission for gradlew
-        run: chmod +x javaagent/gradlew
+        run: chmod +x cybench-t2b-agent/gradlew
       - name: Build with Gradle
         run: |
-          cd javaagent/
+          cd cybench-t2b-agent/
           ./gradlew jar

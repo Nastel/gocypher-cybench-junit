@@ -26,7 +26,7 @@ plugins {
 
 repositories {
   mavenCentral ()
-  maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots" }
+  maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
   mavenLocal ()
 }
 
@@ -51,12 +51,12 @@ dependencies {
 }
 
 task javadocJar (type: Jar, dependsOn: javadoc) {
-  classifier "javadoc"
+  classifier 'javadoc'
   from javadoc.destinationDir
 }
 
 task sourceJar (type: Jar) {
-  classifier "sources"
+  classifier 'sources'
   from sourceSets.main.allJava
 }
 
@@ -65,7 +65,7 @@ artifacts {
 }
 
 signing {
-  required { gradle.taskGraph.hasTask ("uploadArchives") }
+  required { gradle.taskGraph.hasTask ('uploadArchives') }
   useGpgCmd ()
   sign configurations.archives
 }
@@ -79,10 +79,10 @@ uploadArchives {
       beforeDeployment { MavenDeployment deployment -> signing.signPom (deployment) }
 
       // Destination
-      repository (url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+      repository (url: 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/') {
         authentication (userName: sonatypeUsername, password: sonatypePassword)
       }
-      snapshotRepository (url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+      snapshotRepository (url: 'https://s01.oss.sonatype.org/content/repositories/snapshots/') {
         authentication (userName: sonatypeUsername, password: sonatypePassword)
       }
 
@@ -152,9 +152,9 @@ jar {
 //        }
 //    }
 
-  exclude "META-INF/*.SF"
-  exclude "META-INF/*.DSA"
-  exclude "META-INF/*.RSA"
+  exclude 'META-INF/*.SF'
+  exclude 'META-INF/*.DSA'
+  exclude 'META-INF/*.RSA'
 
   manifest {
     attributes 'Can-Retransform-Classes': true,

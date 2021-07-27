@@ -14,4 +14,4 @@ Supported unit testing frameworks:
 
 Java agent app building JMH benchmarks for compiled unit tests.
 
-See [javaagent](javaagent) [readme](javaagent/README.md) file for usage details. 
+See [cybench-t2b-agent](cybench-t2b-agent) [readme](cybench-t2b-agent/README.md) file for usage details. 

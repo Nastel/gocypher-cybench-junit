@@ -41,4 +41,4 @@ hs_err_pid*
 /**/.gradle/*
 /**/release
 /**/.benchRunProps
-/javaagent/reports
+/**/reports

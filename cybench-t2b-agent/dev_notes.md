@@ -15,10 +15,12 @@
     * Make gradle plugin
     * Make maven plugin
     * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH runner, `-r cyb` - run using
+    CyBench runner
+    * Multi-module project support (Maven/Gradle) when running from bat/sh. Scan `workDir` for inner build dirs and run benchmarks for all 
+    of them. 
     * Make shell configuration from properties file. That way both `bat` and `sh` shall use same file and there would be no need to change 
     shell scripts itself. 
-    CyBench runner
-
+    
 ### Debugging
     ```cmd
     mvndebug clean validate -f pom.xml -P test-2-bench
