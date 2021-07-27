@@ -1,6 +1,8 @@
 #!/bin/bash
 
 JAVA_HOME="D:\JAVA\jdk180"
+export JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
+export JAVA_DEBUGGER=""
 
 #### Your project config ####
 BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
@@ -34,13 +36,13 @@ while true; do
     while true; do
         read -p "Type a number: " yn
         case $yn in
-        1 ) $JAVA_HOME/bin/java $JAVA9_OPTS -javaagent:prod/lib/cybench-t2b-agent-1.0-SNAPSHOT.jar -cp $CLASS_PATH $AGENT_OPTS com.gocypher.cybench.Test2Benchmark;
+        1 ) $JAVA_HOME/bin/java $JAVA_DEBUGGER $JAVA9_OPTS -javaagent:prod/lib/cybench-t2b-agent-1.0-SNAPSHOT.jar -cp $CLASS_PATH $AGENT_OPTS com.gocypher.cybench.Test2Benchmark;
             break;;
-        2 ) source .benchRunProps;
-            $JAVA_HOME/bin/java $JAVA9_OPTS -cp $RUN_CLASS_PATH com.gocypher.cybench.launcher.BenchmarkRunner cfg=src/main/resources/cybench-launcher.properties;
+        2 ) source ../.benchRunProps;
+            $JAVA_HOME/bin/java $JAVA_DEBUGGER $JAVA9_OPTS -cp $RUN_CLASS_PATH com.gocypher.cybench.launcher.BenchmarkRunner cfg=config/cybench-launcher.properties;
             break;;
-        3 ) source .benchRunProps;
-            $JAVA_HOME/bin/java $JAVA9_OPTS -cp $RUN_CLASS_PATH org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput;
+        3 ) source ../.benchRunProps;
+            $JAVA_HOME/bin/java $JAVA_DEBUGGER $JAVA9_OPTS -cp $RUN_CLASS_PATH org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput;
             break;;
         9 ) exit; break;;
 

@@ -62,7 +62,7 @@ as it is Java used to run this app.
 ### CyBench Launcher configuration
 
 To run [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) you'll need configuration file 
-[cybench-launcher.properties](src/main/resources/cybench-launcher.properties). Put it somewhere in your project scope and set it over 
+[cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and set it over 
 `com.gocypher.cybench.launcher.BenchmarkRunner` class argument `cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties`.
 
 Dependencies for your project:
@@ -276,7 +276,7 @@ configuration options and details.
     ```
     **Note:** configurable sections are marked with comments starting `<!-- ###`.
 
-    **Note:** to run CyBench Launcher runner you'll need configuration file [cybench-launcher.properties](src/main/resources/cybench-launcher.properties).
+    **Note:** to run CyBench Launcher runner you'll need configuration file [cybench-launcher.properties](config/cybench-launcher.properties).
     Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
     ```xml
     <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
@@ -302,11 +302,11 @@ TBD
 
 * MS Windows
 
-Use [runit.bat](runit.bat) batch script file to run.
+Use [runit.bat](bin/runit.bat) batch script file to run.
 
 * *nix
 
-Use [runit.sh](runit.sh) bash script file to run.
+Use [runit.sh](bin/runit.sh) bash script file to run.
 
 To change configuration to meet your environment, please edit these shell script files. See [Configuration](#configuration) section for 
 details.
