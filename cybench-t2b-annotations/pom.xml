@@ -197,6 +197,10 @@
                 </dependency>
             </dependencies>
             <properties>
+                <!-- ### Debugger Options ### -->
+                <!--<t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>-->
+                <!-- @@@ Now we turn them off @@@ -->
+                <t2b.debug></t2b.debug>
                 <!-- ### JDK home used for javac command, shall match java version running this script to work as expected ### -->
                 <t2b.jdk.home>d:/java/jdk180</t2b.jdk.home>
                 <!-- ### Java executable to use ### -->
@@ -277,6 +281,7 @@
                                     <executable>${t2b.exec.java}</executable>
                                     <classpathScope>test</classpathScope>
                                     <commandlineArgs>
+                                        ${t2b.debug}
                                         ${t2b.module.prop}
                                         -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
                                         -cp ${t2b.compile.classpath}
@@ -298,6 +303,7 @@
                                     <executable>${t2b.exec.java}</executable>
                                     <classpathScope>test</classpathScope>
                                     <commandlineArgs>
+                                        ${t2b.debug}
                                         ${t2b.module.prop}
                                         -cp ${RUN_CLASS_PATH}
                                         ${t2b.bench.runner.class}

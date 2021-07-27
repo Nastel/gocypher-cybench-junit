@@ -12,7 +12,7 @@ rem set CLASS_PATH="%LIB_PATH%\lib\*;prod\lib\*"
 rem ########################
 
 rem #### Your project config ####
-set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
+set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\cybench-t2b-annotations\target"
 rem !!! DO not forget to add your app libs to class path !!!
 set CLASS_PATH="prod\lib\*"
 rem #############################

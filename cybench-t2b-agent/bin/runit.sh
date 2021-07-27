@@ -5,7 +5,7 @@ export JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,addr
 export JAVA_DEBUGGER=""
 
 #### Your project config ####
-BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\annProcessor\target"
+BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\cybench-t2b-annotations\target"
 #### !!! DO not forget to add your app libs to class path !!!
 CLASS_PATH="prod\lib\*"
 #############################
