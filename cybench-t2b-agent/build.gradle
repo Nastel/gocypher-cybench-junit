@@ -22,6 +22,8 @@ plugins {
   id 'java'
   id 'maven'
   id 'signing'
+  id 'distribution'
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 repositories {
@@ -106,6 +108,7 @@ uploadArchives {
           license {
             name 'Apache License 2.0'
             url 'http://www.apache.org/licenses/LICENSE-2.0'
+            distribution 'repo'
           }
         }
 
@@ -128,7 +131,6 @@ task release (type: Zip) {
 }
 
 clean {
-  delete 'classes'
   delete 'prod/lib'
   delete fileTree ('prod') {}
 }
@@ -163,6 +165,18 @@ jar {
   }
 }
 
+shadowJar {
+  // Include all manifest from jar to shadowJar
+  manifest {
+    inheritFrom jar.manifest
+  }
+  // If need to include certain dependencies
+//  dependencies {
+//    include (dependency ('org.javassist:javassist:.*'))
+//    include (dependency ('org.openjdk.jmh:jmh-core:.*'))
+//  }
+}
+
 publishing {
   publications {
     maven (MavenPublication) {
@@ -173,6 +187,56 @@ publishing {
       from components.java
     }
   }
+}
+
+distributions {
+  main {
+    distributionBaseName.set (project.property ('archivesBaseName'))
+    contents {
+      into ('libs') {
+        from tasks.getByName ('jar').outputs
+        from configurations.compile
+        from configurations.runtime
+      }
+      into ('bin') {
+        from ('bin') {
+          includeEmptyDirs = false
+          include '**/*.*'
+        }
+      }
+      into ('config') {
+        from ('config') {
+          includeEmptyDirs = false
+          include '**/*.*'
+        }
+      }
+      into ('') {
+        from ('build/libs') {
+          include '*-javadoc.jar'
+          include '*-sources.jar'
+//          include '*-all.jar'
+        }
+      }
+
+      from (rootDir) {
+        include 'README.md'
+      }
+
+      from ('../') {
+        include 'LICENSE'
+      }
+    }
+  }
+}
+
+distTar {
+  compression = Compression.GZIP
+  archiveExtension.set ('tar.gz')
+  dependsOn ('javadocJar', 'sourceJar')
+}
+
+distZip {
+  dependsOn ('javadocJar', 'sourceJar')
 }
 
 build.finalizedBy (copyClientLibs)

@@ -1,30 +1,27 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-set JAVA_HOME="D:\JAVA\jdk180"
-set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
-set JAVA_DEBUGGER=
+set RUNDIR=%~dp0
 
-rem #### Streams config ####
-rem set LIB_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\build\tnt4j-streams-1.11.7"
-rem set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\jKoolLLC\tnt4j-streams\tnt4j-streams-core\target"
-rem set CLASS_PATH="%LIB_PATH%\lib\*;prod\lib\*"
-rem ########################
+set /p JAVA_HOME= Enter your Java Home dir path: [%JAVA_HOME%] :
 
 rem #### Your project config ####
 set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\cybench-t2b-annotations\target"
+set /p BUILD_PATH= Enter your project build dir path: [%BUILD_PATH%] :
 rem !!! DO not forget to add your app libs to class path !!!
-set CLASS_PATH="prod\lib\*"
+set CLASS_PATH="%RUNDIR%..\libs\*"
+set /p CLASS_PATH= Enter class path to use: [%CLASS_PATH%] :
 rem #############################
 
 rem ### Define your project build dir
-set AGENT_OPTS=-Dt2b.buildDir=%BUILD_PATH%
+set AGENT_OPTS="-Dt2b.buildDir=%BUILD_PATH%"
 rem ### Define dir where compiled tests are
-rem set AGENT_OPTS=%AGENT_OPTS% -Dt2b.testDir=%BUILD_PATH%\test-classes
+rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.testDir=%BUILD_PATH%\test-classes"
 rem ### Define dir where to place generated benchmarks
-rem set AGENT_OPTS=%AGENT_OPTS% -Dt2b.benchDir=%BUILD_PATH%\t2b
+rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.benchDir=%BUILD_PATH%\t2b"
 rem ### Set JDK to compile generated benchmark classes in case JAVA_HOME refers JRE. Use same level version (e.g. 8, 11, 15) JDK as runner java defined for JAVA_HOME prop.
-rem set AGENT_OPTS=%AGENT_OPTS% -Dt2b.jdkHome="C:\Program Files\Java\jdk-13.0.2"
+rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.jdkHome="C:\Program Files\Java\jdk-13.0.2"
+set /p AGENT_OPTS= Enter agent options: [%AGENT_OPTS%] :
 
 for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_HOME%\bin\java -fullversion 2^>^&1') do set "jver=%%j%%k"
 rem for early access versions replace "ea" part with "00" to get comparable number
@@ -32,42 +29,47 @@ set jver=%jver:ea=00%
 
 IF %jver% GTR 18 set JAVA9_OPTS="--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED" "--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED"
 
-rem ### use arguments to determine actions flow ###
-rem setlocal enabledelayedexpansion
-
-rem set argCount=0
-rem for %%x in (%*) do (
-rem    set /A argCount+=1
-rem    set "args[!argCount!]=%%~x"
-rem )
-rem ###############################################
 
 :do
+    for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
+
     cls
+    echo -----------------------------
+    echo SETTINGS:
+    echo  Script Home Dir: %RUNDIR%
+    echo        Java Home: %JAVA_HOME%
+    echo       Class Path: %CLASS_PATH%
+    echo   Build Dir Path: %BUILD_PATH%
+    echo    Agent Options: %AGENT_OPTS%
+    echo   Java9+ Options: %JAVA9_OPTS%
+    echo   Benchmarks Dir: %BENCH_DIR%
+rem    echo  Run Class Path: %RUN_CLASS_PATH%
+    echo -----------------------------
     echo Choose action:
     echo 1. Compile Tests to Benchmarks
     echo 2. Run benchmarks using Cybench runner
     echo 3. Run benchmarks using JMH runner
     echo 9. Exit
+    echo -----------------------------
 
-     set /p yn= Type a number :
+    set /p yn= Type a number :
         if [%yn%] == [1] (
             rem ### Compile Tests to benchmarks ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA9_OPTS% -javaagent:prod/lib/cybench-t2b-agent-1.0-SNAPSHOT.jar -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -javaagent:"%RUNDIR%..\libs\cybench-t2b-agent-1.0-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
             goto done
             )
         if [%yn%] == [2] (
-            for /f "delims== tokens=1,2" %%G in (.benchRunProps) do set %%G=%%H
+rem            for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
 
             rem ### Run benchmarks using CyBench ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA9_OPTS% -cp %RUN_CLASS_PATH% com.gocypher.cybench.launcher.BenchmarkRunner cfg=config/cybench-launcher.properties
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp !RUN_CLASS_PATH! com.gocypher.cybench.launcher.BenchmarkRunner cfg="%RUNDIR%..\config\cybench-launcher.properties"
             goto done
             )
         if [%yn%] == [3] (
-            for /f "delims== tokens=1,2" %%G in (.benchRunProps) do set %%G=%%H
+rem            for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
 
             rem ### Run benchmarks using JMH Runner ###
-            %JAVA_HOME%\bin\java %JAVA_DEBUGGER% %JAVA9_OPTS% -cp %RUN_CLASS_PATH% org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp !RUN_CLASS_PATH! org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
             goto done
             )
         if [%yn%] == [9] (
