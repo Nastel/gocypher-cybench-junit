@@ -6,11 +6,11 @@ else
     SCRIPTPATH=$( cd "$(dirname "$0")" ; pwd -P )
 fi
 
-#JAVA_HOME="D:/JAVA/jdk180"
+#JAVA_HOME="/usr/local/java/jdk"
 read -e -p "Enter your Java Home dir path: " -i "$JAVA_HOME" JAVA_HOME
 
 #### Your project config ####
-BUILD_PATH="D:/JAVA/PROJECTS/Nastel/cybench/gocypher-cybench-junit/cybench-t2b-annotations/target"
+BUILD_PATH="$HOME/dev/my/project"
 read -e -p "Enter your project build dir path: " -i "$BUILD_PATH" BUILD_PATH
 #### !!! DO not forget to add your app libs to class path !!!
 CLASS_PATH="$SCRIPTPATH/../libs/*"

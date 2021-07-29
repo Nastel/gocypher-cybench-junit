@@ -3,10 +3,11 @@ setlocal enabledelayedexpansion
 
 set RUNDIR=%~dp0
 
+rem set JAVA_HOME="c:\java\jdk_180"
 set /p JAVA_HOME= Enter your Java Home dir path: [%JAVA_HOME%] :
 
 rem #### Your project config ####
-set BUILD_PATH="D:\JAVA\PROJECTS\Nastel\cybench\gocypher-cybench-junit\cybench-t2b-annotations\target"
+set BUILD_PATH="c:\projects\my"
 set /p BUILD_PATH= Enter your project build dir path: [%BUILD_PATH%] :
 rem !!! DO not forget to add your app libs to class path !!!
 set CLASS_PATH="%RUNDIR%..\libs\*"
