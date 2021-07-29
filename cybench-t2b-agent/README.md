@@ -13,6 +13,19 @@ Supported unit testing frameworks:
 Dependencies for your project:
 * Maven:
     ```xml
+    <repositories>
+        <repository>
+            <id>oss.sonatype.org</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    ...
     <dependency>
         <groupId>com.gocypher.cybench</groupId>
         <artifactId>cybench-t2b-agent</artifactId>
