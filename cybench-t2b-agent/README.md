@@ -113,7 +113,7 @@ configuration options and details.
 
 ### From Maven
 
-* Step 1: to run maven agent from maven, edit POM of your project first by adding these properties and profiles:
+* Step 1: to run Maven agent from Maven, edit POM of your project first by adding these properties and profiles:
     ```xml
     <project>
         <...>
@@ -295,7 +295,7 @@ configuration options and details.
     <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
     ```
 
-* Step 2: run your maven script with `test-2-bench` profile enabled:
+* Step 2: run your Maven script with `test-2-bench` profile enabled:
     ```cmd
     mvn clean validate -f pom.xml -P test-2-bench 
     ```
@@ -321,6 +321,12 @@ Use [runit.bat](bin/runit.bat) batch script file to run.
 
 Use [runit.sh](bin/runit.sh) bash script file to run.
 
+Bash scripts are kind of run wizards: it will ask you for you about your environment configuration and having required variables set, it 
+will allow you to select options on what you want to do:
+* Build benchmarks from tests - it shall be run very fist time and after every rebuild of your project.
+* Run benchmarks using Cybench runner.
+* Run benchmarks using JMH runner. 
+
 To change configuration to meet your environment, please edit these shell script files. See [Configuration](#configuration) section for 
 details.
 
@@ -330,4 +336,4 @@ benchmarks compile fails with:
   ```
   class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
   ```
-  On linux it shall be OK, since files are case sensitive.
+  On Linux it shall be OK, since files are case sensitive.
