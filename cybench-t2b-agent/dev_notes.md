@@ -2,13 +2,14 @@
 
 * **P1** tasks (must be for 2021-07-23):
     * Run from Gradle using `application` plugin
-    * Wiki/Docs
 * **P2** tasks (optional for 2021-07-23): 
-    * Add cybench annotations: id, metadata
+    * Add cybench annotations: id, metadata. Make it configurable using some template (file or property).
 * **P3** tasks (optional for 2021-07-23):
     * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
     * Add includes/excludes to narrow the scope of tests to use
     * Make skip with reason: throw exception with message from annotation
+    * Multi-module project support (Maven/Gradle) when running from bat/sh. Scan `workDir` for inner build dirs and run benchmarks for all 
+      of them
     * Large reports
 * **P4** tasks (optional at all):
     * Make compilation using java API instead of calling `javac` process
@@ -16,11 +17,9 @@
     * Make maven plugin
     * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH runner, `-r cyb` - run using
     CyBench runner
-    * Multi-module project support (Maven/Gradle) when running from bat/sh. Scan `workDir` for inner build dirs and run benchmarks for all 
-    of them. 
     * Make shell configuration from properties file. That way both `bat` and `sh` shall use same file and there would be no need to change 
-    shell scripts itself. 
-    
+    shell scripts itself
+
 ### Debugging
     ```cmd
     mvndebug clean validate -f pom.xml -P test-2-bench
