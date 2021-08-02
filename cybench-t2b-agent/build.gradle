@@ -148,6 +148,15 @@ task copyClientLibs(type: Copy) {
     include '*.jar'
 }
 
+test {
+//@See: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
+//    useJUnit()
+    // enable TestNG support (default is JUnit)
+    useTestNG()
+    // enable JUnit Platform (a.k.a. JUnit 5) support
+//    useJUnitPlatform()
+}
+
 jar {
 //
 // This will put all the contents from the jars into a single jar
