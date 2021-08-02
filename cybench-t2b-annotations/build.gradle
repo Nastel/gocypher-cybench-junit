@@ -1,7 +1,6 @@
 plugins {
     id 'maven-publish'
     id 'java'
-//  id 'application'
 }
 
 repositories {
@@ -82,19 +81,16 @@ publishing {
     }
 }
 
-//application {
-//
-//}
-
+// Prints out command line args list for JavaExec tasks
 allprojects {
     tasks.withType(JavaExec) {
         doFirst {
-            println commandLine
+            println 'Task [' + name + '] command line tokens: ' + commandLine
         }
     }
 }
 
-task buildBenchmarksFromUnitTests(type: JavaExec) {
+task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
     group = 'CyBench-T2B'
     description = 'Run Test2Benchmarks benchmarks generator'
     classpath = files(
@@ -121,7 +117,7 @@ task buildBenchmarksFromUnitTests(type: JavaExec) {
 }
 
 
-task runBenchmarksFromUnitTestsCybench(type: JavaExec) {
+task runBenchmarksFromUnitTestsCybench(type: JavaExec, dependsOn: buildBenchmarksFromUnitTests) {
     def benchRunProps = new Properties()
     file(".benchRunProps").withInputStream { benchRunProps.load(it) }
 
