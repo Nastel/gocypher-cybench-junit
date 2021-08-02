@@ -18,18 +18,18 @@
  */
 
 plugins {
-  id 'maven-publish'
-  id 'java'
-  id 'maven'
-  id 'signing'
-  id 'distribution'
-  id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'maven-publish'
+    id 'java'
+    id 'maven'
+    id 'signing'
+    id 'distribution'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 repositories {
-  mavenCentral ()
-  maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-  mavenLocal ()
+    mavenCentral()
+    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
+    mavenLocal()
 }
 
 group = 'com.gocypher.cybench'
@@ -37,112 +37,115 @@ archivesBaseName = 'cybench-t2b-agent'
 version = '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+ext.vendor = 'K2N.IO'
+
+defaultTasks 'clean', 'build'
 
 dependencies {
-  compile 'org.openjdk.jmh:jmh-core:1.32'
-  compile 'org.openjdk.jmh:jmh-generator-reflection:1.32'
-  compile 'org.javassist:javassist:3.28.0-GA'
-  compile 'org.testng:testng:7.4.0'
-  compile 'junit:junit:4.13.2'
-  compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-  // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
-  runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
-  testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
-  testCompile 'org.testng:testng:7.4.0'
-  testCompile 'junit:junit:4.13.2'
+    compile 'org.openjdk.jmh:jmh-core:1.32'
+    compile 'org.openjdk.jmh:jmh-generator-reflection:1.32'
+    compile 'org.javassist:javassist:3.28.0-GA'
+    compile 'org.testng:testng:7.4.0'
+    compile 'junit:junit:4.13.2'
+    compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+    testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+    testCompile 'org.testng:testng:7.4.0'
+    testCompile 'junit:junit:4.13.2'
 }
 
-task javadocJar (type: Jar, dependsOn: javadoc) {
-  classifier 'javadoc'
-  from javadoc.destinationDir
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
 }
 
-task sourceJar (type: Jar) {
-  classifier 'sources'
-  from sourceSets.main.allJava
+task sourceJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allJava
 }
 
 artifacts {
-  archives javadocJar, sourceJar
+    archives javadocJar, sourceJar
 }
 
 signing {
-  required { gradle.taskGraph.hasTask ('uploadArchives') }
-  useGpgCmd ()
-  sign configurations.archives
+    required { gradle.taskGraph.hasTask('uploadArchives') }
+    useGpgCmd()
+    sign configurations.archives
 }
 
 // Build, sign, and upload
 uploadArchives {
-  repositories {
-    mavenDeployer {
+    repositories {
+        mavenDeployer {
 
-      // Sign POM
-      beforeDeployment { MavenDeployment deployment -> signing.signPom (deployment) }
+            // Sign POM
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-      // Destination
-      repository (url: 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/') {
-        authentication (userName: sonatypeUsername, password: sonatypePassword)
-      }
-      snapshotRepository (url: 'https://s01.oss.sonatype.org/content/repositories/snapshots/') {
-        authentication (userName: sonatypeUsername, password: sonatypePassword)
-      }
+            // Destination
+            repository(url: 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            snapshotRepository(url: 'https://s01.oss.sonatype.org/content/repositories/snapshots/') {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
 
-      // Add required metadata to POM
-      pom.project {
-        name project.property ('archivesBaseName')
-        description 'Builds JMH benchmarks for unit tests.'
-        url 'https://github.com/K2NIO/gocypher-cybench-junit'
-        packaging 'jar'
+            // Add required metadata to POM
+            pom.project {
+                name project.property('archivesBaseName')
+                description 'Builds JMH benchmarks for unit tests.'
+                url 'https://github.com/K2NIO/gocypher-cybench-junit'
+                packaging 'jar'
 
-        scm {
-          url 'https://github.com/K2NIO/gocypher-cybench-junit'
-          connection 'scm:git:git://github.com/K2NIO/gocypher-cybench-junit'
-          developerConnection 'scm:git:git//github.com/K2NIO/gocypher-cybench-junit'
+                scm {
+                    url 'https://github.com/K2NIO/gocypher-cybench-junit'
+                    connection 'scm:git:git://github.com/K2NIO/gocypher-cybench-junit'
+                    developerConnection 'scm:git:git//github.com/K2NIO/gocypher-cybench-junit'
+                }
+                organization {
+                    name 'K2N.IO'
+                    url 'https://cybench.io'
+                }
+                licenses {
+                    license {
+                        name 'Apache License 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name 'CyBench Team'
+                        email 'info@cybench.io'
+                        organizationUrl 'https://cybench.io'
+                    }
+                }
+            }
         }
-        organization {
-          name 'K2N.IO'
-          url 'https://cybench.io'
-        }
-        licenses {
-          license {
-            name 'Apache License 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0'
-            distribution 'repo'
-          }
-        }
-
-        developers {
-          developer {
-            name 'CyBench Team'
-            email 'info@cybench.io'
-            organizationUrl 'https://cybench.io'
-          }
-        }
-      }
     }
-  }
 }
 
-task release (type: Zip) {
-  from 'build/libs/'
-  include '*'
-  destinationDir (file ('./release'))
+task release(type: Zip) {
+    from 'build/libs/'
+    include '*'
+    destinationDir(file('./release'))
 }
 
 clean {
-  delete 'prod/lib'
-  delete fileTree ('prod') {}
+    delete 'prod/lib'
+    delete fileTree('prod') {}
 }
 
-task copyClientLibs (type: Copy) {
-  from {
-    configurations.compile
-  }
-  from configurations.runtime
-  from jar
-  into 'prod/lib'
-  include '*.jar'
+task copyClientLibs(type: Copy) {
+    from {
+        configurations.compile
+    }
+    from configurations.runtime
+    from jar
+    into 'prod/lib'
+    include '*.jar'
 }
 
 jar {
@@ -154,23 +157,31 @@ jar {
 //        }
 //    }
 
-  exclude 'META-INF/*.SF'
-  exclude 'META-INF/*.DSA'
-  exclude 'META-INF/*.RSA'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
 
-  manifest {
-    attributes 'Can-Retransform-Classes': true,
-               'Can-Redefine-Classes': true,
-               'Premain-Class': 'com.gocypher.cybench.Test2BenchmarkAgent'
-  }
+    manifest {
+        attributes 'Implementation-Vendor': project.property('vendor'),
+                'Implementation-Title': project.property('archivesBaseName'),
+                'Implementation-Version': project.property('version') + '-' + getBuildTimestamp(),
+                'Can-Retransform-Classes': true,
+                'Can-Redefine-Classes': true,
+                'Premain-Class': 'com.gocypher.cybench.Test2BenchmarkAgent'
+    }
+}
+
+
+def getBuildTimestamp() {
+    return new Date().format('yyyyMMddHHmmss')
 }
 
 shadowJar {
-  // Include all manifest from jar to shadowJar
-  manifest {
-    inheritFrom jar.manifest
-  }
-  // If need to include certain dependencies
+    // Include all manifest from jar to shadowJar
+    manifest {
+        inheritFrom jar.manifest
+    }
+    // If need to include certain dependencies
 //  dependencies {
 //    include (dependency ('org.javassist:javassist:.*'))
 //    include (dependency ('org.openjdk.jmh:jmh-core:.*'))
@@ -178,65 +189,65 @@ shadowJar {
 }
 
 publishing {
-  publications {
-    maven (MavenPublication) {
-      groupId = project.property ('group')
-      artifactId = project.property ('archivesBaseName')
-      version = project.property ('version')
+    publications {
+        maven(MavenPublication) {
+            groupId = project.property('group')
+            artifactId = project.property('archivesBaseName')
+            version = project.property('version')
 
-      from components.java
+            from components.java
+        }
     }
-  }
 }
 
 distributions {
-  main {
-    distributionBaseName.set (project.property ('archivesBaseName'))
-    contents {
-      into ('libs') {
-        from tasks.getByName ('jar').outputs
-        from configurations.compile
-        from configurations.runtime
-      }
-      into ('bin') {
-        from ('bin') {
-          includeEmptyDirs = false
-          include '**/*.*'
-        }
-      }
-      into ('config') {
-        from ('config') {
-          includeEmptyDirs = false
-          include '**/*.*'
-        }
-      }
-      into ('') {
-        from ('build/libs') {
-          include '*-javadoc.jar'
-          include '*-sources.jar'
+    main {
+        distributionBaseName.set(project.property('archivesBaseName'))
+        contents {
+            into('libs') {
+                from tasks.getByName('jar').outputs
+                from configurations.compile
+                from configurations.runtime
+            }
+            into('bin') {
+                from('bin') {
+                    includeEmptyDirs = false
+                    include '**/*.*'
+                }
+            }
+            into('config') {
+                from('config') {
+                    includeEmptyDirs = false
+                    include '**/*.*'
+                }
+            }
+            into('') {
+                from('build/libs') {
+                    include '*-javadoc.jar'
+                    include '*-sources.jar'
 //          include '*-all.jar'
+                }
+            }
+
+            from(rootDir) {
+                include 'README.md'
+            }
+
+            from('../') {
+                include 'LICENSE'
+            }
         }
-      }
-
-      from (rootDir) {
-        include 'README.md'
-      }
-
-      from ('../') {
-        include 'LICENSE'
-      }
     }
-  }
 }
 
 distTar {
-  compression = Compression.GZIP
-  archiveExtension.set ('tar.gz')
-  dependsOn ('javadocJar', 'sourceJar')
+    compression = Compression.GZIP
+    archiveExtension.set('tar.gz')
+    dependsOn('javadocJar', 'sourceJar')
 }
 
 distZip {
-  dependsOn ('javadocJar', 'sourceJar')
+    dependsOn('javadocJar', 'sourceJar')
 }
 
-build.finalizedBy (copyClientLibs)
+build.finalizedBy(copyClientLibs)
