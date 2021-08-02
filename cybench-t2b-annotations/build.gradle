@@ -1,63 +1,53 @@
 plugins {
-  id 'maven-publish'
-  id 'java'
+    id 'maven-publish'
+    id 'java'
 //  id 'application'
 }
 
 repositories {
-  mavenCentral ()
-  maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-  mavenLocal ()
+    mavenCentral()
+    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
+    mavenLocal()
 }
 
 group = 'com.gocypher'
-archivesBaseName = 't2bAnnotations'
+archivesBaseName = 'cybench-t2b-annotations'
 version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 configurations {
-  t2b
-  cybench
+    t2b
+    cybench
 }
 
 // https://docs.gradle.org/current/userguide/tutorial_java_projects.html
 // https://mvnrepository.com/
 
 dependencies {
-  compile 'com.google.auto.service:auto-service:1.0'
-  compile 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
-  compile 'org.openjdk.jmh:jmh-core:1.32'
-  compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
-  compile 'org.testng:testng:7.4.0'
-  compile 'junit:junit:4.13.2'
-  compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-  compile files ("${System.properties ['java.home']}/../lib/tools.jar")
-  testCompile 'org.testng:testng:7.4.0'
-  testCompile 'junit:junit:4.13.2'
-  testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-  t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
-  cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
-}
-
-clean {
-  delete 'classes'
-  delete 'prod/lib'
-  delete fileTree ('prod') {}
+    compile 'com.google.auto.service:auto-service:1.0'
+    compile 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
+    compile 'org.openjdk.jmh:jmh-core:1.32'
+    compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+    compile 'org.testng:testng:7.4.0'
+    compile 'junit:junit:4.13.2'
+    compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    compile files("${System.properties['java.home']}/../lib/tools.jar")
+    testCompile 'org.testng:testng:7.4.0'
+    testCompile 'junit:junit:4.13.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+    cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
 }
 
 test {
-  useTestNG ()
-}
-
-task copyClientLibs (type: Copy) {
-  from {
-    configurations.compile
-  }
-  from configurations.runtime
-  from jar
-  into 'prod/lib'
-  include '*.jar'
+//@See: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
+    // enable JUnit support
+//    useJUnit()
+    // enable TestNG support (default is JUnit)
+//    useTestNG()
+    // enable JUnit Platform (a.k.a. JUnit 5) support
+    useJUnitPlatform()
 }
 
 jar {
@@ -69,47 +59,45 @@ jar {
 //        }
 //    }
 
-  exclude 'META-INF/*.SF'
-  exclude 'META-INF/*.DSA'
-  exclude 'META-INF/*.RSA'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
 
-  manifest {
-    attributes 'Can-Retransform-Classes': true,
-               'Can-Redefine-Classes': true
-  }
+    manifest {
+        attributes 'Can-Retransform-Classes': true,
+                'Can-Redefine-Classes': true
+    }
 }
 
 publishing {
-  publications {
-    maven (MavenPublication) {
-      groupId = project.property ('group')
-      artifactId = project.property ('archivesBaseName')
-      version = project.property ('version')
+    publications {
+        maven(MavenPublication) {
+            groupId = project.property('group')
+            artifactId = project.property('archivesBaseName')
+            version = project.property('version')
 
-      from components.java
+            from components.java
+        }
     }
-  }
 }
 
 //application {
 //
 //}
 
-task buildBenchmarksFromUnitTests (type: JavaExec) {
-  group = 'CyBench-T2B'
-  description = 'Run Test2Benchmarks benchmarks generator'
-  classpath = sourceSets.main.runtimeClasspath
-  main = 'com.gocypher.cybench.Test2Benchmark'
-  allJvmArgs = ['-javaagent:' + configurations.t2b.asPath,
-                //'-Dt2b.buildDir=' + buildDir.toPath ().toString (),
-                '-Dt2b.jdkHome=d:/java/jdk180']
+task buildBenchmarksFromUnitTests(type: JavaExec) {
+    group = 'CyBench-T2B'
+    description = 'Run Test2Benchmarks benchmarks generator'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.gocypher.cybench.Test2Benchmark'
+    allJvmArgs = ['-javaagent:' + configurations.t2b.asPath,
+                  //'-Dt2b.buildDir=' + buildDir.toPath ().toString (),
+                  '-Dt2b.jdkHome=d:/java/jdk180']
 
-  debugOptions {
-    enabled = false
-    port = 5005
-    server = true
-    suspend = true
-  }
+    debugOptions {
+        enabled = false
+        port = 5005
+        server = true
+        suspend = true
+    }
 }
-
-build.finalizedBy (copyClientLibs)
