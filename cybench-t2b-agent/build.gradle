@@ -93,7 +93,7 @@ uploadArchives {
 
             // Add required metadata to POM
             pom.project {
-                name project.property('archivesBaseName')
+                name "$archivesBaseName"
                 description 'Builds JMH benchmarks for unit tests.'
                 url 'https://github.com/K2NIO/gocypher-cybench-junit'
                 packaging 'jar'
@@ -122,6 +122,12 @@ uploadArchives {
                         organizationUrl 'https://cybench.io'
                     }
                 }
+
+                properties = [
+                        'project.build.sourceEncoding'    : 'UTF-8',
+                        'project.reporting.outputEncoding': 'UTF-8',
+                        'project.resources.encoding'      : 'UTF-8'
+                ]
             }
         }
     }
@@ -171,9 +177,9 @@ jar {
     exclude 'META-INF/*.RSA'
 
     manifest {
-        attributes 'Implementation-Vendor': project.property('vendor'),
-                'Implementation-Title': project.property('archivesBaseName'),
-                'Implementation-Version': project.property('version') + '-' + getBuildTimestamp(),
+        attributes 'Implementation-Vendor': "$vendor",
+                'Implementation-Title': "$archivesBaseName",
+                'Implementation-Version': "$version-${getBuildTimestamp()}",
                 'Can-Retransform-Classes': true,
                 'Can-Redefine-Classes': true,
                 'Premain-Class': 'com.gocypher.cybench.Test2BenchmarkAgent'
@@ -200,9 +206,9 @@ shadowJar {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = project.property('group')
-            artifactId = project.property('archivesBaseName')
-            version = project.property('version')
+            groupId = "$group"
+            artifactId = "$archivesBaseName"
+            version = "$version"
 
             from components.java
         }
@@ -211,7 +217,7 @@ publishing {
 
 distributions {
     main {
-        distributionBaseName.set(project.property('archivesBaseName'))
+        distributionBaseName.set("$archivesBaseName")
         contents {
             into('libs') {
                 from jar
