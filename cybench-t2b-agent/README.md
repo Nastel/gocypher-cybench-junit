@@ -113,7 +113,7 @@ configuration options and details.
 
 ### From Maven
 
-* Step 1: to run Maven agent from Maven, edit POM of your project first by adding these properties and profiles:
+* Step 1: to run T2B agent from Maven, edit POM of your project first by adding these properties and profiles:
     ```xml
     <project>
         <...>
@@ -309,7 +309,104 @@ configuration options and details.
 
 ### Gradle
 
-TBD
+* Step 1: to run T2B agent from Gradle, edit `build.gradle` of your project first by adding these `repository`, 
+`configurations`, `dependnecies` and `task` definitions:
+    ```groovy
+    repositories {
+        mavenCentral()
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
+    }
+    // ...
+    configurations {
+        t2b
+        cybench
+    }
+    // ...
+    dependencies {
+        // ...
+        t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0-SNAPSHOT'
+        cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+    }
+    // ...
+    task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
+        group = 'CyBench-T2B'
+        description = 'Run Test2Benchmarks benchmarks generator'
+        classpath = files(
+                project.sourceSets.main.runtimeClasspath,
+                project.sourceSets.test.runtimeClasspath,
+                configurations.t2b
+        )
+        if (JavaVersion.current().isJava9Compatible()) {
+            jvmArgs = [
+                    //'-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
+                    "-javaagent: \"${configurations.t2b.iterator().next()}\"",
+                    '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
+                    '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
+            ]
+        } else {
+            jvmArgs = [
+                    //'-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
+                    "-javaagent:\"${configurations.t2b.iterator().next()}\""
+            ]
+        }
+        systemProperties = [
+                't2b.buildDir': "$buildDir",
+                't2b.jdkHome' : 'd:/java/jdk180'
+        ]
+        main = 'com.gocypher.cybench.Test2Benchmark'
+    }
+
+    task runBenchmarksFromUnitTestsCybench(type: JavaExec, dependsOn: buildBenchmarksFromUnitTests) {
+        def benchRunProps = new Properties()
+        file(".benchRunProps").withInputStream { benchRunProps.load(it) }
+
+        group = 'CyBench-T2B'
+        description = 'Run JMH benchmarks over Cybench Launcher runner'
+        classpath = files(
+                [benchRunProps.get('RUN_CLASS_PATH').replaceAll("\"", "")],
+                configurations.cybench
+        )
+        if (JavaVersion.current().isJava9Compatible()) {
+            jvmArgs = [
+                    '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
+                    '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
+            ]
+        }
+
+        //    ### Config for CyBench Launcher runner ###
+        main = 'com.gocypher.cybench.launcher.BenchmarkRunner'
+        args = [
+                'cfg=t2b/cybench-launcher.properties'
+        ]
+
+        //    ### Config for JMH runner ###
+        //    main = 'org.openjdk.jmh.Main'
+        //    args = [
+        //            '-f', '1', '-w', '5s', '-wi', '0', '-i', '1', '-r', '5s', '-t', '1', '-bm', 'Throughput'
+        //    ]
+    }
+    ```
+
+    **Note:** since `cybench-t2b-agent` now is in pre-release state, you have to add maven central snapshots repo 
+    `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
+
+    **Note:** `configurations` section defines custom ones to make it easier to access particular cybench dependencies.
+
+    **Note:** to run CyBench Launcher runner you'll need configuration file [cybench-launcher.properties](config/cybench-launcher.properties).
+    Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
+    ```xml
+    <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
+    ```
+
+* Step 2: run your Gradle script:
+    * To build benchmarks from unit tests
+    ```cmd
+    gradle :buildBenchmarksFromUnitTests 
+    ```
+    * To build and run benchmarks
+    ```cmd
+    gradle :runBenchmarksFromUnitTestsCybench 
+    ```
 
 ### OS shell
 
@@ -325,7 +422,7 @@ Bash scripts are kind of run wizards: it will ask you for you about your environ
 will allow you to select options on what you want to do:
 * Build benchmarks from tests - it shall be run very fist time and after every rebuild of your project.
 * Run benchmarks using Cybench runner.
-* Run benchmarks using JMH runner. 
+* Run benchmarks using JMH runner.
 
 To change configuration to meet your environment, please edit these shell script files. See [Configuration](#configuration) section for 
 details.
