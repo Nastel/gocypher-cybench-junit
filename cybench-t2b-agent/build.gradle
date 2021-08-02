@@ -205,7 +205,7 @@ distributions {
         distributionBaseName.set(project.property('archivesBaseName'))
         contents {
             into('libs') {
-                from tasks.getByName('jar').outputs
+                from jar
                 from configurations.compile
                 from configurations.runtime
             }
@@ -250,4 +250,4 @@ distZip {
     dependsOn('javadocJar', 'sourceJar')
 }
 
-build.finalizedBy(copyClientLibs)
+//build.finalizedBy(copyClientLibs)
