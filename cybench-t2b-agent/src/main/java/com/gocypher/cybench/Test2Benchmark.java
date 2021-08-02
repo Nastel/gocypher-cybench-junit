@@ -112,7 +112,7 @@ public class Test2Benchmark {
             } else {
                 // Gradle layout
                 File testDirGrd = new File(WORK_DIR + "/classes/java/test");
-                if (testDirMvn.exists()) {
+                if (testDirGrd.exists()) {
                     testDirPath = testDirGrd.getAbsolutePath();
                     addClassPath(new File(WORK_DIR + "/classes/java/main"));
                 } else {
