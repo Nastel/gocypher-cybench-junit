@@ -338,14 +338,12 @@ configuration options and details.
         )
         if (JavaVersion.current().isJava9Compatible()) {
             jvmArgs = [
-                    //'-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
-                    "-javaagent: \"${configurations.t2b.iterator().next()}\"",
+                    "-javaagent:\"${configurations.t2b.iterator().next()}\"",
                     '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
                     '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
             ]
         } else {
             jvmArgs = [
-                    //'-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
                     "-javaagent:\"${configurations.t2b.iterator().next()}\""
             ]
         }
