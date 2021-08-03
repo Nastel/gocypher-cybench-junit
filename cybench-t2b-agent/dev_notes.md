@@ -33,7 +33,7 @@ Or simply enable java debugging agent using:
     ```groovy
     jvmArgs = [
         '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005'
-        ...
+        // ...
     ]
     ```
     or
