@@ -2,8 +2,9 @@
 
 * **P1** tasks (optional for 2021-07-23): 
     * Add cybench annotations: id, metadata. Make it configurable using some template (file or property).
-* **P2** tasks (optional for 2021-07-23):
     * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
+    * Integrate T2B with [opentelemetry-java-instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
+* **P2** tasks (optional for 2021-07-23):
     * Add includes/excludes to narrow the scope of tests to use
     * Make skip with reason: throw exception with message from annotation
     * Large reports
