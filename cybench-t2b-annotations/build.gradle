@@ -100,7 +100,7 @@ task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
     )
     if (JavaVersion.current().isJava9Compatible()) {
         jvmArgs = [
-                "-javaagent: \"${configurations.t2b.iterator().next()}\"",
+                "-javaagent:\"${configurations.t2b.iterator().next()}\"",
                 '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
                 '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
         ]
