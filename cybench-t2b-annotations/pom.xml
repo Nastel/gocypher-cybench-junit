@@ -299,7 +299,7 @@
                                     <classpathScope>test</classpathScope>
                                     <commandlineArgs>
                                         ${t2b.module.prop}
-                                        -cp ${RUN_CLASS_PATH}
+                                        -cp ${t2b.compile.classpath}${path.separator}${T2B_CLASS_PATH}
                                         ${t2b.bench.runner.class}
                                         ${t2b.bench.runner.class.args}
                                     </commandlineArgs>

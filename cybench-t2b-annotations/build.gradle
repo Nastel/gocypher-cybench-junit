@@ -85,7 +85,7 @@ publishing {
 allprojects {
     tasks.withType(JavaExec) {
         doFirst {
-            println 'Task [' + name + '] command line tokens: ' + commandLine
+            println "Task [$name] command line tokens: $commandLine"
         }
     }
 }
@@ -119,12 +119,22 @@ task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
 
 task runBenchmarksFromUnitTestsCybench(type: JavaExec, dependsOn: buildBenchmarksFromUnitTests) {
     def benchRunProps = new Properties()
-    file(".benchRunProps").withInputStream { benchRunProps.load(it) }
+    def pFile = file(".benchRunProps")
+    if (pFile.exists()) {
+        pFile.withInputStream { benchRunProps.load(it) }
+    }
+
+    def t2bClassPath = benchRunProps.getProperty('T2B_CLASS_PATH')
+    if (t2bClassPath != null) {
+        t2bClassPath = t2bClassPath.replaceAll("\"", "")
+    }
 
     group = 'CyBench-T2B'
     description = 'Run JMH benchmarks over Cybench Launcher runner'
     classpath = files(
-            [benchRunProps.get('RUN_CLASS_PATH').replaceAll("\"", "")],
+            project.sourceSets.main.runtimeClasspath,
+            project.sourceSets.test.runtimeClasspath,
+            [t2bClassPath],
             configurations.cybench
     )
     if (JavaVersion.current().isJava9Compatible()) {
