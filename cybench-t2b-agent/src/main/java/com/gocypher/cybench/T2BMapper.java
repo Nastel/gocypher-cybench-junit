@@ -5,16 +5,16 @@ import java.lang.annotation.Annotation;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 
-public abstract class AnnotationCondition {
+public abstract class T2BMapper {
 
     private Class<? extends Annotation> annotation;
     private Class<? extends Annotation> skipAnnotation;
 
-    public AnnotationCondition(Class<? extends Annotation> annotation) {
+    public T2BMapper(Class<? extends Annotation> annotation) {
         this.annotation = annotation;
     }
 
-    public AnnotationCondition(Class<? extends Annotation> annotation, Class<? extends Annotation> skipAnnotation) {
+    public T2BMapper(Class<? extends Annotation> annotation, Class<? extends Annotation> skipAnnotation) {
         this.annotation = annotation;
         this.skipAnnotation = skipAnnotation;
     }
@@ -32,6 +32,10 @@ public abstract class AnnotationCondition {
     }
 
     public abstract MethodState isAnnotationSkippable(Annotation ann);
+
+    public abstract Class<? extends Annotation> getSetupAnnotation();
+
+    public abstract Class<? extends Annotation> getTearDownAnnotation();
 
     public MethodState isValid(MethodInfo mi) {
         Annotation ann = mi.getAnnotation(annotation);
@@ -58,6 +62,18 @@ public abstract class AnnotationCondition {
         }
 
         return MethodState.NOT_TEST;
+    }
+
+    public boolean isSetupMethod(MethodInfo mi) {
+        Annotation ann = mi.getAnnotation(getSetupAnnotation());
+
+        return ann != null;
+    }
+
+    public boolean isTearDownMethod(MethodInfo mi) {
+        Annotation ann = mi.getAnnotation(getTearDownAnnotation());
+
+        return ann != null;
     }
 
     public enum MethodState {

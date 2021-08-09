@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.openjdk.jmh.annotations.Benchmark;
-
 import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -35,7 +33,7 @@ public class Test2BenchmarkAgent {
             instrumentation = inst;
             Test2Benchmark.log("Test2Benchmark Agent Premain called...");
 
-            Class<?> klass = Benchmark.class;
+            Class<?> klass = org.openjdk.jmh.annotations.Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
             // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.32/jmh-core-1.32.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");

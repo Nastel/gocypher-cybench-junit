@@ -8,9 +8,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import org.apache.commons.math3.util.Pair;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.FieldInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
@@ -29,6 +27,8 @@ public class T2BClassTransformer {
 
     private ClassInfo clsInfo;
     private CtClass alteredClass;
+    List<org.openjdk.jmh.generators.core.MethodInfo> benchmarksList = new ArrayList<>();
+    private ClassInfo aClsInfo;
 
     public T2BClassTransformer(ClassInfo clsInfo) {
         this.clsInfo = checkClassLoaderForAlteredClass(clsInfo);
@@ -68,6 +68,30 @@ public class T2BClassTransformer {
         return ls;
     }
 
+    public void doTransform(T2BMapper... t2bMappers) {
+        if (hasNonStaticFields()) {
+            annotateClassState();
+        }
+
+        for (org.openjdk.jmh.generators.core.MethodInfo methodInfo : clsInfo.getMethods()) {
+            annotateMethod(methodInfo, t2bMappers);
+        }
+    }
+
+    public void storeTransformedClass(String dir) {
+        if (isClassAltered()) {
+            try {
+                storeClass(dir);
+                toClass();
+            } catch (Exception exc) {
+                Test2Benchmark.err("failed to use altered class: " + getAlteredClassName() + ", reason: "
+                        + exc.getLocalizedMessage());
+                exc.printStackTrace();
+            }
+        }
+
+    }
+
     public void annotateClassState() {
         Annotation stateAnnotation = clsInfo.getAnnotation(State.class);
         if (stateAnnotation == null) {
@@ -76,13 +100,25 @@ public class T2BClassTransformer {
         }
     }
 
-    public void annotateMethodTag(org.openjdk.jmh.generators.core.MethodInfo methodInfo,
-            AnnotationCondition[] testAnnotations) {
+    public void annotateBenchmarkMethod(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
         String methodSignature = getSignature(methodInfo);
         Map<String, String> tagMembers = new HashMap<>(1);
         tagMembers.put("tag", UUID.nameUUIDFromBytes(methodSignature.getBytes()).toString());
 
-        annotateMethod(methodInfo, testAnnotations, BenchmarkTag.class.getName(), tagMembers);
+        annotateBenchmarkMethod(methodInfo, BenchmarkTag.class.getName(), tagMembers);
+    }
+
+    private static Map<String, Pair<String, String>> LEVEL_ANNOTATION_MEMBERS = new HashMap<>();
+    static {
+        LEVEL_ANNOTATION_MEMBERS.put("value", new Pair<>(Level.class.getName(), Level.Trial.name()));
+    }
+
+    public void annotateMethodSetup(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
+        annotateStateMethod(methodInfo, Setup.class.getName(), LEVEL_ANNOTATION_MEMBERS);
+    }
+
+    public void annotateMethodTearDown(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
+        annotateStateMethod(methodInfo, TearDown.class.getName(), LEVEL_ANNOTATION_MEMBERS);
     }
 
     public String getClassName() {
@@ -116,12 +152,25 @@ public class T2BClassTransformer {
         }
     }
 
-    public void annotateMethod(org.openjdk.jmh.generators.core.MethodInfo method, AnnotationCondition[] testAnnotations,
-            String annotationName, Map<String, String> tagMembersMap) {
+    public void annotateBenchmarkMethod(org.openjdk.jmh.generators.core.MethodInfo method, String annotationName,
+            Map<String, String> tagMembersMap) {
         try {
             String methodName = method.getName();
 
-            addMethodAnnotation(methodName, testAnnotations, annotationName, tagMembersMap);
+            addMethodBenchmarkAnnotation(methodName, annotationName, tagMembersMap);
+        } catch (Exception exc) {
+            Test2Benchmark.err("failed to add @" + annotationName + " annotation for method "
+                    + method.getQualifiedName() + ", reason: " + exc.getLocalizedMessage());
+            exc.printStackTrace();
+        }
+    }
+
+    public void annotateStateMethod(org.openjdk.jmh.generators.core.MethodInfo method, String annotationName,
+            Map<String, Pair<String, String>> levelMembersMap) {
+        try {
+            String methodName = method.getName();
+
+            addMethodStateAnnotation(methodName, annotationName, levelMembersMap);
         } catch (Exception exc) {
             Test2Benchmark.err("failed to add @" + annotationName + " annotation for method "
                     + method.getQualifiedName() + ", reason: " + exc.getLocalizedMessage());
@@ -229,6 +278,13 @@ public class T2BClassTransformer {
             classFile.addAttribute(annotationsAttribute);
         }
 
+        annotationsAttribute.addAnnotation(makeEnumAnnotation(annotationName, constPool, membersMap));
+
+        return ctClass;
+    }
+
+    private static javassist.bytecode.annotation.Annotation makeEnumAnnotation(String annotationName,
+            ConstPool constPool, Map<String, Pair<String, String>> membersMap) {
         javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
                 annotationName, constPool);
         if (membersMap != null) {
@@ -240,12 +296,11 @@ public class T2BClassTransformer {
             }
         }
 
-        annotationsAttribute.addAnnotation(annotation);
+        return annotation;
 
-        return ctClass;
     }
 
-    public CtClass addMethodAnnotation(String methodName, AnnotationCondition[] testAnnotations, String annotationName,
+    public CtClass addMethodBenchmarkAnnotation(String methodName, String annotationName,
             Map<String, String> membersMap) throws Exception {
         CtClass ctClass = getCtClass(getClassName());
 
@@ -276,10 +331,6 @@ public class T2BClassTransformer {
             methodInfo.addAttribute(annotationsAttribute);
         }
 
-        for (AnnotationCondition testAnnotation : testAnnotations) {
-            annotationsAttribute.removeAnnotation(testAnnotation.getAnnotation().getName());
-        }
-
         javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
                 Benchmark.class.getName(), constPool);
 
@@ -295,6 +346,42 @@ public class T2BClassTransformer {
         }
 
         annotationsAttribute.addAnnotation(annotation);
+
+        return ctClass;
+    }
+
+    public CtClass addMethodStateAnnotation(String methodName, String annotationName,
+            Map<String, Pair<String, String>> membersMap) throws Exception {
+        CtClass ctClass = getCtClass(getClassName());
+
+        if (ctClass.isFrozen()) {
+            ctClass.defrost();
+        }
+
+        CtMethod method = ctClass.getDeclaredMethod(methodName);
+        MethodInfo methodInfo = method.getMethodInfo();
+        ConstPool constPool = methodInfo.getConstPool();
+
+        if (!isNestedClass(ctClass) && !Modifier.isPublic(ctClass.getModifiers())) {
+            ctClass.setModifiers(ctClass.getModifiers() | Modifier.PUBLIC);
+            Test2Benchmark.log(
+                    String.format("%-20.20s: %s", "Changed", "visibility to PUBLIC for class " + ctClass.getName()));
+        }
+        if (!Modifier.isPublic(method.getModifiers())) {
+            method.setModifiers(method.getModifiers() | Modifier.PUBLIC);
+            Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
+                    "visibility to PUBLIC for method " + method.getLongName()));
+        }
+
+        List<AttributeInfo> methodAttributes = methodInfo.getAttributes();
+        AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(methodAttributes);
+
+        if (annotationsAttribute == null) {
+            annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+            methodInfo.addAttribute(annotationsAttribute);
+        }
+
+        annotationsAttribute.addAnnotation(makeEnumAnnotation(annotationName, constPool, membersMap));
 
         return ctClass;
     }
@@ -316,16 +403,12 @@ public class T2BClassTransformer {
     public void toClass() throws Exception {
         if (alteredClass != null) {
             Class<?> cls = alteredClass.toClass();
-            clsInfo = new MyClassInfo(cls);
+            aClsInfo = new MyClassInfo(cls);
         }
     }
 
-    public Collection<org.openjdk.jmh.generators.core.MethodInfo> getMethods() {
-        return clsInfo.getMethods();
-    }
-
     public ClassInfo getClassInfo() {
-        return clsInfo;
+        return aClsInfo == null ? clsInfo : aClsInfo;
     }
 
     public boolean isClassAltered() {
@@ -339,4 +422,93 @@ public class T2BClassTransformer {
     public String getAlteredClassName() {
         return alteredClass == null ? "null" : alteredClass.getName();
     }
+
+    public boolean hasBenchmarks() {
+        return !benchmarksList.isEmpty();
+    }
+
+    public Collection<org.openjdk.jmh.generators.core.MethodInfo> getBenchmarkMethods() {
+        if (isClassAltered()) {
+            Collection<org.openjdk.jmh.generators.core.MethodInfo> amil = aClsInfo.getMethods();
+            for (int i = 0; i < benchmarksList.size(); i++) {
+                org.openjdk.jmh.generators.core.MethodInfo mi = benchmarksList.get(i);
+                org.openjdk.jmh.generators.core.MethodInfo ami = getAlteredMethod(mi, amil);
+                if (ami != null) {
+                    benchmarksList.set(i, ami);
+                }
+            }
+        }
+
+        return benchmarksList;
+    }
+
+    private static org.openjdk.jmh.generators.core.MethodInfo getAlteredMethod(
+            org.openjdk.jmh.generators.core.MethodInfo mi,
+            Collection<org.openjdk.jmh.generators.core.MethodInfo> amil) {
+        for (org.openjdk.jmh.generators.core.MethodInfo ami : amil) {
+            if (ami.getName().equals(mi.getName())) {
+                return ami;
+            }
+        }
+
+        return null;
+    }
+
+    public void annotateMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2BMappers) {
+        T2BMapper.MethodState testValid = isValidTest(mi, t2BMappers);
+        if (testValid == T2BMapper.MethodState.VALID) {
+            annotateBenchmarkMethod(mi);
+            benchmarksList.add(mi);
+        } else if (isSetupMethod(mi, t2BMappers)) {
+            annotateMethodSetup(mi);
+        } else if (isTearDownMethod(mi, t2BMappers)) {
+            annotateMethodTearDown(mi);
+        } else if (testValid != T2BMapper.MethodState.NOT_TEST) {
+            Test2Benchmark.log(String.format("%-20.20s: %s", "Skipping Test Method",
+                    mi.getQualifiedName() + ", reason: " + testValid.name()));
+        }
+    }
+
+    private static T2BMapper.MethodState isValidTest(org.openjdk.jmh.generators.core.MethodInfo mi,
+            T2BMapper... t2bMappers) {
+        if (t2bMappers != null) {
+            for (T2BMapper mapper : t2bMappers) {
+                T2BMapper.MethodState ms = mapper.isValid(mi);
+                if (ms == T2BMapper.MethodState.NOT_TEST) {
+                    continue;
+                } else {
+                    return ms;
+                }
+            }
+        }
+
+        return T2BMapper.MethodState.NOT_TEST;
+    }
+
+    private static boolean isSetupMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2bMappers) {
+        if (t2bMappers != null) {
+            for (T2BMapper mapper : t2bMappers) {
+                boolean setupMethod = mapper.isSetupMethod(mi);
+                if (setupMethod) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isTearDownMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2bMappers) {
+        if (t2bMappers != null) {
+            for (T2BMapper mapper : t2bMappers) {
+                boolean setupMethod = mapper.isTearDownMethod(mi);
+                if (setupMethod) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

@@ -27,8 +27,7 @@ public class Test2Benchmark {
     static String TEST_DIR;
     static String BENCH_DIR;
 
-    private static AnnotationCondition ANN_COND_JU = new AnnotationCondition(org.junit.Test.class,
-            org.junit.Ignore.class) {
+    private static T2BMapper JUNIT4_MAPPER = new T2BMapper(org.junit.Test.class, org.junit.Ignore.class) {
 
         @Override
         public MethodState isAnnotationSkippable(Annotation ann) {
@@ -38,16 +37,36 @@ public class Test2Benchmark {
             }
             return MethodState.VALID;
         }
+
+        @Override
+        public Class<? extends Annotation> getSetupAnnotation() {
+            return org.junit.Before.class;
+        }
+
+        @Override
+        public Class<? extends Annotation> getTearDownAnnotation() {
+            return org.junit.After.class;
+        }
     };
-    private static AnnotationCondition ANN_COND_JU5 = new AnnotationCondition(org.junit.jupiter.api.Test.class,
+    private static T2BMapper JUNIT5_MAPPER = new T2BMapper(org.junit.jupiter.api.Test.class,
             org.junit.jupiter.api.Disabled.class) {
 
         @Override
         public MethodState isAnnotationSkippable(Annotation ann) {
             return MethodState.VALID;
         }
+
+        @Override
+        public Class<? extends Annotation> getSetupAnnotation() {
+            return org.junit.jupiter.api.BeforeEach.class;
+        }
+
+        @Override
+        public Class<? extends Annotation> getTearDownAnnotation() {
+            return org.junit.jupiter.api.AfterEach.class;
+        }
     };
-    private static AnnotationCondition ANN_COND_NG = new AnnotationCondition(org.testng.annotations.Test.class,
+    private static T2BMapper TESTNG_MAPPER = new T2BMapper(org.testng.annotations.Test.class,
             org.testng.annotations.Ignore.class) {
 
         @Override
@@ -62,12 +81,22 @@ public class Test2Benchmark {
 
             return MethodState.VALID;
         }
+
+        @Override
+        public Class<? extends Annotation> getSetupAnnotation() {
+            return org.testng.annotations.BeforeMethod.class;
+        }
+
+        @Override
+        public Class<? extends Annotation> getTearDownAnnotation() {
+            return org.testng.annotations.AfterMethod.class;
+        }
     };
 
-    public static final AnnotationCondition[] BENCHMARK_ANNOTATIONS = new AnnotationCondition[] { //
-            ANN_COND_NG //
-            , ANN_COND_JU //
-            , ANN_COND_JU5 //
+    public static final T2BMapper[] T2B_MAPPERS = new T2BMapper[] { //
+            JUNIT4_MAPPER //
+            , JUNIT5_MAPPER //
+            , TESTNG_MAPPER //
     };
 
     static Collection<String> t2bClassPath = new ArrayList<>(3);
@@ -189,75 +218,16 @@ public class Test2Benchmark {
             }
 
             T2BClassTransformer clsTransform = new T2BClassTransformer(classInfo);
+            clsTransform.doTransform(T2B_MAPPERS);
+            clsTransform.storeTransformedClass(BENCH_DIR);
 
-            if (clsTransform.hasNonStaticFields()) {
-                clsTransform.annotateClassState();
-            }
-
-            Collection<MethodInfo> mil = new ArrayList<>();
-            for (MethodInfo methodInfo : clsTransform.getMethods()) {
-                AnnotationCondition.MethodState testValid = isValidTest(methodInfo, BENCHMARK_ANNOTATIONS);
-                if (testValid == AnnotationCondition.MethodState.VALID) {
-                    clsTransform.annotateMethodTag(methodInfo, BENCHMARK_ANNOTATIONS);
-                    mil.add(methodInfo);
-                } else if (testValid != AnnotationCondition.MethodState.NOT_TEST) {
-                    log(String.format("%-20.20s: %s", "Skipping Test Method",
-                            methodInfo.getQualifiedName() + ", reason: " + testValid.name()));
-                }
-            }
-
-            if (clsTransform.isClassAltered()) {
-                try {
-                    clsTransform.storeClass(BENCH_DIR);
-                    clsTransform.toClass();
-                } catch (Exception exc) {
-                    err("failed to use altered class: " + clsTransform.getAlteredClassName() + ", reason: "
-                            + exc.getLocalizedMessage());
-                    exc.printStackTrace();
-                }
-
-                classInfo = clsTransform.getClassInfo();
-                Collection<MethodInfo> amil = classInfo.getMethods();
-                for (MethodInfo mi : mil) {
-                    MethodInfo ami = getAlteredMethod(mi, amil);
-                    if (ami != null) {
-                        result.put(classInfo, ami);
-                    }
-                }
-            } else {
-                for (MethodInfo mi : mil) {
-                    result.put(clsTransform.getClassInfo(), mi);
-                }
+            if (clsTransform.hasBenchmarks()) {
+                result.putAll(clsTransform.getClassInfo(), clsTransform.getBenchmarkMethods());
             }
         }
         log("Completed Test Classes Analysis: <<<<<<<<<<<<<<<<<<<");
 
         return result;
-    }
-
-    private static MethodInfo getAlteredMethod(MethodInfo mi, Collection<MethodInfo> amil) {
-        for (MethodInfo ami : amil) {
-            if (ami.getName().equals(mi.getName())) {
-                return ami;
-            }
-        }
-
-        return null;
-    }
-
-    private static AnnotationCondition.MethodState isValidTest(MethodInfo mi, AnnotationCondition... aConds) {
-        if (aConds != null) {
-            for (AnnotationCondition aCond : aConds) {
-                AnnotationCondition.MethodState ms = aCond.isValid(mi);
-                if (ms == AnnotationCondition.MethodState.NOT_TEST) {
-                    continue;
-                } else {
-                    return ms;
-                }
-            }
-        }
-
-        return AnnotationCondition.MethodState.NOT_TEST;
     }
 
     public static BenchmarkList getMyBenchmarkList() {
