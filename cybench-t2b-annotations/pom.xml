@@ -185,7 +185,7 @@
                 <dependency>
                     <groupId>com.gocypher.cybench</groupId>
                     <artifactId>cybench-t2b-agent</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <version>1.0.1-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
                 <!-- @@@ CyBench Launcher runner dependency @@@ -->
