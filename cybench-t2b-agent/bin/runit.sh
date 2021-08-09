@@ -46,7 +46,7 @@ while true; do
     echo "   Agent Options: $AGENT_OPTS"
     echo "  Java9+ Options: $JAVA9_OPTS"
     echo "  Benchmarks Dir: $BENCH_DIR"
-#    echo "  Run Class Path: $RUN_CLASS_PATH"
+    echo "  T2B Class Path: $T2B_CLASS_PATH"
     echo "-----------------------------"
     echo "Choose action:"
     echo "1. Compile Tests to Benchmarks"
@@ -60,9 +60,9 @@ while true; do
         case $yn in
         1 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -javaagent:"$SCRIPTPATH"/../libs/cybench-t2b-agent-1.0-SNAPSHOT.jar -cp "$CLASS_PATH" "$AGENT_OPTS" com.gocypher.cybench.Test2Benchmark;
             break;;
-        2 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -cp "$RUN_CLASS_PATH" com.gocypher.cybench.launcher.BenchmarkRunner cfg="$SCRIPTPATH"/../config/cybench-launcher.properties;
+        2 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -cp "$CLASS_PATH":"$T2B_CLASS_PATH" com.gocypher.cybench.launcher.BenchmarkRunner cfg="$SCRIPTPATH"/../config/cybench-launcher.properties;
             break;;
-        3 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -cp "$RUN_CLASS_PATH" org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput;
+        3 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -cp "$CLASS_PATH":"$T2B_CLASS_PATH" org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput;
             break;;
         9 ) exit; break;;
 

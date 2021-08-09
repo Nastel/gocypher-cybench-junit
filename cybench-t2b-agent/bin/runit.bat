@@ -44,7 +44,7 @@ IF %jver% GTR 18 set JAVA9_OPTS="--add-exports=java.base/jdk.internal.loader=ALL
     echo    Agent Options: %AGENT_OPTS%
     echo   Java9+ Options: %JAVA9_OPTS%
     echo   Benchmarks Dir: %BENCH_DIR%
-rem    echo  Run Class Path: %RUN_CLASS_PATH%
+    echo   T2B Class Path: %T2B_CLASS_PATH%
     echo -----------------------------
     echo Choose action:
     echo 1. Compile Tests to Benchmarks
@@ -63,14 +63,14 @@ rem    echo  Run Class Path: %RUN_CLASS_PATH%
 rem            for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
 
             rem ### Run benchmarks using CyBench ###
-            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp !RUN_CLASS_PATH! com.gocypher.cybench.launcher.BenchmarkRunner cfg="%RUNDIR%..\config\cybench-launcher.properties"
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp %CLASS_PATH%;!T2B_CLASS_PATH! com.gocypher.cybench.launcher.BenchmarkRunner cfg="%RUNDIR%..\config\cybench-launcher.properties"
             goto done
             )
         if [%yn%] == [3] (
 rem            for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
 
             rem ### Run benchmarks using JMH Runner ###
-            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp !RUN_CLASS_PATH! org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp %CLASS_PATH%;!T2B_CLASS_PATH! org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
             goto done
             )
         if [%yn%] == [9] (
