@@ -141,8 +141,8 @@ task release(type: Zip) {
 }
 
 clean {
-    delete 'prod/lib'
-    delete fileTree('prod') {}
+    delete 'libs'
+    delete fileTree('libs') {}
 }
 
 task copyClientLibs(type: Copy) {
@@ -151,7 +151,7 @@ task copyClientLibs(type: Copy) {
     }
     from configurations.runtime
     from jar
-    into 'prod/lib'
+    into 'libs'
     include '*.jar'
 }
 
