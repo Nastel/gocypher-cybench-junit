@@ -5,26 +5,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.openjdk.jmh.generators.core.ClassInfo;
-import org.openjdk.jmh.generators.core.FieldInfo;
-
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.ConstPool;
-import javassist.bytecode.annotation.EnumMemberValue;
-
 public final class T2BUtils {
-
-    static final String NEW_CLASS_NAME_SUFIX = "_JMH_State";
 
     private T2BUtils() {
     }
@@ -36,13 +23,8 @@ public final class T2BUtils {
             if (classloader instanceof URLClassLoader) {
                 urls = ((URLClassLoader) classloader).getURLs();
             } else {
-                Class<?> clCls = classloader.getClass();
-                Field ucpField = clCls.getDeclaredField("ucp");
-                ucpField.setAccessible(true);
-                Object ucp = ucpField.get(classloader);
-                Method getUrlsMethod = ucp.getClass().getDeclaredMethod("getURLs");
-                getUrlsMethod.setAccessible(true);
-                urls = (URL[]) getUrlsMethod.invoke(ucp);
+                Object ucp = getFieldValue(classloader, "ucp");
+                urls = (URL[]) invokeMethod(ucp, "getURLs", null);
             }
             String classPath = Stream.of(urls) //
                     .map(u -> u.getPath()) //
@@ -52,6 +34,25 @@ public final class T2BUtils {
             return classPath;
         }
         return "";
+    }
+
+    public static Object getFieldValue(Object obj, String fieldName) throws Exception {
+        Class<?> objCls = obj.getClass();
+        Field objField = objCls.getDeclaredField(fieldName);
+        objField.setAccessible(true);
+        Object value = objField.get(obj);
+
+        return value;
+    }
+
+    public static Object invokeMethod(Object obj, String methodName, Class<?>[] cls, Object... args)
+            throws ReflectiveOperationException {
+        Class<?> objCls = obj.getClass();
+        Method objMethod = objCls.getDeclaredMethod(methodName, cls);
+        objMethod.setAccessible(true);
+        Object value = objMethod.invoke(obj, args);
+
+        return value;
     }
 
     public static String getSysPropClassPath() throws Exception {
@@ -72,13 +73,8 @@ public final class T2BUtils {
             if (cl instanceof URLClassLoader) {
                 urls = ((URLClassLoader) cl).getURLs();
             } else {
-                Class<?> clCls = cl.getClass();
-                Field ucpField = clCls.getDeclaredField("ucp");
-                ucpField.setAccessible(true);
-                Object ucp = ucpField.get(cl);
-                Method getUrlsMethod = ucp.getClass().getDeclaredMethod("getURLs");
-                getUrlsMethod.setAccessible(true);
-                urls = (URL[]) getUrlsMethod.invoke(ucp);
+                Object ucp = getFieldValue(cl, "ucp");
+                urls = (URL[]) invokeMethod(ucp, "getURLs", null);
             }
 
             cp += Stream.of(urls) //
@@ -98,36 +94,12 @@ public final class T2BUtils {
         if (classLoader != null) {
             URL url = classDir.toURI().toURL();
 
-            Class<?> clCls = classLoader.getClass();
-            Field ucpField = clCls.getDeclaredField("ucp");
-            ucpField.setAccessible(true);
-            Object ucp = ucpField.get(classLoader);
-            Method addURLMethod = ucp.getClass().getDeclaredMethod("addURL", URL.class);
-            addURLMethod.setAccessible(true);
-            addURLMethod.invoke(ucp, url);
+            Object ucp = getFieldValue(classLoader, "ucp");
+            invokeMethod(ucp, "addURL", new Class[] { URL.class }, url);
         }
         String cpp = getSysPropClassPath();
         cpp += File.pathSeparator + classDir.getAbsolutePath();
         System.setProperty("java.class.path", cpp);
-    }
-
-    public static String getClassName(ClassInfo classInfo) {
-        try {
-            Field f = classInfo.getClass().getSuperclass().getDeclaredField("klass");
-            f.setAccessible(true);
-            Class<?> cls = (Class<?>) f.get(classInfo);
-            return cls.getName();
-        } catch (Throwable exc) {
-            return classInfo.getQualifiedName();
-        }
-    }
-
-    public static Collection<FieldInfo> getAllFields(ClassInfo ci) {
-        Collection<FieldInfo> ls = new ArrayList<>();
-        do {
-            ls.addAll(ci.getFields());
-        } while ((ci = ci.getSuperClass()) != null);
-        return ls;
     }
 
     public static Collection<File> getUTClasses(File dir) {
@@ -145,38 +117,5 @@ public final class T2BUtils {
             }
         }
         return fileTree;
-    }
-
-    public static String getStatedClassName(String className) {
-        if (className.contains("$")) {
-            String[] cnt = className.split("\\$");
-            cnt[0] = cnt[0] + NEW_CLASS_NAME_SUFIX;
-            return String.join("$", cnt);
-        } else {
-            return className + NEW_CLASS_NAME_SUFIX;
-        }
-    }
-
-    public static Class<?> addAnnotation(String className, String annotationName, String typeName, String valueName,
-            String classDir) throws Exception {
-        ClassPool pool = ClassPool.getDefault();
-        CtClass ctClass = pool.getAndRename(className, getStatedClassName(className));
-
-        ClassFile classFile = ctClass.getClassFile();
-        ConstPool constpool = classFile.getConstPool();
-
-        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constpool,
-                AnnotationsAttribute.visibleTag);
-        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constpool);
-        EnumMemberValue emv = new EnumMemberValue(constpool);
-        emv.setType(typeName);
-        emv.setValue(valueName);
-        annotation.addMemberValue("value", emv);
-        annotationsAttribute.setAnnotation(annotation);
-
-        classFile.addAttribute(annotationsAttribute);
-        ctClass.writeFile(new File(classDir).getCanonicalPath());
-        return ctClass.toClass();
     }
 }

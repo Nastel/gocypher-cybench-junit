@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.generators.core.*;
 import org.openjdk.jmh.generators.reflection.MyClassInfo;
 import org.openjdk.jmh.runner.BenchmarkList;
@@ -72,6 +70,7 @@ public class Test2Benchmark {
             , ANN_COND_JU5 //
     };
 
+    static Collection<String> t2bClassPath = new ArrayList<>(3);
     // The code to put into the JMH methods - call ME and then return MY replacements
     private static MyGeneratorSource myGeneratorSource;
     Collection<ClassInfo> benchmarkClassList;
@@ -151,7 +150,7 @@ public class Test2Benchmark {
                 log("*** Removing existing benchmarks dir: " + benchDirPath);
                 Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             } catch (Exception exc) {
-                err("failed to delete benchmarks dir: " + exc.getLocalizedMessage());
+                err("failed to delete benchmarks dir, reason: " + exc.getLocalizedMessage());
             }
         }
         addClassPath(benchDir.getCanonicalFile());
@@ -165,7 +164,7 @@ public class Test2Benchmark {
             Test2Benchmark test2Benchmark = new Test2Benchmark();
             test2Benchmark.buildBenchmarks();
         } catch (Throwable t) {
-            err("Failure occurred while running Test2Benchmark transformer app, exc: " + t.getLocalizedMessage());
+            err("failure occurred while running Test2Benchmark transformer app, exc: " + t.getLocalizedMessage());
             t.printStackTrace();
         }
     }
@@ -173,8 +172,10 @@ public class Test2Benchmark {
     private static void addClassPath(File classDir) {
         try {
             T2BUtils.addClassPath(classDir);
+            t2bClassPath.add(classDir.getCanonicalPath());
         } catch (Exception exc) {
-            err("Failed to add classpath entry: " + classDir.getAbsolutePath() + ", exc: " + exc.getLocalizedMessage());
+            err("failed to add classpath entry: " + classDir.getAbsolutePath() + ", reason: "
+                    + exc.getLocalizedMessage());
         }
     }
 
@@ -187,39 +188,45 @@ public class Test2Benchmark {
                 continue;
             }
 
-            boolean hasNonStaticFields = false;
-            for (FieldInfo fieldInfo : T2BUtils.getAllFields(classInfo)) {
-                if (!fieldInfo.isStatic()) {
-                    hasNonStaticFields = true;
-                    break;
-                }
+            T2BClassTransformer clsTransform = new T2BClassTransformer(classInfo);
+
+            if (clsTransform.hasNonStaticFields()) {
+                clsTransform.annotateClassState();
             }
 
-            if (hasNonStaticFields) {
-                Annotation stateAnnotation = classInfo.getAnnotation(State.class);
-                if (stateAnnotation == null) {
-                    String clsName = T2BUtils.getClassName(classInfo);
-                    String statedClassName = T2BUtils.getStatedClassName(clsName);
-                    Class<?> annotatedClass;
-                    try {
-                        annotatedClass = Class.forName(statedClassName);
-                        classInfo = new MyClassInfo(annotatedClass);
-                    } catch (Exception exc) {
-                        annotatedClass = annotateClass(clsName);
-                        if (annotatedClass != null) {
-                            classInfo = new MyClassInfo(annotatedClass);
-                        }
-                    }
-                }
-            }
-
-            for (MethodInfo methodInfo : classInfo.getMethods()) {
+            Collection<MethodInfo> mil = new ArrayList<>();
+            for (MethodInfo methodInfo : clsTransform.getMethods()) {
                 AnnotationCondition.MethodState testValid = isValidTest(methodInfo, BENCHMARK_ANNOTATIONS);
                 if (testValid == AnnotationCondition.MethodState.VALID) {
-                    result.put(classInfo, methodInfo);
+                    clsTransform.annotateMethodTag(methodInfo, BENCHMARK_ANNOTATIONS);
+                    mil.add(methodInfo);
                 } else if (testValid != AnnotationCondition.MethodState.NOT_TEST) {
                     log(String.format("%-20.20s: %s", "Skipping Test Method",
                             methodInfo.getQualifiedName() + ", reason: " + testValid.name()));
+                }
+            }
+
+            if (clsTransform.isClassAltered()) {
+                try {
+                    clsTransform.storeClass(BENCH_DIR);
+                    clsTransform.toClass();
+                } catch (Exception exc) {
+                    err("failed to use altered class: " + clsTransform.getAlteredClassName() + ", reason: "
+                            + exc.getLocalizedMessage());
+                    exc.printStackTrace();
+                }
+
+                classInfo = clsTransform.getClassInfo();
+                Collection<MethodInfo> amil = classInfo.getMethods();
+                for (MethodInfo mi : mil) {
+                    MethodInfo ami = getAlteredMethod(mi, amil);
+                    if (ami != null) {
+                        result.put(classInfo, ami);
+                    }
+                }
+            } else {
+                for (MethodInfo mi : mil) {
+                    result.put(clsTransform.getClassInfo(), mi);
                 }
             }
         }
@@ -228,19 +235,11 @@ public class Test2Benchmark {
         return result;
     }
 
-    public static Class<?> annotateClass(String clsName) {
-        try {
-            Class<?> annotatedClass = T2BUtils.addAnnotation(clsName, State.class.getName(), Scope.class.getName(),
-                    Scope.Benchmark.name(), BENCH_DIR);
-            Annotation stateAnnotation = annotatedClass.getAnnotation(State.class);
-            if (stateAnnotation != null) {
-                log(String.format("%-20.20s: %s", "Added",
-                        "@State annotation for class " + clsName + " and named it " + annotatedClass.getName()));
-                return annotatedClass;
+    private static MethodInfo getAlteredMethod(MethodInfo mi, Collection<MethodInfo> amil) {
+        for (MethodInfo ami : amil) {
+            if (ami.getName().equals(mi.getName())) {
+                return ami;
             }
-        } catch (Exception exc) {
-            err("Failed to add @State annotation for " + clsName + ", reason " + exc.getLocalizedMessage());
-            exc.printStackTrace();
         }
 
         return null;
@@ -286,8 +285,21 @@ public class Test2Benchmark {
         generateBenchmarkList();
         CompileProcess.WindowsCompileProcess compileProcess = new CompileProcess.WindowsCompileProcess();
         compileProcess.compile();
-        String cp = compileProcess.getCompileClassPath();
+        // String cp = compileProcess.getCompileClassPath();
+        String cp = getT2BClassPath();
         writePropsToFile(BENCH_DIR, cp);
+    }
+
+    private static String getT2BClassPath() {
+        StringBuilder sb = new StringBuilder();
+        for (String cpStr : t2bClassPath) {
+            if (sb.length() > 0) {
+                sb.append(File.pathSeparator);
+            }
+            sb.append(cpStr);
+        }
+
+        return sb.toString();
     }
 
     private void generateBenchmarkList() throws Exception {
@@ -317,16 +329,20 @@ public class Test2Benchmark {
                 f.delete();
             }
             try (FileWriter fos = new FileWriter(f)) {
-                fos.write("BENCH_DIR=\"" + benchDir + "\"");
+                fos.write("BENCH_DIR=\"" + escapePath(benchDir) + "\"");
                 fos.write('\n');
-                fos.write("RUN_CLASS_PATH=\"" + classPath + "\"");
+                fos.write("T2B_CLASS_PATH=\"" + escapePath(classPath) + "\"");
                 fos.write('\n');
                 fos.flush();
             }
         } catch (IOException exc) {
-            err("Failed to write benchmark run configuration properties, exc: " + exc.getLocalizedMessage());
+            err("failed to write benchmark run configuration properties, reason: " + exc.getLocalizedMessage());
             exc.printStackTrace();
         }
+    }
+
+    private static String escapePath(String path) {
+        return path == null ? path : path.replace("\\", "/");
     }
 
     class MyGeneratorSource implements GeneratorSource {
@@ -344,7 +360,7 @@ public class Test2Benchmark {
             }
 
             if (!testDir.exists()) {
-                Test2Benchmark.err("Test dir does not exist: " + testDir);
+                Test2Benchmark.err("test dir does not exist: " + testDir);
             } else {
                 Test2Benchmark.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
                 Collection<File> includeClassFiles = T2BUtils.getUTClasses(testDir);
@@ -360,7 +376,7 @@ public class Test2Benchmark {
                         Test2Benchmark.log("Found Test Class: " + clazz);
                         benchmarkClassList.add(new MyClassInfo(clazz));
                     } catch (Throwable t) {
-                        Test2Benchmark.err("Can't get test class: " + t);
+                        Test2Benchmark.err("can't get test class: " + t);
                     }
                 }
                 Test2Benchmark.log("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");

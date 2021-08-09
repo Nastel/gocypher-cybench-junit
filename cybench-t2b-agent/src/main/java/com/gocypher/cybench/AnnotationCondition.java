@@ -2,6 +2,7 @@ package com.gocypher.cybench;
 
 import java.lang.annotation.Annotation;
 
+import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 
 public abstract class AnnotationCondition {
@@ -16,6 +17,10 @@ public abstract class AnnotationCondition {
     public AnnotationCondition(Class<? extends Annotation> annotation, Class<? extends Annotation> skipAnnotation) {
         this.annotation = annotation;
         this.skipAnnotation = skipAnnotation;
+    }
+
+    public Class<? extends Annotation> getAnnotation() {
+        return annotation;
     }
 
     public boolean isAnnotated(MethodInfo mi) {
@@ -39,6 +44,16 @@ public abstract class AnnotationCondition {
                 return ms;
             }
 
+            if (!mi.isPublic()) {
+                ClassInfo cls = mi.getDeclaringClass();
+                if (!cls.isPublic()) {
+                    String clsName = T2BClassTransformer.getClassName(cls);
+                    if (clsName.contains("$")) {
+                        return MethodState.VISIBILITY;
+                    }
+                }
+            }
+
             return MethodState.VALID;
         }
 
@@ -46,6 +61,6 @@ public abstract class AnnotationCondition {
     }
 
     public enum MethodState {
-        VALID, NOT_TEST, DISABLED, EXCEPTION_EXPECTED
+        VALID, NOT_TEST, DISABLED, EXCEPTION_EXPECTED, VISIBILITY
     }
 }

@@ -13,7 +13,7 @@ public abstract class CompileProcess {
         String line;
         BufferedReader in = new BufferedReader(new InputStreamReader(ins));
         while ((line = in.readLine()) != null) {
-            Test2Benchmark.log(cmd + " " + line);
+            Test2Benchmark.log(cmd + " " + line.replaceAll("\\r|\\n", ""));
         }
     }
 
@@ -81,7 +81,7 @@ public abstract class CompileProcess {
                 String s = makeSourcesList();
                 CompileProcess.runProcess(CMD_COMPILE.replace("<CLASSPATH>", "\"" + classPath + "\"") + s);
             } catch (Throwable e) {
-                Test2Benchmark.err("Cannot run compile");
+                Test2Benchmark.err("cannot run compile");
                 e.printStackTrace();
             }
         }
