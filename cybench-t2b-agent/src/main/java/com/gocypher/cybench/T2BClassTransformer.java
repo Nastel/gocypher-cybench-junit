@@ -141,13 +141,14 @@ public class T2BClassTransformer {
     }
 
     public void annotateClass(String clsName) {
+        String annotationName = State.class.getName();
         try {
-            CtClass annotatedClass = addClassAnnotation(clsName, State.class.getName(), STATE_ANNOTATION_MEMBERS);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
-                    "@State annotation for class " + clsName + " and named it " + annotatedClass.getName()));
+            CtClass annotatedClass = addClassAnnotation(clsName, annotationName, STATE_ANNOTATION_MEMBERS);
+            Test2Benchmark.log(
+                    String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            Test2Benchmark
-                    .err("failed to add @State annotation for " + clsName + ", reason: " + exc.getLocalizedMessage());
+            Test2Benchmark.err("failed to add @" + annotationName + " annotation for " + clsName + ", reason: "
+                    + exc.getLocalizedMessage());
             exc.printStackTrace();
         }
     }
@@ -158,6 +159,8 @@ public class T2BClassTransformer {
             String methodName = method.getName();
 
             addMethodBenchmarkAnnotation(methodName, annotationName, tagMembersMap);
+            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
+                    "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
             Test2Benchmark.err("failed to add @" + annotationName + " annotation for method "
                     + method.getQualifiedName() + ", reason: " + exc.getLocalizedMessage());
@@ -171,11 +174,15 @@ public class T2BClassTransformer {
             String methodName = method.getName();
 
             addMethodStateAnnotation(methodName, annotationName, levelMembersMap);
+            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
+                    "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
             Test2Benchmark.err("failed to add @" + annotationName + " annotation for method "
                     + method.getQualifiedName() + ", reason: " + exc.getLocalizedMessage());
             exc.printStackTrace();
         }
+
+        annotateClassState();
     }
 
     public static String getSignature(Method m) {
@@ -235,6 +242,8 @@ public class T2BClassTransformer {
         if (alteredClass == null) {
             ClassPool pool = ClassPool.getDefault();
             CtClass ctClass = pool.getAndRename(className, getAlteredClassName(className));
+            Test2Benchmark.log(String.format("%-15.15s: %s", "Rename",
+                    "altering class " + className + " and named it " + ctClass.getName()));
             alteredClass = ctClass;
 
             return ctClass;
@@ -246,29 +255,10 @@ public class T2BClassTransformer {
     public CtClass addClassAnnotation(String className, String annotationName,
             Map<String, Pair<String, String>> membersMap) throws Exception {
         CtClass ctClass = getCtClass(className);
-
-        if (ctClass.isFrozen()) {
-            ctClass.defrost();
-        }
+        alterClass(ctClass);
 
         ClassFile classFile = ctClass.getClassFile();
         ConstPool constPool = classFile.getConstPool();
-
-        if (!isNestedClass(ctClass) && !Modifier.isPublic(ctClass.getModifiers())) {
-            ctClass.setModifiers(ctClass.getModifiers() | Modifier.PUBLIC);
-            Test2Benchmark.log(
-                    String.format("%-20.20s: %s", "Changed", "visibility to PUBLIC for class " + ctClass.getName()));
-        }
-
-        for (CtConstructor constructor : ctClass.getConstructors()) {
-            if (constructor.getParameterTypes().length < 2) {
-                if (!Modifier.isPublic(constructor.getModifiers())) {
-                    constructor.setModifiers(constructor.getModifiers() | Modifier.PUBLIC);
-                    Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
-                            "visibility to PUBLIC for constructor " + constructor.getLongName()));
-                }
-            }
-        }
 
         List<AttributeInfo> classFileAttributes = classFile.getAttributes();
         AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(classFileAttributes);
@@ -281,6 +271,35 @@ public class T2BClassTransformer {
         annotationsAttribute.addAnnotation(makeEnumAnnotation(annotationName, constPool, membersMap));
 
         return ctClass;
+    }
+
+    private static void alterClass(CtClass ctClass) throws Exception {
+        if (ctClass.isFrozen()) {
+            ctClass.defrost();
+        }
+
+        makeClassPublic(ctClass);
+        makeConstructorPublic(ctClass);
+    }
+
+    private static void makeClassPublic(CtClass ctClass) {
+        if (!isNestedClass(ctClass) && !Modifier.isPublic(ctClass.getModifiers())) {
+            ctClass.setModifiers(ctClass.getModifiers() | Modifier.PUBLIC);
+            Test2Benchmark.log(
+                    String.format("%-20.20s: %s", "Changed", "visibility to PUBLIC for class " + ctClass.getName()));
+        }
+    }
+
+    private static void makeConstructorPublic(CtClass ctClass) throws Exception {
+        for (CtConstructor constructor : ctClass.getConstructors()) {
+            if (constructor.getParameterTypes().length < 2) {
+                if (!Modifier.isPublic(constructor.getModifiers())) {
+                    constructor.setModifiers(constructor.getModifiers() | Modifier.PUBLIC);
+                    Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
+                            "visibility to PUBLIC for constructor " + constructor.getLongName()));
+                }
+            }
+        }
     }
 
     private static javassist.bytecode.annotation.Annotation makeEnumAnnotation(String annotationName,
@@ -303,25 +322,13 @@ public class T2BClassTransformer {
     public CtClass addMethodBenchmarkAnnotation(String methodName, String annotationName,
             Map<String, String> membersMap) throws Exception {
         CtClass ctClass = getCtClass(getClassName());
-
-        if (ctClass.isFrozen()) {
-            ctClass.defrost();
-        }
+        alterClass(ctClass);
 
         CtMethod method = ctClass.getDeclaredMethod(methodName);
+        makeMethodPublic(method);
+
         MethodInfo methodInfo = method.getMethodInfo();
         ConstPool constPool = methodInfo.getConstPool();
-
-        if (!isNestedClass(ctClass) && !Modifier.isPublic(ctClass.getModifiers())) {
-            ctClass.setModifiers(ctClass.getModifiers() | Modifier.PUBLIC);
-            Test2Benchmark.log(
-                    String.format("%-20.20s: %s", "Changed", "visibility to PUBLIC for class " + ctClass.getName()));
-        }
-        if (!Modifier.isPublic(method.getModifiers())) {
-            method.setModifiers(method.getModifiers() | Modifier.PUBLIC);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
-                    "visibility to PUBLIC for method " + method.getLongName()));
-        }
 
         List<AttributeInfo> methodAttributes = methodInfo.getAttributes();
         AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(methodAttributes);
@@ -350,28 +357,24 @@ public class T2BClassTransformer {
         return ctClass;
     }
 
-    public CtClass addMethodStateAnnotation(String methodName, String annotationName,
-            Map<String, Pair<String, String>> membersMap) throws Exception {
-        CtClass ctClass = getCtClass(getClassName());
-
-        if (ctClass.isFrozen()) {
-            ctClass.defrost();
-        }
-
-        CtMethod method = ctClass.getDeclaredMethod(methodName);
-        MethodInfo methodInfo = method.getMethodInfo();
-        ConstPool constPool = methodInfo.getConstPool();
-
-        if (!isNestedClass(ctClass) && !Modifier.isPublic(ctClass.getModifiers())) {
-            ctClass.setModifiers(ctClass.getModifiers() | Modifier.PUBLIC);
-            Test2Benchmark.log(
-                    String.format("%-20.20s: %s", "Changed", "visibility to PUBLIC for class " + ctClass.getName()));
-        }
+    private static void makeMethodPublic(CtMethod method) {
         if (!Modifier.isPublic(method.getModifiers())) {
             method.setModifiers(method.getModifiers() | Modifier.PUBLIC);
             Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
                     "visibility to PUBLIC for method " + method.getLongName()));
         }
+    }
+
+    public CtClass addMethodStateAnnotation(String methodName, String annotationName,
+            Map<String, Pair<String, String>> membersMap) throws Exception {
+        CtClass ctClass = getCtClass(getClassName());
+        alterClass(ctClass);
+
+        CtMethod method = ctClass.getDeclaredMethod(methodName);
+        makeMethodPublic(method);
+
+        MethodInfo methodInfo = method.getMethodInfo();
+        ConstPool constPool = methodInfo.getConstPool();
 
         List<AttributeInfo> methodAttributes = methodInfo.getAttributes();
         AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(methodAttributes);
@@ -464,8 +467,8 @@ public class T2BClassTransformer {
         } else if (isTearDownMethod(mi, t2BMappers)) {
             annotateMethodTearDown(mi);
         } else if (testValid != T2BMapper.MethodState.NOT_TEST) {
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Skipping Test Method",
-                    mi.getQualifiedName() + ", reason: " + testValid.name()));
+            Test2Benchmark.log(String.format("%-20.20s: %s", "Skipping",
+                    "test method " + mi.getQualifiedName() + ", reason: " + testValid.name()));
         }
     }
 
