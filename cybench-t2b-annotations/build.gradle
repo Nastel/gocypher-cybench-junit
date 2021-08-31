@@ -36,7 +36,7 @@ dependencies {
     testCompile 'junit:junit:4.13.2'
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-    t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.1-SNAPSHOT'
+    t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT'
     cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
 }
 

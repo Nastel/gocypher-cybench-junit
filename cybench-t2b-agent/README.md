@@ -29,14 +29,14 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench</groupId>
         <artifactId>cybench-t2b-agent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.2-SNAPSHOT</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench:cybench-t2b-agent:1.0.1-SNAPSHOT'
+    runtime 'com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT'
     ```
 
 ## Configuration
@@ -52,7 +52,7 @@ Dependencies for your project:
     ```
 * Add Java agent argument:
     ```cmd
-    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0.1-SNAPSHOT.jar
+    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0.2-SNAPSHOT.jar
     ```
 
 ##### Java system properties
@@ -157,7 +157,7 @@ configuration options and details.
                     <dependency>
                         <groupId>com.gocypher.cybench</groupId>
                         <artifactId>cybench-t2b-agent</artifactId>
-                        <version>1.0.1-SNAPSHOT</version>
+                        <version>1.0.2-SNAPSHOT</version>
                         <scope>test</scope>
                     </dependency>
                     <!-- @@@ CyBench Launcher runner dependency @@@ -->
@@ -325,7 +325,7 @@ configuration options and details.
         // ...
         dependencies {
             // ...
-            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.1-SNAPSHOT'
+            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT'
             cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
         }
         // ...
@@ -418,7 +418,7 @@ configuration options and details.
         // ...
         dependencies {
           // ...
-          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.1-SNAPSHOT")
+          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT")
           cybench ("com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT")
         }
         // ...
