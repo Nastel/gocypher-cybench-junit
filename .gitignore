@@ -42,3 +42,9 @@ hs_err_pid*
 /**/release
 /**/.benchRunProps
 /**/reports
+
+# Eclipse Files #
+.project
+**/.project
+**/.settings/*
+**/.classpath
