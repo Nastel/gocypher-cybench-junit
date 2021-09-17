@@ -170,7 +170,7 @@ configuration options and details.
                 </dependencies>
                 <properties>
                     <!-- ### JDK home used for javac command, shall match java version running this script to work as expected ### -->
-                    <t2b.jdk.home>c:/java/jdk180</t2b.jdk.home>
+                    <t2b.jdk.home>'c:/java/jdk180'</t2b.jdk.home>
                     <!-- ### Java executable to use ### -->
                     <t2b.exec.java>${java.home}/bin/java</t2b.exec.java>
                     <!-- ### Java system properties used by benchmarks builder ###-->
@@ -249,11 +249,7 @@ configuration options and details.
                                         <executable>${t2b.exec.java}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
-                                            ${t2b.module.prop}
-                                            -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
-                                            -cp ${t2b.compile.classpath}
-                                            ${t2b.sys.props}
-                                            com.gocypher.cybench.Test2Benchmark
+                                            ${t2b.module.prop} -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar} -cp ${t2b.compile.classpath} ${t2b.sys.props} com.gocypher.cybench.Test2Benchmark
                                         </commandlineArgs>
                                     </configuration>
                                 </execution>
@@ -270,10 +266,7 @@ configuration options and details.
                                         <executable>${t2b.exec.java}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
-                                            ${t2b.module.prop}
-                                            -cp ${t2b.compile.classpath}${path.separator}${T2B_CLASS_PATH}
-                                            ${t2b.bench.runner.class}
-                                            ${t2b.bench.runner.class.args}
+                                            ${t2b.module.prop} -cp ${t2b.compile.classpath}${path.separator}${T2B_CLASS_PATH} ${t2b.bench.runner.class} ${t2b.bench.runner.class.args}
                                         </commandlineArgs>
                                     </configuration>
                                 </execution>
