@@ -203,9 +203,9 @@
                 <t2b.exec.java>${java.home}/bin/java</t2b.exec.java>
                 <!-- ### Java system properties used by benchmarks builder ###-->
                 <!-- @@@ Additional Dir props to customize @@@ -->
-                <!-- -Dt2b.testDir=${project.build.testOutputDirectory}-->
-                <!-- -Dt2b.benchDir=${project.build.directory}/t2b-->
-                <t2b.sys.props>-Dt2b.buildDir=${project.build.directory} -Dt2b.jdkHome=${t2b.jdk.home}</t2b.sys.props>
+                <!-- -Dt2b.test.dir=${project.build.testOutputDirectory}-->
+                <!-- -Dt2b.bench.dir=${project.build.directory}/t2b-->
+                <t2b.sys.props>-Dt2b.build.dir=${project.build.directory} -Dt2b.jdk.home=${t2b.jdk.home}</t2b.sys.props>
                 <!-- ### Skip running built benchmarks ### -->
                 <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
                 <!-- ### Config for CyBench Launcher runner ### -->

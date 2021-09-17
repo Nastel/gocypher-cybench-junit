@@ -18,13 +18,13 @@ read -e -p "Enter class path to use: " -i "$CLASS_PATH" CLASS_PATH
 #############################
 
 ### Define your project build dir
-AGENT_OPTS="-Dt2b.buildDir=$BUILD_PATH"
+AGENT_OPTS="-Dt2b.build.dir=$BUILD_PATH"
 ### Define dir where compiled tests are
-#AGENT_OPTS="$AGENT_OPTS -Dt2b.testDir=$BUILD_PATH/test-classes"
+#AGENT_OPTS="$AGENT_OPTS -Dt2b.test.dir=$BUILD_PATH/test-classes"
 ### Define dir where to place generated benchmarks
-#AGENT_OPTS="$AGENT_OPTS -Dt2b.benchDir=$BUILD_PATH/t2b"
+#AGENT_OPTS="$AGENT_OPTS -Dt2b.bench.dir=$BUILD_PATH/t2b"
 ### Set JDK to compile generated benchmark classes in case JAVA_HOME refers JRE. Use same level version (e.g. 8, 11, 15) JDK as runner java defined for JAVA_HOME prop.
-#AGENT_OPTS="$AGENT_OPTS -Dt2b.jdkHome=C:/Program Files/Java/jdk-13.0.2"
+#AGENT_OPTS="$AGENT_OPTS -Dt2b.jdk.home=C:/Program Files/Java/jdk-13.0.2"
 read -e -p "Enter agent options: " -i "$AGENT_OPTS" AGENT_OPTS
 
 jver=$("${JAVA_PATH}" -fullversion 2>&1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1 | cut -d'-' -f1 | cut -d'+' -f1 | cut -d'_' -f1)

@@ -19,9 +19,9 @@ import org.openjdk.jmh.util.Multimap;
 
 public class Test2Benchmark {
 
-    static final String WORK_DIR_ARG = System.getProperty("t2b.buildDir");
-    static final String TEST_DIR_ARG = System.getProperty("t2b.testDir");
-    static final String BENCH_DIR_ARG = System.getProperty("t2b.benchDir");
+    static final String WORK_DIR_ARG = System.getProperty("t2b.build.dir");
+    static final String TEST_DIR_ARG = System.getProperty("t2b.test.dir");
+    static final String BENCH_DIR_ARG = System.getProperty("t2b.bench.dir");
 
     static String WORK_DIR;
     static String TEST_DIR;

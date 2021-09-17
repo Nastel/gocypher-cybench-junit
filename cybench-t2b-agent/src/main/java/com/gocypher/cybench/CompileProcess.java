@@ -41,7 +41,7 @@ public abstract class CompileProcess {
 
         private String getJavacCmd() {
             String javac = "javac";
-            String prop = System.getProperty("t2b.jdkHome");
+            String prop = System.getProperty("t2b.jdk.home");
             if (prop == null || prop.isEmpty()) {
                 String libPath = System.getProperty("java.library.path");
                 prop = libPath.substring(0, libPath.indexOf(';'));

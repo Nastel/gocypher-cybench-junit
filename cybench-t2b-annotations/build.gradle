@@ -92,7 +92,7 @@ allprojects {
 
 task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
     group = 'CyBench-T2B'
-    description = 'Run Test2Benchmarks benchmarks generator'
+    description = 'Run Test2Benchmark (T2B) benchmarks generator agent'
     classpath = files(
             project.sourceSets.main.runtimeClasspath,
             project.sourceSets.test.runtimeClasspath,
@@ -110,8 +110,8 @@ task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
         ]
     }
     systemProperties = [
-            't2b.buildDir': "$buildDir",
-            't2b.jdkHome' : 'd:/java/jdk180'
+            't2b.build.dir': "$buildDir",
+            't2b.jdk.home' : 'd:/java/jdk180'
     ]
     main = 'com.gocypher.cybench.Test2Benchmark'
 }
@@ -130,7 +130,7 @@ task runBenchmarksFromUnitTestsCybench(type: JavaExec, dependsOn: buildBenchmark
     }
 
     group = 'CyBench-T2B'
-    description = 'Run JMH benchmarks over Cybench Launcher runner'
+    description = 'Run T2B generated JMH benchmarks over Cybench Launcher runner'
     classpath = files(
             project.sourceSets.main.runtimeClasspath,
             project.sourceSets.test.runtimeClasspath,

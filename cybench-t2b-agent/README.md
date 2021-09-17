@@ -1,8 +1,8 @@
 # cybench-t2b-agent
 
-This app running with Java agent builds JMH benchmarks for provided unit tests. It does not copy unit test code into benchmark - it just 
-links unit test to be executed from benchmark, generated for that test. That way there is no need to change already existing unit tests in 
-any way and they can be used for benchmarking.
+This app running with Java agent builds JMH benchmarks for provided unit tests. It does not copy unit test code into
+benchmark - it just links unit test to be executed from benchmark, generated for that test. That way there is no need to
+change already existing unit tests in any way and they can be used for benchmarking.
 
 Supported unit testing frameworks:
 
@@ -11,6 +11,7 @@ Supported unit testing frameworks:
 * TestNG
 
 Dependencies for your project:
+
 * Maven:
     ```xml
     <repositories>
@@ -45,7 +46,7 @@ Dependencies for your project:
 
 #### Java command arguments
 
-* If Java used to run  this app is version `9+` it is needed to add module access arguments:
+* If Java used to run this app is version `9+` it is needed to add module access arguments:
     ```cmd
     --add-exports=java.base/jdk.internal.loader=ALL-UNNAMED
     --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
@@ -57,16 +58,18 @@ Dependencies for your project:
 
 ##### Java system properties
 
-* `t2b.buildDir` - defines path where unit tests are build. It can be root dir for `Maven` or `Gradle` builders. App will find inner paths 
-for compiled app and test classes. **Default value**: java system property `user.dir` if defined, `.` - otherwise.
-* `t2b.testDir` - defines path of built unit tests directory. **Optional** property, shall be used if `t2b.buildDir` fails to find where unit 
-tests are compiled. Most likely it may happen if unit test are build using any other build tool than `Maven` or `Gradle`. Also it may happen
-if your project uses non default `Maven`/`Gradle` build directories layout.
-* `t2b.benchDir` - defines path where to place generated benchmarks. **Default value**: `${t2b.buildDir}/t2b`.
-* `t2b.jdkHome` - defines JDK home path to be used for benchmarks compilation. Now `javac` command is ued to compile generated benchmark 
-classes. **Optional** property, shall be used if Java used to run this app is from JRE. If app runner Java is from JDK, there is no need to 
-set this property. **NOTE**: to avoid any compatibility issues it is recommended to use same Java level version (`8`, `11`, `15`, etc) JDK 
-as it is Java used to run this app.
+* `t2b.build.dir` - defines path where unit tests are build. It can be root dir for `Maven` or `Gradle` builders. App
+  will find inner paths for compiled app and test classes. **Default value**: java system property `user.dir` if
+  defined, `.` - otherwise.
+* `t2b.test.dir` - defines path of built unit tests directory. **Optional** property, shall be used if `t2b.build.dir`
+  fails to find where unit tests are compiled. Most likely it may happen if unit test are build using any other build
+  tool than `Maven` or `Gradle`. Also it may happen if your project uses non default `Maven`/`Gradle` build directories
+  layout.
+* `t2b.bench.dir` - defines path where to place generated benchmarks. **Default value**: `${t2b.build.dir}/t2b`.
+* `t2b.jdk.home` - defines JDK home path to be used for benchmarks compilation. Now `javac` command is ued to compile
+  generated benchmark classes. **Optional** property, shall be used if Java used to run this app is from JRE. If app
+  runner Java is from JDK, there is no need to set this property. **NOTE**: to avoid any compatibility issues it is
+  recommended to use same Java level version (`8`, `11`, `15`, etc) JDK as it is Java used to run this app.
 
 #### Application
 
@@ -74,11 +77,13 @@ as it is Java used to run this app.
 
 ### CyBench Launcher configuration
 
-To run [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) you'll need configuration file 
-[cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and set it over 
-`com.gocypher.cybench.launcher.BenchmarkRunner` class argument `cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties`.
+To run [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) you'll need
+configuration file [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project
+scope and set it over `com.gocypher.cybench.launcher.BenchmarkRunner` class argument
+`cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties`.
 
 Dependencies for your project:
+
 * Maven:
     ```xml
     <dependency>
@@ -94,20 +99,20 @@ Dependencies for your project:
     runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
     ```
 
-See [CyBench Launcher Configuration document](https://github.com/K2NIO/gocypher-cybench-java#cybench-launcher-configuration) for 
-configuration options and details.
+See [CyBench Launcher Configuration document](https://github.com/K2NIO/gocypher-cybench-java#cybench-launcher-configuration)
+for configuration options and details.
 
 ### JMH Runner configuration (optional)
 
-[CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) is preferred app to run generated benchmarks and 
-have benchmarking report posted into [CyBench](https://cybench.io/) [repo](https://app.cybench.io/cybench/) for later comparison and 
-evaluation of benchmark results.
+[CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) is preferred app to run
+generated benchmarks and have benchmarking report posted into [CyBench](https://cybench.io/)
+[repo](https://app.cybench.io/cybench/) for later comparison and evaluation of benchmark results.
 
-But it is also possible to run generated benchmarks using original JMH runner. Difference is that instead of 
+But it is also possible to run generated benchmarks using original JMH runner. Difference is that instead of
 `com.gocypher.cybench.launcher.BenchmarkRunner` class you shall use `org.openjdk.jmh.Main` class.
 
-See [JMH Runner Configuration document](https://github.com/guozheng/jmh-tutorial/blob/master/README.md#jmh-command-line-options) for 
-configuration options and details.
+See [JMH Runner Configuration document](https://github.com/guozheng/jmh-tutorial/blob/master/README.md#jmh-command-line-options)
+for configuration options and details.
 
 ## Running Test2Benchmark (T2B)
 
@@ -175,9 +180,9 @@ configuration options and details.
                     <t2b.exec.java>${java.home}/bin/java</t2b.exec.java>
                     <!-- ### Java system properties used by benchmarks builder ###-->
                     <!-- @@@ Additional Dir props to customize @@@ -->
-                    <!-- -Dt2b.testDir=${project.build.testOutputDirectory}-->
-                    <!-- -Dt2b.benchDir=${project.build.directory}/t2b-->
-                    <t2b.sys.props>-Dt2b.buildDir=${project.build.directory} -Dt2b.jdkHome=${t2b.jdk.home}</t2b.sys.props>
+                    <!-- -Dt2b.test.dir=${project.build.testOutputDirectory}-->
+                    <!-- -Dt2b.bench.dir=${project.build.directory}/t2b-->
+                    <t2b.sys.props>-Dt2b.build.dir=${project.build.directory} -Dt2b.jdk.home=${t2b.jdk.home}</t2b.sys.props>
                     <!-- ### Skip running built benchmarks ### -->
                     <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
                     <!-- ### Config for CyBench Launcher runner ### -->
@@ -287,10 +292,11 @@ configuration options and details.
         <...>
     </project>
     ```
-    **Note:** configurable sections are marked with comments starting `<!-- ###`.
+  **Note:** configurable sections are marked with comments starting `<!-- ###`.
 
-    **Note:** to run CyBench Launcher runner you'll need configuration file [cybench-launcher.properties](config/cybench-launcher.properties).
-    Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
+  **Note:** to run CyBench Launcher runner you'll need configuration file
+  [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and set it
+  over `t2b.bench.runner.class.args` property:
     ```xml
     <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
     ```
@@ -300,17 +306,18 @@ configuration options and details.
     mvn clean validate -f pom.xml -P test-2-bench 
     ```
 
-    **Note:**
+  **Note:**
     * `clean` - this goal is optional, but in most cases we want to have clean build
-    * `validate` - this goal is used to cover full build process lifecycle, since our default benchmark build and run phases are bound to 
-    `pre-integration-test` and `integration-test`. But you may change accordingly to adopt your project build lifecycle, but **note** those 
-    phases must go after `test-compile` phase, since we are dealing with the product of this phase.
+    * `validate` - this goal is used to cover full build process lifecycle, since our default benchmark build and run
+      phases are bound to `pre-integration-test` and `integration-test`. But you may change accordingly to adopt your
+      project build lifecycle, but **note** those phases must go after `test-compile` phase, since we are dealing with
+      the product of this phase.
     * `-f pom.xml` - you can replace it with any path and file name to match your environment
 
 ### Gradle
 
-* Step 1: to run T2B agent from Gradle, edit `build.gradle` of your project first by adding these `repository`, 
-`configurations`, `dependnecies` and `task` definitions:
+* Step 1: to run T2B agent from Gradle, edit `build.gradle` of your project first by adding these `repository`,
+  `configurations`, `dependnecies` and `task` definitions:
     * Groovy
         ```groovy
         repositories {
@@ -331,7 +338,7 @@ configuration options and details.
         // ...
         task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
             group = 'CyBench-T2B'
-            description = 'Run Test2Benchmarks benchmarks generator'
+            description = 'Run Test2Benchmark (T2B) benchmarks generator agent'
             classpath = files(
                     project.sourceSets.main.runtimeClasspath,
                     project.sourceSets.test.runtimeClasspath,
@@ -349,26 +356,26 @@ configuration options and details.
                 ]
             }
             systemProperties = [
-                    't2b.buildDir': "$buildDir",
-                    't2b.jdkHome' : 'c:/java/jdk180'
+                    't2b.build.dir': "$buildDir",
+                    't2b.jdk.home' : 'c:/java/jdk180'
             ]
             main = 'com.gocypher.cybench.Test2Benchmark'
         }
-
+  
         task runBenchmarksFromUnitTestsCybench(type: JavaExec, dependsOn: buildBenchmarksFromUnitTests) {
             def benchRunProps = new Properties()
             def pFile = file(".benchRunProps")
             if (pFile.exists()) {
                 pFile.withInputStream { benchRunProps.load(it) }
             }
-
+  
             def t2bClassPath = benchRunProps.getProperty('T2B_CLASS_PATH')
             if (t2bClassPath != null) {
                 t2bClassPath = t2bClassPath.replaceAll("\"", "")
             }
-
+  
             group = 'CyBench-T2B'
-            description = 'Run JMH benchmarks over Cybench Launcher runner'
+            description = 'Run T2B generated JMH benchmarks over Cybench Launcher runner'
             classpath = files(
                     project.sourceSets.main.runtimeClasspath,
                     project.sourceSets.test.runtimeClasspath,
@@ -381,13 +388,13 @@ configuration options and details.
                         '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
                 ]
             }
-
+  
             //    ### Config for CyBench Launcher runner ###
             main = 'com.gocypher.cybench.launcher.BenchmarkRunner'
             args = [
                     'cfg=t2b/cybench-launcher.properties'
             ]
-
+  
             //    ### Config for JMH runner ###
             //    main = 'org.openjdk.jmh.Main'
             //    args = [
@@ -425,14 +432,14 @@ configuration options and details.
         val launcher = javaToolchains.launcherFor {
           languageVersion.set(JavaLanguageVersion.of(11))
         }
-
+  
         tasks {
           val buildBenchmarksFromUnitTests by registering(JavaExec::class) {
             group = "cybench-t2b"
-            description = "Run Test2Benchmarks benchmarks generator"
+            description = "Run Test2Benchmark (T2B) benchmarks generator agent"
             dependsOn(testClasses)
             javaLauncher.set(launcher)
-
+  
             if (JavaVersion.current().isJava9Compatible) {
               jvmArgs("-javaagent:\"${configurations.getByName("t2b").iterator().next()}\"")
               jvmArgs("--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED")
@@ -440,36 +447,36 @@ configuration options and details.
             } else {
               jvmArgs("-javaagent:\"${configurations.getByName("t2b").iterator().next()}\"");
             }
-
-            systemProperty("t2b.buildDir", "$buildDir")
-            systemProperty("t2b.jdkHome", "c:/java/jdk180")
-
+  
+            systemProperty("t2b.build.dir", "$buildDir")
+            systemProperty("t2b.jdk.home", "c:/java/jdk180")
+  
             classpath(
               sourceSets["main"].runtimeClasspath,
               sourceSets["test"].runtimeClasspath,
               configurations.getByName("t2b")
             )
-
+  
             mainClass.set("com.gocypher.cybench.Test2Benchmark")
           }
-
+  
           val runBenchmarksFromUnitTestsCybench by registering(JavaExec::class) {
             group = "cybench-t2b"
-            description = "Run JMH benchmarks over Cybench Launcher runner"
+            description = "Run T2B generated JMH benchmarks over Cybench Launcher runner"
             dependsOn(buildBenchmarksFromUnitTests)
             javaLauncher.set(launcher)
-
+  
             if (JavaVersion.current().isJava9Compatible) {
               jvmArgs("--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED")
               jvmArgs("--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED")
             }
-
+  
             classpath(
               sourceSets["main"].runtimeClasspath,
               sourceSets["test"].runtimeClasspath,
               configurations.getByName("cybench")
             )
-
+  
             val benchRunProps = Properties();
             val pFile = file(".benchRunProps")
             if (pFile.exists()) {
@@ -477,20 +484,20 @@ configuration options and details.
               benchRunProps.load(fis);
               fis.close();
             }
-
+  
             var t2bClassPath = benchRunProps.getProperty("T2B_CLASS_PATH")
             if (t2bClassPath != null) {
               t2bClassPath = t2bClassPath.replace("\"", "")
-
+  
               classpath(
                 t2bClassPath.split("${File.pathSeparator}")
               )
             }
-
+  
             //    ### Config for CyBench Launcher runner ###
             mainClass.set("com.gocypher.cybench.launcher.BenchmarkRunner")
             args ("cfg=t2b/cybench-launcher.properties")
-
+  
             //    ### Config for JMH runner ###
             //    mainClass.set("org.openjdk.jmh.Main")
             //    args ("-f", "1", "-w", "5s", "-wi", "0", "-i", "1", "-r", "5s", "-t", "1", "-bm", "Throughput")
@@ -498,26 +505,27 @@ configuration options and details.
         }
         ```
 
-    **Note:** since `cybench-t2b-agent` now is in pre-release state, you have to add maven central snapshots repo 
-    `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
+  **Note:** since `cybench-t2b-agent` now is in pre-release state, you have to add maven central snapshots repo
+  `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
-    **Note:** `configurations` section defines custom ones to make it easier to access particular cybench dependencies.
+  **Note:** `configurations` section defines custom ones to make it easier to access particular cybench dependencies.
 
-    **Note:** to run CyBench Launcher runner you'll need configuration file [cybench-launcher.properties](config/cybench-launcher.properties).
-    Put it somewhere in your project scope and set it over `t2b.bench.runner.class.args` property:
+  **Note:** to run CyBench Launcher runner you'll need configuration file
+  [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and set it
+  over `t2b.bench.runner.class.args` property:
     ```xml
     <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
     ```
 
 * Step 2: run your Gradle script:
     * To build benchmarks from unit tests
-    ```cmd
-    gradle :buildBenchmarksFromUnitTests 
-    ```
+      ```cmd
+      gradle :buildBenchmarksFromUnitTests 
+      ```
     * To build and run benchmarks
-    ```cmd
-    gradle :runBenchmarksFromUnitTestsCybench 
-    ```
+      ```cmd
+      gradle :runBenchmarksFromUnitTestsCybench 
+      ```
 
 ### OS shell
 
@@ -529,18 +537,20 @@ Use [runit.bat](bin/runit.bat) batch script file to run.
 
 Use [runit.sh](bin/runit.sh) bash script file to run.
 
-Bash scripts are kind of run wizards: it will ask you for you about your environment configuration and having required variables set, it 
-will allow you to select options on what you want to do:
+Bash scripts are kind of run wizards: it will ask you for you about your environment configuration and having required
+variables set, it will allow you to select options on what you want to do:
+
 * Build benchmarks from tests - it shall be run very fist time and after every rebuild of your project.
 * Run benchmarks using Cybench runner.
 * Run benchmarks using JMH runner.
 
-To change configuration to meet your environment, please edit these shell script files. See [Configuration](#configuration) section for 
-details.
+To change configuration to meet your environment, please edit these shell script files.
+See [Configuration](#configuration) section for details.
 
 ## Known Bugs
-* If test class has methods having same name just different casing, on Windows it creates file and class having different casing and 
-benchmarks compile fails with:
+
+* If test class has methods having same name just different casing, on Windows it creates file and class having
+  different casing and benchmarks compile fails with:
   ```
   class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
   ```
