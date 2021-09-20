@@ -1,6 +1,6 @@
 ## DEVNotes (a.k.a TODO)
 
-* **P1** tasks (optional for 2021-07-23): 
+* **P1** tasks (optional for 2021-07-23):
     * Add cybench annotations: id, metadata. Make it configurable using some template (file or property).
     * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, and etc. test framework annotations
     * Integrate T2B with [opentelemetry-java-instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
@@ -13,22 +13,25 @@
     * Make gradle plugin
     * Make maven plugin
     * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH runner, `-r cyb` - run using
-    CyBench runner
-    * Multi-module project support (Maven/Gradle) when running from bat/sh. Scan `workDir` for inner build dirs and run benchmarks for all 
-    of them
-    * Make shell configuration from properties file. That way both `bat` and `sh` shall use same file and there would be no need to change 
-    shell scripts itself
+      CyBench runner
+    * Multi-module project support (Maven/Gradle) when running from bat/sh. Scan `workDir` for inner build dirs and run benchmarks for all
+      of them
+    * Make shell configuration from properties file. That way both `bat` and `sh` shall use same file and there would be no need to change
+      shell scripts itself
 
 ### Debugging
+
     ```cmd
     mvndebug clean validate -f pom.xml -P test-2-bench
     ```
+
 this command will let you debug the maven process, **NOTE** - you cannot set the breakpoint on instrumented class.
 
 Or simply enable java debugging agent using:
+
 * Maven
     ```xml
-    <t2b.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug>
+    <t2b.debug.args>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</t2b.debug.args>
     ```
 * Gradle `JavaExec` arguments
     ```groovy
@@ -37,11 +40,11 @@ Or simply enable java debugging agent using:
         // ...
     ]
     ```
-    or
+  or
     ```groovy
     debug = true
     ```
-    or for Gradle `5.6+`
+  or for Gradle `5.6+`
     ```groovy
     debugOptions {
         enabled = true
