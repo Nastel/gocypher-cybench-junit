@@ -179,7 +179,7 @@ public class Test2Benchmark {
                 log("*** Removing existing benchmarks dir: " + benchDirPath);
                 Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             } catch (Exception exc) {
-                err("failed to delete benchmarks dir, reason: " + exc.getLocalizedMessage());
+                err("failed to delete benchmarks dir", exc);
             }
         }
         addClassPath(benchDir.getCanonicalFile());
@@ -193,8 +193,7 @@ public class Test2Benchmark {
             Test2Benchmark test2Benchmark = new Test2Benchmark();
             test2Benchmark.buildBenchmarks();
         } catch (Throwable t) {
-            err("failure occurred while running Test2Benchmark transformer app, exc: " + t.getLocalizedMessage());
-            t.printStackTrace();
+            errWithTrace("failure occurred while running Test2Benchmark transformer app", t);
         }
     }
 
@@ -203,8 +202,7 @@ public class Test2Benchmark {
             T2BUtils.addClassPath(classDir);
             t2bClassPath.add(classDir.getCanonicalPath());
         } catch (Exception exc) {
-            err("failed to add classpath entry: " + classDir.getAbsolutePath() + ", reason: "
-                    + exc.getLocalizedMessage());
+            err("failed to add classpath entry: " + classDir.getAbsolutePath(), exc);
         }
     }
 
@@ -249,6 +247,15 @@ public class Test2Benchmark {
 
     static void err(String msg) {
         System.out.println("ERROR: " + msg);
+    }
+
+    static void err(String msg, Throwable t) {
+        System.out.println("ERROR: " + msg + ", reason: " + t.getLocalizedMessage());
+    }
+
+    static void errWithTrace(String msg, Throwable t) {
+        err(msg, t);
+        t.printStackTrace();
     }
 
     private void buildBenchmarks() throws Exception {
@@ -306,8 +313,7 @@ public class Test2Benchmark {
                 fos.flush();
             }
         } catch (IOException exc) {
-            err("failed to write benchmark run configuration properties, reason: " + exc.getLocalizedMessage());
-            exc.printStackTrace();
+            errWithTrace("failed to write benchmark run configuration properties", exc);
         }
     }
 

@@ -81,8 +81,7 @@ public abstract class CompileProcess {
                 String s = makeSourcesList();
                 CompileProcess.runProcess(CMD_COMPILE.replace("<CLASSPATH>", "\"" + classPath + "\"") + s);
             } catch (Throwable e) {
-                Test2Benchmark.err("cannot run compile");
-                e.printStackTrace();
+                Test2Benchmark.errWithTrace("cannot run compile", e);
             }
         }
 

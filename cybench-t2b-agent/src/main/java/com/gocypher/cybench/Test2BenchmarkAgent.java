@@ -52,8 +52,7 @@ public class Test2BenchmarkAgent {
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
             replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_FAKE_COMPILER_HINTS, compilerHintsBytes);
         } catch (Exception e) {
-            Test2Benchmark.err("failed to initialize agent, exc: " + e);
-            e.printStackTrace();
+            Test2Benchmark.errWithTrace("failed to initialize agent", e);
         }
     }
 
