@@ -133,7 +133,7 @@ public class BenchmarkMetadata {
 
     protected static String fillMetadataValue(String value, MetadataInfo metadataInfo) {
         if (isVariableValue(value)) {
-            return VARIABLE_EXP_RANGE_PATTERN.matcher(value).replaceAll(xValue(value, metadataInfo));
+            return VARIABLE_EXP_RANGE_PATTERN.matcher(value).replaceAll(resolveVarExpressionValue(value, metadataInfo));
         }
 
         return value;
@@ -143,12 +143,12 @@ public class BenchmarkMetadata {
         return VARIABLE_EXP_PATTERN.matcher(value).find();
     }
 
-    protected static String xValue(String value, MetadataInfo metadataInfo) {
-        Matcher vMacher = VARIABLE_EXP_PATTERN.matcher(value);
+    protected static String resolveVarExpressionValue(String value, MetadataInfo metadataInfo) {
+        Matcher vMatcher = VARIABLE_EXP_PATTERN.matcher(value);
 
-        while (vMacher.find()) {
-            String varName = vMacher.group(2);
-            String defaultValue = vMacher.group(4);
+        while (vMatcher.find()) {
+            String varName = vMatcher.group(2);
+            String defaultValue = vMatcher.group(4);
 
             String varValue = resolveVarValue(varName, metadataInfo);
             if (varValue == null && defaultValue != null) {
