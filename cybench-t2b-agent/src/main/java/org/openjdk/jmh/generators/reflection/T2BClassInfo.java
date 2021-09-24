@@ -5,9 +5,9 @@
 // https://www.baeldung.com/java-microbenchmark-harness
 package org.openjdk.jmh.generators.reflection;
 
-public class MyClassInfo extends RFClassInfo {
+public class T2BClassInfo extends RFClassInfo {
 
-    public MyClassInfo(Class<?> klass) {
+    public T2BClassInfo(Class<?> klass) {
         super(klass);
     }
 }

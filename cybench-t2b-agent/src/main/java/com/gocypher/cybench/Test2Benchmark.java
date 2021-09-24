@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import org.openjdk.jmh.generators.core.*;
-import org.openjdk.jmh.generators.reflection.MyClassInfo;
+import org.openjdk.jmh.generators.reflection.T2BClassInfo;
 import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.CompilerHints;
 import org.openjdk.jmh.util.HashMultimap;
@@ -354,7 +354,7 @@ public class Test2Benchmark {
 
                         Class<?> clazz = Class.forName(className);
                         Test2Benchmark.log("Found Test Class: " + clazz);
-                        benchmarkClassList.add(new MyClassInfo(clazz));
+                        benchmarkClassList.add(new T2BClassInfo(clazz));
                     } catch (Throwable t) {
                         Test2Benchmark.err("can't get test class: " + t);
                     }

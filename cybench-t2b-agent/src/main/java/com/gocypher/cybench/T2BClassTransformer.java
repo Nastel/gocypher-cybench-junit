@@ -12,7 +12,7 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.FieldInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
-import org.openjdk.jmh.generators.reflection.MyClassInfo;
+import org.openjdk.jmh.generators.reflection.T2BClassInfo;
 
 import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
@@ -40,7 +40,7 @@ public class T2BClassTransformer {
         String alteredClassName = getAlteredClassName(clsName);
         try {
             Class<?> alteredCLClass = Class.forName(alteredClassName);
-            return new MyClassInfo(alteredCLClass);
+            return new T2BClassInfo(alteredCLClass);
         } catch (Exception exc) {
             try {
                 getCtClass(clsName);
@@ -467,7 +467,7 @@ public class T2BClassTransformer {
     public void toClass() throws Exception {
         if (alteredClass != null) {
             Class<?> cls = alteredClass.toClass();
-            aClsInfo = new MyClassInfo(cls);
+            aClsInfo = new T2BClassInfo(cls);
         }
     }
 
