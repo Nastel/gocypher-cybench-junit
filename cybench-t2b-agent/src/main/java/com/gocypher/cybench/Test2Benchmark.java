@@ -245,6 +245,10 @@ public class Test2Benchmark {
         System.out.println(msg);
     }
 
+    static void warn(String msg) {
+        System.out.println("WARN: " + msg);
+    }
+
     static void err(String msg) {
         System.out.println("ERROR: " + msg);
     }

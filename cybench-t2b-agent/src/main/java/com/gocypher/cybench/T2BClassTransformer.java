@@ -14,6 +14,7 @@ import org.openjdk.jmh.generators.core.FieldInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
 import org.openjdk.jmh.generators.reflection.MyClassInfo;
 
+import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
 
 import javassist.*;
@@ -73,6 +74,8 @@ public class T2BClassTransformer {
             annotateClassState();
         }
 
+        annotateClassMetadata(clsInfo);
+
         for (org.openjdk.jmh.generators.core.MethodInfo methodInfo : clsInfo.getMethods()) {
             annotateMethod(methodInfo, t2bMappers);
         }
@@ -84,9 +87,7 @@ public class T2BClassTransformer {
                 storeClass(dir);
                 toClass();
             } catch (Exception exc) {
-                Test2Benchmark.err("failed to use altered class: " + getAlteredClassName() + ", reason: "
-                        + exc.getLocalizedMessage());
-                exc.printStackTrace();
+                Test2Benchmark.errWithTrace("failed to use altered class: " + getAlteredClassName(), exc);
             }
         }
 
@@ -96,16 +97,42 @@ public class T2BClassTransformer {
         Annotation stateAnnotation = clsInfo.getAnnotation(State.class);
         if (stateAnnotation == null) {
             String clsName = getClassName(clsInfo);
-            annotateClass(clsName);
+            annotateStateClass(clsName);
         }
     }
 
-    public void annotateBenchmarkMethod(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
+    public void annotateBenchmark(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
+        annotateBenchmarkMethod(methodInfo, Benchmark.class.getName(), null);
+    }
+
+    public void annotateBenchmarkTag(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
         String methodSignature = getSignature(methodInfo);
         Map<String, String> tagMembers = new HashMap<>(1);
         tagMembers.put("tag", UUID.nameUUIDFromBytes(methodSignature.getBytes()).toString());
 
         annotateBenchmarkMethod(methodInfo, BenchmarkTag.class.getName(), tagMembers);
+    }
+
+    public void annotateBenchmarkMetadata(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
+        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(methodInfo);
+
+        for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
+            Map<String, String> tagMembers = new HashMap<>(2);
+            tagMembers.put("key", mde.getKey());
+            tagMembers.put("value", mde.getValue());
+            annotateBenchmarkMethod(methodInfo, BenchmarkMetaData.class.getName(), tagMembers);
+        }
+    }
+
+    public void annotateClassMetadata(ClassInfo classInfo) {
+        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(classInfo);
+
+        for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
+            Map<String, String> tagMembers = new HashMap<>(2);
+            tagMembers.put("key", mde.getKey());
+            tagMembers.put("value", mde.getValue());
+            annotateBenchmarkClass(classInfo, BenchmarkMetaData.class.getName(), tagMembers);
+        }
     }
 
     private static Map<String, Pair<String, String>> LEVEL_ANNOTATION_MEMBERS = new HashMap<>();
@@ -140,16 +167,26 @@ public class T2BClassTransformer {
         STATE_ANNOTATION_MEMBERS.put("value", new Pair<>(Scope.class.getName(), Scope.Benchmark.name()));
     }
 
-    public void annotateClass(String clsName) {
+    public void annotateStateClass(String clsName) {
         String annotationName = State.class.getName();
         try {
-            CtClass annotatedClass = addClassAnnotation(clsName, annotationName, STATE_ANNOTATION_MEMBERS);
+            CtClass annotatedClass = addClassEnumAnnotation(clsName, annotationName, STATE_ANNOTATION_MEMBERS);
             Test2Benchmark.log(
                     String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to add @" + annotationName + " annotation for " + clsName + ", reason: "
-                    + exc.getLocalizedMessage());
-            exc.printStackTrace();
+            Test2Benchmark.errWithTrace("failed to add @" + annotationName + " annotation for class " + clsName, exc);
+        }
+    }
+
+    public void annotateBenchmarkClass(org.openjdk.jmh.generators.core.ClassInfo classInfo, String annotationName,
+            Map<String, String> tagMembersMap) {
+        String clsName = getClassName(clsInfo);
+        try {
+            addClassAnnotation(clsName, annotationName, tagMembersMap);
+            Test2Benchmark.log(
+                    String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
+        } catch (Exception exc) {
+            Test2Benchmark.errWithTrace("failed to add @" + annotationName + " annotation for class " + clsName, exc);
         }
     }
 
@@ -158,13 +195,12 @@ public class T2BClassTransformer {
         try {
             String methodName = method.getName();
 
-            addMethodBenchmarkAnnotation(methodName, annotationName, tagMembersMap);
+            addMethodAnnotation(methodName, annotationName, tagMembersMap);
             Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
                     "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to add @" + annotationName + " annotation for method "
-                    + method.getQualifiedName() + ", reason: " + exc.getLocalizedMessage());
-            exc.printStackTrace();
+            Test2Benchmark.errWithTrace(
+                    "failed to add @" + annotationName + " annotation for method " + method.getQualifiedName(), exc);
         }
     }
 
@@ -173,13 +209,12 @@ public class T2BClassTransformer {
         try {
             String methodName = method.getName();
 
-            addMethodStateAnnotation(methodName, annotationName, levelMembersMap);
+            addMethodEnumAnnotation(methodName, annotationName, levelMembersMap);
             Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
                     "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to add @" + annotationName + " annotation for method "
-                    + method.getQualifiedName() + ", reason: " + exc.getLocalizedMessage());
-            exc.printStackTrace();
+            Test2Benchmark.errWithTrace(
+                    "failed to add @" + annotationName + " annotation for method " + method.getQualifiedName(), exc);
         }
 
         annotateClassState();
@@ -193,8 +228,7 @@ public class T2BClassTransformer {
                 return sig;
             }
         } catch (Exception exc) {
-            // err("Failed to get method signature field, reason: " + exc.getLocalizedMessage());
-            // exc.printStackTrace();
+            // Test2Benchmark.errWithTrace("failed to get method signature field", exc);
         }
 
         StringBuilder sb = new StringBuilder(m.getDeclaringClass().getName() + "." + m.getName() + "(");
@@ -252,7 +286,7 @@ public class T2BClassTransformer {
         return alteredClass;
     }
 
-    public CtClass addClassAnnotation(String className, String annotationName,
+    public CtClass addClassEnumAnnotation(String className, String annotationName,
             Map<String, Pair<String, String>> membersMap) throws Exception {
         CtClass ctClass = getCtClass(className);
         alterClass(ctClass);
@@ -319,8 +353,39 @@ public class T2BClassTransformer {
 
     }
 
-    public CtClass addMethodBenchmarkAnnotation(String methodName, String annotationName,
-            Map<String, String> membersMap) throws Exception {
+    public CtClass addClassAnnotation(String className, String annotationName, Map<String, String> membersMap)
+            throws Exception {
+        CtClass ctClass = getCtClass(className);
+        alterClass(ctClass);
+
+        ClassFile classFile = ctClass.getClassFile();
+        ConstPool constPool = classFile.getConstPool();
+
+        List<AttributeInfo> classFileAttributes = classFile.getAttributes();
+        AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(classFileAttributes);
+
+        if (annotationsAttribute == null) {
+            annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+            classFile.addAttribute(annotationsAttribute);
+        }
+
+        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
+                annotationName, constPool);
+        if (membersMap != null) {
+            for (Map.Entry<String, String> me : membersMap.entrySet()) {
+                StringMemberValue smv = new StringMemberValue(constPool);
+                smv.setValue(me.getValue());
+                annotation.addMemberValue(me.getKey(), smv);
+            }
+        }
+
+        annotationsAttribute.addAnnotation(annotation);
+
+        return ctClass;
+    }
+
+    public CtClass addMethodAnnotation(String methodName, String annotationName, Map<String, String> membersMap)
+            throws Exception {
         CtClass ctClass = getCtClass(getClassName());
         alterClass(ctClass);
 
@@ -339,11 +404,7 @@ public class T2BClassTransformer {
         }
 
         javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                Benchmark.class.getName(), constPool);
-
-        annotationsAttribute.addAnnotation(annotation);
-
-        annotation = new javassist.bytecode.annotation.Annotation(annotationName, constPool);
+                annotationName, constPool);
         if (membersMap != null) {
             for (Map.Entry<String, String> me : membersMap.entrySet()) {
                 StringMemberValue smv = new StringMemberValue(constPool);
@@ -365,7 +426,7 @@ public class T2BClassTransformer {
         }
     }
 
-    public CtClass addMethodStateAnnotation(String methodName, String annotationName,
+    public CtClass addMethodEnumAnnotation(String methodName, String annotationName,
             Map<String, Pair<String, String>> membersMap) throws Exception {
         CtClass ctClass = getCtClass(getClassName());
         alterClass(ctClass);
@@ -460,7 +521,9 @@ public class T2BClassTransformer {
     public void annotateMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2BMappers) {
         T2BMapper.MethodState testValid = isValidTest(mi, t2BMappers);
         if (testValid == T2BMapper.MethodState.VALID) {
-            annotateBenchmarkMethod(mi);
+            annotateBenchmark(mi);
+            annotateBenchmarkTag(mi);
+            annotateBenchmarkMetadata(mi);
             benchmarksList.add(mi);
         } else if (isSetupMethod(mi, t2BMappers)) {
             annotateMethodSetup(mi);
