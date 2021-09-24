@@ -207,13 +207,13 @@ public class BenchmarkMetadata {
                 if (pckg != null) {
                     varValue = PackageValueResolver.getValue(variable, pckg);
                 }
-            }
-
-            if (varValue == null) {
-                Test2Benchmark.warn("found unknown variable: " + variable);
+            } else {
+                throw new InvalidVariableException("Unknown variable: " + variable);
             }
 
             return varValue;
+        } catch (InvalidVariableException exc) {
+            Test2Benchmark.warn(exc.getLocalizedMessage());
         } catch (Exception exc) {
             Test2Benchmark.err("failed to resolve variable value for: " + variable, exc);
         }
@@ -266,7 +266,7 @@ public class BenchmarkMetadata {
             case VAR_SPEC_VENDOR:
                 return pckg.getSpecificationVendor();
             default:
-                return null;
+                throw new InvalidVariableException("Unknown PACKAGE scope variable: " + variable);
             }
         }
     }
@@ -295,7 +295,7 @@ public class BenchmarkMetadata {
             case VAR_PARAMETERS:
                 return methodInfo.getParameters().toString();
             default:
-                return null;
+                throw new InvalidVariableException("Unknown METHOD scope variable: " + variable);
             }
         }
     }
@@ -318,7 +318,7 @@ public class BenchmarkMetadata {
             case VAR_SUPER_CLASS:
                 return classInfo.getSuperClass().getQualifiedName();
             default:
-                return null;
+                throw new InvalidVariableException("Unknown CLASS scope variable: " + variable);
             }
         }
     }
