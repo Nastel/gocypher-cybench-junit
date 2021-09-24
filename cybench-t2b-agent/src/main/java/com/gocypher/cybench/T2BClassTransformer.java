@@ -107,7 +107,7 @@ public class T2BClassTransformer {
 
     public void annotateBenchmarkTag(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
         String methodSignature = getSignature(methodInfo);
-        Map<String, String> tagMembers = new HashMap<>(1);
+        Map<String, String> tagMembers = new LinkedHashMap<>(1);
         tagMembers.put("tag", UUID.nameUUIDFromBytes(methodSignature.getBytes()).toString());
 
         annotateBenchmarkMethod(methodInfo, BenchmarkTag.class.getName(), tagMembers);
@@ -117,7 +117,7 @@ public class T2BClassTransformer {
         Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(methodInfo);
 
         for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
-            Map<String, String> tagMembers = new HashMap<>(2);
+            Map<String, String> tagMembers = new LinkedHashMap<>(2);
             tagMembers.put("key", mde.getKey());
             tagMembers.put("value", mde.getValue());
             annotateBenchmarkMethod(methodInfo, BenchmarkMetaData.class.getName(), tagMembers);
@@ -128,14 +128,14 @@ public class T2BClassTransformer {
         Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(classInfo);
 
         for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
-            Map<String, String> tagMembers = new HashMap<>(2);
+            Map<String, String> tagMembers = new LinkedHashMap<>(2);
             tagMembers.put("key", mde.getKey());
             tagMembers.put("value", mde.getValue());
             annotateBenchmarkClass(classInfo, BenchmarkMetaData.class.getName(), tagMembers);
         }
     }
 
-    private static Map<String, Pair<String, String>> LEVEL_ANNOTATION_MEMBERS = new HashMap<>();
+    private static Map<String, Pair<String, String>> LEVEL_ANNOTATION_MEMBERS = new LinkedHashMap<>();
     static {
         LEVEL_ANNOTATION_MEMBERS.put("value", new Pair<>(Level.class.getName(), Level.Trial.name()));
     }
@@ -162,7 +162,7 @@ public class T2BClassTransformer {
         }
     }
 
-    private static Map<String, Pair<String, String>> STATE_ANNOTATION_MEMBERS = new HashMap<>();
+    private static Map<String, Pair<String, String>> STATE_ANNOTATION_MEMBERS = new LinkedHashMap<>();
     static {
         STATE_ANNOTATION_MEMBERS.put("value", new Pair<>(Scope.class.getName(), Scope.Benchmark.name()));
     }
