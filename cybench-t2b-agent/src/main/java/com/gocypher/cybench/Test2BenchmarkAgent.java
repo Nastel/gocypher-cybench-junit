@@ -43,10 +43,9 @@ public class Test2BenchmarkAgent {
 
             JarFile jarFile = new JarFile(file);
 
-            byte[] benchmarkListBytes = getJMHBytesForClass(jarFile, BENCHMARK_LIST_CLASS.replace(".", "/") + ".class");
-            byte[] compilerHintsBytes = getJMHBytesForClass(jarFile, COMPILER_HINTS_CLASS.replace(".", "/") + ".class");
-            byte[] benchmarkGeneratorBytes = getJMHBytesForClass(jarFile,
-                    BENCHMARK_GENERATOR_CLASS.replace(".", "/") + ".class");
+            byte[] benchmarkListBytes = getBytes(jarFile, BENCHMARK_LIST_CLASS);
+            byte[] compilerHintsBytes = getBytes(jarFile, COMPILER_HINTS_CLASS);
+            byte[] benchmarkGeneratorBytes = getBytes(jarFile, BENCHMARK_GENERATOR_CLASS);
             // Put in code to basically call MY replacement methods and return MY values - instead of JMH
             replaceCode(BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet", TAKE_FAKE_ANNOTATIONS, benchmarkGeneratorBytes);
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
@@ -54,6 +53,10 @@ public class Test2BenchmarkAgent {
         } catch (Exception e) {
             Test2Benchmark.errWithTrace("failed to initialize agent", e);
         }
+    }
+
+    private static byte[] getBytes(JarFile jarFile, String className) throws IOException {
+        return getJMHBytesForClass(jarFile, className.replace(".", "/") + ".class");
     }
 
     static void replaceCode(String className, String methodName, String code, byte[] bytes) {

@@ -17,23 +17,32 @@ public final class T2BUtils {
     }
 
     public static String getSysClassPath() throws Exception {
-        ClassLoader classloader = ClassLoader.getSystemClassLoader();
-        if (classloader != null) {
-            URL[] urls;
-            if (classloader instanceof URLClassLoader) {
-                urls = ((URLClassLoader) classloader).getURLs();
-            } else {
-                Object ucp = getFieldValue(classloader, "ucp");
-                urls = (URL[]) invokeMethod(ucp, "getURLs", null);
-            }
-            String classPath = Stream.of(urls) //
-                    .map(u -> u.getPath()) //
-                    .map(s -> s.substring(1)) //
-                    .collect(Collectors.joining(File.pathSeparator));
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        if (cl != null) {
+            URL[] urls = getClassLoaderURLs(cl);
+            String classPath = toString(urls);
 
             return classPath;
         }
         return "";
+    }
+
+    private static URL[] getClassLoaderURLs(ClassLoader cl) throws Exception {
+        URL[] urls;
+        if (cl instanceof URLClassLoader) {
+            urls = ((URLClassLoader) cl).getURLs();
+        } else {
+            Object ucp = getFieldValue(cl, "ucp");
+            urls = (URL[]) invokeMethod(ucp, "getURLs", null);
+        }
+        return urls;
+    }
+
+    private static String toString(URL[] urls) {
+        return Stream.of(urls) //
+                .map(u -> u.getPath()) //
+                .map(s -> s.substring(1)) //
+                .collect(Collectors.joining(File.pathSeparator));
     }
 
     public static Object getFieldValue(Object obj, String fieldName) throws Exception {
@@ -69,18 +78,8 @@ public final class T2BUtils {
                 break;
             }
 
-            URL[] urls;
-            if (cl instanceof URLClassLoader) {
-                urls = ((URLClassLoader) cl).getURLs();
-            } else {
-                Object ucp = getFieldValue(cl, "ucp");
-                urls = (URL[]) invokeMethod(ucp, "getURLs", null);
-            }
-
-            cp += Stream.of(urls) //
-                    .map(u -> u.getPath()) //
-                    .map(s -> s.substring(1)) //
-                    .collect(Collectors.joining(File.pathSeparator));
+            URL[] urls = getClassLoaderURLs(cl);
+            cp += toString(urls);
 
             if (cl == sys && clEq) {
                 break;
