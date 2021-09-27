@@ -34,7 +34,7 @@ repositories {
 
 group = 'com.gocypher.cybench'
 archivesBaseName = 'cybench-t2b-agent'
-version = '1.0.3-SNAPSHOT'
+version = '1.0.4-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 ext.vendor = 'K2N.IO'
@@ -47,7 +47,7 @@ dependencies {
     compile 'org.javassist:javassist:3.28.0-GA'
     compile 'org.testng:testng:7.4.0'
     compile 'junit:junit:4.13.2'
-    compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    compile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     compile 'com.gocypher.cybench.client:gocypher-cybench-annotations:1.2-SNAPSHOT'
     // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
     runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'

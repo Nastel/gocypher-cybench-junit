@@ -53,7 +53,7 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
-            <version>3.22.1</version>
+            <version>3.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.7.2</version>
+            <version>5.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -185,7 +185,7 @@
                 <dependency>
                     <groupId>com.gocypher.cybench</groupId>
                     <artifactId>cybench-t2b-agent</artifactId>
-                    <version>1.0.3-SNAPSHOT</version>
+                    <version>1.0.4-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
                 <!-- @@@ CyBench Launcher runner dependency @@@ -->
@@ -197,10 +197,9 @@
                 </dependency>
             </dependencies>
             <properties>
-                <!-- ### JDK home used for javac command, shall match java version running this script to work as expected ### -->
-                <t2b.jdk.home>C:\Program Files\Java\jdk-11.0.12</t2b.jdk.home>
                 <!-- ### Java executable to use ### -->
-                <t2b.exec.java>"${t2b.jdk.home}/bin/java"</t2b.exec.java>
+                <t2b.java.home>${java.home}</t2b.java.home>
+                <t2b.java.exec>"${t2b.java.home}/bin/java"</t2b.java.exec>
                 <!-- ### Java system properties used by benchmarks builder ###-->
                 <!-- @@@ Additional Dir props to customize @@@ -->
                 <!-- -Dt2b.test.dir="${project.build.testOutputDirectory}"-->
@@ -274,7 +273,7 @@
                                 <!-- ### Maven phase when to build benchmarks for project/module defined unit tests ### -->
                                 <phase>pre-integration-test</phase>
                                 <configuration>
-                                    <executable>${t2b.exec.java}</executable>
+                                    <executable>${t2b.java.exec}</executable>
                                     <classpathScope>test</classpathScope>
                                     <commandlineArgs>
                                         ${t2b.module.prop}
@@ -295,7 +294,7 @@
                                 <phase>integration-test</phase>
                                 <configuration>
                                     <skip>${t2b.bench.runner.skip}</skip>
-                                    <executable>${t2b.exec.java}</executable>
+                                    <executable>${t2b.java.exec}</executable>
                                     <classpathScope>test</classpathScope>
                                     <commandlineArgs>
                                         ${t2b.module.prop}

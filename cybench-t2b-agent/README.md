@@ -30,14 +30,14 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench</groupId>
         <artifactId>cybench-t2b-agent</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.4-SNAPSHOT</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT'
+    runtime 'com.gocypher.cybench:cybench-t2b-agent:1.0.4-SNAPSHOT'
     ```
 
 ## Configuration
@@ -53,7 +53,7 @@ Dependencies for your project:
     ```
 * Add Java agent argument:
     ```cmd
-    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0.2-SNAPSHOT.jar
+    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0.4-SNAPSHOT.jar
     ```
 
 ##### Java system properties
@@ -158,7 +158,7 @@ for configuration options and details.
                     <dependency>
                         <groupId>com.gocypher.cybench</groupId>
                         <artifactId>cybench-t2b-agent</artifactId>
-                        <version>1.0.2-SNAPSHOT</version>
+                        <version>1.0.4-SNAPSHOT</version>
                         <scope>test</scope>
                     </dependency>
                     <!-- @@@ CyBench Launcher runner dependency @@@ -->
@@ -170,10 +170,9 @@ for configuration options and details.
                     </dependency>
                 </dependencies>
                 <properties>
-                    <!-- ### JDK home used for javac command, shall match java version running this script to work as expected ### -->
-                    <t2b.jdk.home>C:\Program Files\Java\jdk-11.0.12</t2b.jdk.home>
                     <!-- ### Java executable to use ### -->
-                    <t2b.exec.java>"${t2b.jdk.home}/bin/java"</t2b.exec.java>
+                    <t2b.java.home>${java.home}</t2b.java.home>
+                    <t2b.java.exec>"${t2b.java.home}/bin/java"</t2b.java.exec>
                     <!-- ### Java system properties used by benchmarks builder ###-->
                     <!-- @@@ Additional Dir props to customize @@@ -->
                     <!-- -Dt2b.test.dir="${project.build.testOutputDirectory}"-->
@@ -247,7 +246,7 @@ for configuration options and details.
                                     <!-- ### Maven phase when to build benchmarks for project/module defined unit tests ### -->
                                     <phase>pre-integration-test</phase>
                                     <configuration>
-                                        <executable>${t2b.exec.java}</executable>
+                                        <executable>${t2b.java.exec}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
                                             ${t2b.module.prop}
@@ -268,7 +267,7 @@ for configuration options and details.
                                     <phase>integration-test</phase>
                                     <configuration>
                                         <skip>${t2b.bench.runner.skip}</skip>
-                                        <executable>${t2b.exec.java}</executable>
+                                        <executable>${t2b.java.exec}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
                                             ${t2b.module.prop}
@@ -328,7 +327,7 @@ for configuration options and details.
       // ...
       dependencies {
           // ...
-          t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT'
+          t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.4-SNAPSHOT'
           cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
       }
       // ...
@@ -420,7 +419,7 @@ for configuration options and details.
       // ...
       dependencies {
         // ...
-        t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.2-SNAPSHOT")
+        t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.4-SNAPSHOT")
         cybench ("com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT")
       }
       // ...
