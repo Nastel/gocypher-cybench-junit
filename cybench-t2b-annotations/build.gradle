@@ -110,8 +110,7 @@ task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
         ]
     }
     systemProperties = [
-            't2b.build.dir': "$buildDir",
-            't2b.jdk.home' : 'd:/java/jdk180'
+            't2b.build.dir': "$buildDir"
     ]
     main = 'com.gocypher.cybench.Test2Benchmark'
 }

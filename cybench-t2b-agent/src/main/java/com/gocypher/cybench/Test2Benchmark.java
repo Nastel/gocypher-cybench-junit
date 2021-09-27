@@ -266,9 +266,8 @@ public class Test2Benchmark {
 
     private void buildBenchmarks() throws Exception {
         generateBenchmarkList();
-        CompileProcess.WindowsCompileProcess compileProcess = new CompileProcess.WindowsCompileProcess();
+        CompileProcess compileProcess = new CompileProcess.APICompileProcess();
         compileProcess.compile();
-        // String cp = compileProcess.getCompileClassPath();
         String cp = getT2BClassPath();
         writePropsToFile(BENCH_DIR, cp);
     }

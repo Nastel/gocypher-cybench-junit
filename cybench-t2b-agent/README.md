@@ -66,10 +66,6 @@ Dependencies for your project:
   tool than `Maven` or `Gradle`. Also it may happen if your project uses non default `Maven`/`Gradle` build directories
   layout.
 * `t2b.bench.dir` - defines path where to place generated benchmarks. **Default value**: `${t2b.build.dir}/t2b`.
-* `t2b.jdk.home` - defines JDK home path to be used for benchmarks compilation. Now `javac` command is ued to compile
-  generated benchmark classes. **Optional** property, shall be used if Java used to run this app is from JRE. If app
-  runner Java is from JDK, there is no need to set this property. **NOTE**: to avoid any compatibility issues it is
-  recommended to use same Java level version (`8`, `11`, `15`, etc) JDK as it is Java used to run this app.
 
 #### Application
 
@@ -182,7 +178,7 @@ for configuration options and details.
                     <!-- @@@ Additional Dir props to customize @@@ -->
                     <!-- -Dt2b.test.dir="${project.build.testOutputDirectory}"-->
                     <!-- -Dt2b.bench.dir="${project.build.directory}"/t2b-->
-                    <t2b.sys.props>-Dt2b.build.dir="${project.build.directory}" -Dt2b.jdk.home="${t2b.jdk.home}"</t2b.sys.props>
+                    <t2b.sys.props>-Dt2b.build.dir="${project.build.directory}"</t2b.sys.props>
                     <!-- ### Skip running built benchmarks ### -->
                     <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
                     <!-- ### Config for CyBench Launcher runner ### -->
@@ -356,8 +352,7 @@ for configuration options and details.
               ]
           }
           systemProperties = [
-                  't2b.build.dir': "$buildDir",
-                  't2b.jdk.home' : 'c:/java/jdk180'
+                  't2b.build.dir': "$buildDir"
           ]
           main = 'com.gocypher.cybench.Test2Benchmark'
       }
@@ -449,7 +444,6 @@ for configuration options and details.
           }
 
           systemProperty("t2b.build.dir", "$buildDir")
-          systemProperty("t2b.jdk.home", "c:/java/jdk180")
 
           classpath(
             sourceSets["main"].runtimeClasspath,
