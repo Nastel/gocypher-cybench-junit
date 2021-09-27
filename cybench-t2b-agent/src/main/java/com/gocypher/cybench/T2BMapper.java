@@ -5,6 +5,8 @@ import java.lang.annotation.Annotation;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 
+import com.gocypher.cybench.t2b.transform.T2BClassTransformer;
+
 public abstract class T2BMapper {
 
     private Class<? extends Annotation> annotation;

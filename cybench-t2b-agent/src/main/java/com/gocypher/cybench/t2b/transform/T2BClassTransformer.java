@@ -1,4 +1,4 @@
-package com.gocypher.cybench;
+package com.gocypher.cybench.t2b.transform;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -11,16 +11,21 @@ import org.apache.commons.math3.util.Pair;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.FieldInfo;
+import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
 import org.openjdk.jmh.generators.reflection.T2BClassInfo;
 
+import com.gocypher.cybench.T2BMapper;
+import com.gocypher.cybench.T2BUtils;
+import com.gocypher.cybench.Test2Benchmark;
 import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
+import com.gocypher.cybench.t2b.transform.annotation.*;
+import com.gocypher.cybench.t2b.transform.metadata.BenchmarkMetadata;
 
 import javassist.*;
 import javassist.bytecode.*;
-import javassist.bytecode.annotation.*;
 
 public class T2BClassTransformer {
 
@@ -96,8 +101,7 @@ public class T2BClassTransformer {
     public void annotateClassState() {
         Annotation stateAnnotation = clsInfo.getAnnotation(State.class);
         if (stateAnnotation == null) {
-            String clsName = getClassName(clsInfo);
-            annotateStateClass(clsName);
+            annotateStateClass(clsInfo, State.class.getName(), STATE_ANNOTATION_MEMBERS);
         }
     }
 
@@ -126,7 +130,14 @@ public class T2BClassTransformer {
     }
 
     public void annotateBenchmarkMetadataList(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
-        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(methodInfo);
+        List<Map<String, String>> metaDataList = getMetadata(methodInfo);
+
+        annotateBenchmarkMethod(methodInfo, CyBenchMetadataList.class.getName(), BenchmarkMetaData.class.getName(),
+                metaDataList);
+    }
+
+    public List<Map<String, String>> getMetadata(MetadataInfo metadataInfo) {
+        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(metadataInfo);
         List<Map<String, String>> metaDataList = new ArrayList<>(metaDataMap.size());
 
         for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
@@ -136,8 +147,7 @@ public class T2BClassTransformer {
             metaDataList.add(tagMembers);
         }
 
-        annotateBenchmarkMethod(methodInfo, CyBenchMetadataList.class.getName(), BenchmarkMetaData.class.getName(),
-                metaDataList);
+        return metaDataList;
     }
 
     // NOTE: Javassist does not support @Repeatable annotations yet...
@@ -153,15 +163,7 @@ public class T2BClassTransformer {
     }
 
     public void annotateClassMetadataList(ClassInfo classInfo) {
-        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(classInfo);
-        List<Map<String, String>> metaDataList = new ArrayList<>(metaDataMap.size());
-
-        for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
-            Map<String, String> tagMembers = new LinkedHashMap<>(2);
-            tagMembers.put("key", mde.getKey());
-            tagMembers.put("value", mde.getValue());
-            metaDataList.add(tagMembers);
-        }
+        List<Map<String, String>> metaDataList = getMetadata(classInfo);
 
         annotateBenchmarkClass(classInfo, CyBenchMetadataList.class.getName(), BenchmarkMetaData.class.getName(),
                 metaDataList);
@@ -199,10 +201,11 @@ public class T2BClassTransformer {
         STATE_ANNOTATION_MEMBERS.put("value", new Pair<>(Scope.class.getName(), Scope.Benchmark.name()));
     }
 
-    public void annotateStateClass(String clsName) {
-        String annotationName = State.class.getName();
+    public void annotateStateClass(ClassInfo classInfo, String annotationName,
+            Map<String, Pair<String, String>> membersMap) {
+        String clsName = getClassName(classInfo);
         try {
-            CtClass annotatedClass = addClassEnumAnnotation(clsName, annotationName, STATE_ANNOTATION_MEMBERS);
+            addClassEnumAnnotation(clsName, annotationName, membersMap);
             Test2Benchmark.log(
                     String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
@@ -210,8 +213,7 @@ public class T2BClassTransformer {
         }
     }
 
-    public void annotateBenchmarkClass(org.openjdk.jmh.generators.core.ClassInfo classInfo, String annotationName,
-            Map<String, String> membersMap) {
+    public void annotateBenchmarkClass(ClassInfo classInfo, String annotationName, Map<String, String> membersMap) {
         String clsName = getClassName(classInfo);
         try {
             addClassAnnotation(clsName, annotationName, membersMap);
@@ -222,8 +224,8 @@ public class T2BClassTransformer {
         }
     }
 
-    public void annotateBenchmarkClass(org.openjdk.jmh.generators.core.ClassInfo classInfo, String arrayAnnotationName,
-            String annotationsName, List<Map<String, String>> memberList) {
+    public void annotateBenchmarkClass(ClassInfo classInfo, String arrayAnnotationName, String annotationsName,
+            List<Map<String, String>> memberList) {
         String clsName = getClassName(classInfo);
         try {
             addClassAnnotation(clsName, arrayAnnotationName, annotationsName, memberList);
@@ -346,27 +348,6 @@ public class T2BClassTransformer {
         return alteredClass;
     }
 
-    public CtClass addClassEnumAnnotation(String className, String annotationName,
-            Map<String, Pair<String, String>> membersMap) throws Exception {
-        CtClass ctClass = getCtClass(className);
-        alterClass(ctClass);
-
-        ClassFile classFile = ctClass.getClassFile();
-        ConstPool constPool = classFile.getConstPool();
-
-        List<AttributeInfo> classFileAttributes = classFile.getAttributes();
-        AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(classFileAttributes);
-
-        if (annotationsAttribute == null) {
-            annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-            classFile.addAttribute(annotationsAttribute);
-        }
-
-        annotationsAttribute.addAnnotation(makeEnumAnnotation(annotationName, constPool, membersMap));
-
-        return ctClass;
-    }
-
     private static void alterClass(CtClass ctClass) throws Exception {
         if (ctClass.isFrozen()) {
             ctClass.defrost();
@@ -396,97 +377,23 @@ public class T2BClassTransformer {
         }
     }
 
-    private static javassist.bytecode.annotation.Annotation makeEnumAnnotation(String annotationName,
-            ConstPool constPool, Map<String, Pair<String, String>> membersMap) {
-        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constPool);
-        if (membersMap != null) {
-            for (Map.Entry<String, Pair<String, String>> me : membersMap.entrySet()) {
-                EnumMemberValue emv = new EnumMemberValue(constPool);
-                emv.setType(me.getValue().getKey());
-                emv.setValue(me.getValue().getValue());
-                annotation.addMemberValue(me.getKey(), emv);
-            }
-        }
-
-        return annotation;
-
-    }
-
-    private static javassist.bytecode.annotation.Annotation makeStringAnnotation(String annotationName,
-            ConstPool constPool, Map<String, String> membersMap) {
-        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constPool);
-        if (membersMap != null) {
-            for (Map.Entry<String, String> me : membersMap.entrySet()) {
-                StringMemberValue smv = new StringMemberValue(constPool);
-                smv.setValue(me.getValue());
-                annotation.addMemberValue(me.getKey(), smv);
-            }
-        }
-
-        return annotation;
-    }
-
-    private static javassist.bytecode.annotation.Annotation makeArrayAnnotation(String groupAnnotationName,
-            String annotationName, ConstPool constPool, List<Map<String, String>> members) {
-        javassist.bytecode.annotation.Annotation[] memberArray = new javassist.bytecode.annotation.Annotation[members
-                .size()];
-
-        if (members != null) {
-            for (int i = 0; i < members.size(); i++) {
-                Map<String, String> member = members.get(i);
-                memberArray[i] = makeStringAnnotation(annotationName, constPool, member);
-            }
-        }
-
-        return makeArrayAnnotation(groupAnnotationName, constPool, memberArray);
-    }
-
-    private static javassist.bytecode.annotation.Annotation makeArrayAnnotation(String annotationName,
-            ConstPool constPool, javassist.bytecode.annotation.Annotation[] members) {
-        javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constPool);
-        if (members != null) {
-            ArrayList<AnnotationMemberValue> memberValues = new ArrayList<>(members.length);
-            AnnotationMemberValue annmv;
-            for (javassist.bytecode.annotation.Annotation member : members) {
-                annmv = new AnnotationMemberValue(constPool);
-                annmv.setValue(member);
-                memberValues.add(annmv);
-            }
-
-            ArrayMemberValue amv = new ArrayMemberValue(constPool);
-            amv.setValue(memberValues.toArray(new MemberValue[0]));
-            annotation.addMemberValue("value", amv);
-        }
-
-        return annotation;
+    public CtClass addClassEnumAnnotation(String className, String annotationName,
+            Map<String, Pair<String, String>> membersMap) throws Exception {
+        return addClassAnnotation(className, new EnumAnnotationBuilder(annotationName, membersMap));
     }
 
     public CtClass addClassAnnotation(String className, String annotationName, Map<String, String> membersMap)
             throws Exception {
-        CtClass ctClass = getCtClass(className);
-        alterClass(ctClass);
-
-        ClassFile classFile = ctClass.getClassFile();
-        ConstPool constPool = classFile.getConstPool();
-
-        List<AttributeInfo> classFileAttributes = classFile.getAttributes();
-        AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(classFileAttributes);
-
-        if (annotationsAttribute == null) {
-            annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-            classFile.addAttribute(annotationsAttribute);
-        }
-
-        annotationsAttribute.addAnnotation(makeStringAnnotation(annotationName, constPool, membersMap));
-
-        return ctClass;
+        return addClassAnnotation(className, new StringAnnotationBuilder(annotationName, membersMap));
     }
 
     public CtClass addClassAnnotation(String className, String arrayAnnotationName, String annotationsName,
             List<Map<String, String>> memberList) throws Exception {
+        return addClassAnnotation(className, new ArrayAnnotationBuilder(arrayAnnotationName,
+                new DefaultAnnotationArrayBuilder<>(new StringAnnotationBuilder(annotationsName), memberList)));
+    }
+
+    public CtClass addClassAnnotation(String className, AnnotationBuilder<?> annotationBuilder) throws Exception {
         CtClass ctClass = getCtClass(className);
         alterClass(ctClass);
 
@@ -501,59 +408,25 @@ public class T2BClassTransformer {
             classFile.addAttribute(annotationsAttribute);
         }
 
-        annotationsAttribute
-                .addAnnotation(makeArrayAnnotation(arrayAnnotationName, annotationsName, constPool, memberList));
+        annotationsAttribute.addAnnotation(annotationBuilder.buildAnnotation(constPool));
 
         return ctClass;
     }
 
     public CtClass addMethodAnnotation(String methodName, String annotationName, Map<String, String> membersMap)
             throws Exception {
-        CtClass ctClass = getCtClass(getClassName());
-        alterClass(ctClass);
+        return addMethodAnnotation(methodName, new StringAnnotationBuilder(annotationName, membersMap));
+    }
 
-        CtMethod method = ctClass.getDeclaredMethod(methodName);
-        makeMethodPublic(method);
-
-        MethodInfo methodInfo = method.getMethodInfo();
-        ConstPool constPool = methodInfo.getConstPool();
-
-        List<AttributeInfo> methodAttributes = methodInfo.getAttributes();
-        AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(methodAttributes);
-
-        if (annotationsAttribute == null) {
-            annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-            methodInfo.addAttribute(annotationsAttribute);
-        }
-
-        annotationsAttribute.addAnnotation(makeStringAnnotation(annotationName, constPool, membersMap));
-
-        return ctClass;
+    public CtClass addMethodEnumAnnotation(String methodName, String annotationName,
+            Map<String, Pair<String, String>> membersMap) throws Exception {
+        return addMethodAnnotation(methodName, new EnumAnnotationBuilder(annotationName, membersMap));
     }
 
     public CtClass addMethodArrayAnnotation(String methodName, String arrayAnnotationName, String annotationsName,
             List<Map<String, String>> memberList) throws Exception {
-        CtClass ctClass = getCtClass(getClassName());
-        alterClass(ctClass);
-
-        CtMethod method = ctClass.getDeclaredMethod(methodName);
-        makeMethodPublic(method);
-
-        MethodInfo methodInfo = method.getMethodInfo();
-        ConstPool constPool = methodInfo.getConstPool();
-
-        List<AttributeInfo> methodAttributes = methodInfo.getAttributes();
-        AnnotationsAttribute annotationsAttribute = getAnnotationAttribute(methodAttributes);
-
-        if (annotationsAttribute == null) {
-            annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-            methodInfo.addAttribute(annotationsAttribute);
-        }
-
-        annotationsAttribute
-                .addAnnotation(makeArrayAnnotation(arrayAnnotationName, annotationsName, constPool, memberList));
-
-        return ctClass;
+        return addMethodAnnotation(methodName, new ArrayAnnotationBuilder(arrayAnnotationName,
+                new DefaultAnnotationArrayBuilder<>(new StringAnnotationBuilder(annotationsName), memberList)));
     }
 
     private static void makeMethodPublic(CtMethod method) {
@@ -564,8 +437,7 @@ public class T2BClassTransformer {
         }
     }
 
-    public CtClass addMethodEnumAnnotation(String methodName, String annotationName,
-            Map<String, Pair<String, String>> membersMap) throws Exception {
+    public CtClass addMethodAnnotation(String methodName, AnnotationBuilder<?> annotationBuilder) throws Exception {
         CtClass ctClass = getCtClass(getClassName());
         alterClass(ctClass);
 
@@ -583,7 +455,7 @@ public class T2BClassTransformer {
             methodInfo.addAttribute(annotationsAttribute);
         }
 
-        annotationsAttribute.addAnnotation(makeEnumAnnotation(annotationName, constPool, membersMap));
+        annotationsAttribute.addAnnotation(annotationBuilder.buildAnnotation(constPool));
 
         return ctClass;
     }

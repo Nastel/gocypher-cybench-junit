@@ -17,6 +17,8 @@ import org.openjdk.jmh.runner.CompilerHints;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
+import com.gocypher.cybench.t2b.transform.T2BClassTransformer;
+
 public class Test2Benchmark {
 
     static final String WORK_DIR_ARG = System.getProperty("t2b.build.dir");
@@ -241,23 +243,23 @@ public class Test2Benchmark {
         return CompilerHints.fromFile(BENCH_DIR + "/META-INF/CompilerHints");
     }
 
-    static void log(String msg) {
+    public static void log(String msg) {
         System.out.println(msg);
     }
 
-    static void warn(String msg) {
+    public static void warn(String msg) {
         System.out.println("WARN: " + msg);
     }
 
-    static void err(String msg) {
+    public static void err(String msg) {
         System.out.println("ERROR: " + msg);
     }
 
-    static void err(String msg, Throwable t) {
+    public static void err(String msg, Throwable t) {
         System.out.println("ERROR: " + msg + ", reason: " + t.getLocalizedMessage());
     }
 
-    static void errWithTrace(String msg, Throwable t) {
+    public static void errWithTrace(String msg, Throwable t) {
         err(msg, t);
         t.printStackTrace();
     }

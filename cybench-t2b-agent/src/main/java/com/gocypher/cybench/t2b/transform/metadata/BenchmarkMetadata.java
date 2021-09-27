@@ -1,4 +1,4 @@
-package com.gocypher.cybench;
+package com.gocypher.cybench.t2b.transform.metadata;
 
 import java.io.*;
 import java.util.HashMap;
@@ -10,6 +10,9 @@ import java.util.regex.Pattern;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
+
+import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.t2b.transform.T2BClassTransformer;
 
 public class BenchmarkMetadata {
 
