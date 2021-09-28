@@ -102,8 +102,8 @@ public class Test2Benchmark {
     };
 
     static Collection<String> t2bClassPath = new ArrayList<>(3);
-    // The code to put into the JMH methods - call ME and then return MY replacements
-    private static MyGeneratorSource myGeneratorSource;
+    // The code to inject into the JMH methods - call ME and then return MY replacements
+    private static T2BGeneratorSource t2bGeneratorSource;
     Collection<ClassInfo> benchmarkClassList;
 
     Test2Benchmark() throws IOException {
@@ -208,9 +208,9 @@ public class Test2Benchmark {
         }
     }
 
-    public static Multimap<ClassInfo, MethodInfo> buildFakeAnnotatedSet() {
+    public static Multimap<ClassInfo, MethodInfo> buildT2BAnnotatedSet() {
         Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
-        Collection<ClassInfo> testClasses = myGeneratorSource.getClasses();
+        Collection<ClassInfo> testClasses = t2bGeneratorSource.getClasses();
         log("Starting Test Classes Analysis: >>>>>>>>>>>>>>>>>>>>");
         for (ClassInfo classInfo : testClasses) {
             if (classInfo.isAbstract()) {
@@ -230,7 +230,7 @@ public class Test2Benchmark {
         return result;
     }
 
-    public static BenchmarkList getMyBenchmarkList() {
+    public static BenchmarkList getBenchmarkList() {
         return BenchmarkList.fromFile(BENCH_DIR + "/META-INF/BenchmarkList");
     }
 
@@ -239,7 +239,7 @@ public class Test2Benchmark {
      *
      */
 
-    public static CompilerHints getMyCompilerHints() {
+    public static CompilerHints getCompilerHints() {
         return CompilerHints.fromFile(BENCH_DIR + "/META-INF/CompilerHints");
     }
 
@@ -288,9 +288,9 @@ public class Test2Benchmark {
         File prodF = new File(BENCH_DIR);
         FileSystemDestination dst = new FileSystemDestination(prodF, prodF);
         BenchmarkGenerator gen = new BenchmarkGenerator();
-        myGeneratorSource = new MyGeneratorSource();
-        gen.generate(myGeneratorSource, dst);
-        gen.complete(myGeneratorSource, dst);
+        t2bGeneratorSource = new T2BGeneratorSource();
+        gen.generate(t2bGeneratorSource, dst);
+        gen.complete(t2bGeneratorSource, dst);
 
         if (dst.hasErrors()) {
             for (SourceError se : dst.getErrors()) {
@@ -326,7 +326,7 @@ public class Test2Benchmark {
         return path == null ? path : path.replace("\\", "/");
     }
 
-    class MyGeneratorSource implements GeneratorSource {
+    class T2BGeneratorSource implements GeneratorSource {
 
         @Override
         public Collection<ClassInfo> getClasses() {

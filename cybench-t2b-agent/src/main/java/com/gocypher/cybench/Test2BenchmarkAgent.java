@@ -20,9 +20,9 @@ public class Test2BenchmarkAgent {
 
     static Instrumentation instrumentation;
 
-    private static String TAKE_FAKE_ANNOTATIONS = "Object value=com.gocypher.cybench.Test2Benchmark.buildFakeAnnotatedSet();return value;";
-    private static String TAKE_FAKE_BENCHMARK_LIST = "Object value=com.gocypher.cybench.Test2Benchmark.getMyBenchmarkList();return value;";
-    private static String TAKE_FAKE_COMPILER_HINTS = "Object value=com.gocypher.cybench.Test2Benchmark.getMyCompilerHints();return value;";
+    private static String TAKE_T2B_ANNOTATIONS = "Object value=com.gocypher.cybench.Test2Benchmark.buildT2BAnnotatedSet();return value;";
+    private static String TAKE_T2B_BENCHMARK_LIST = "Object value=com.gocypher.cybench.Test2Benchmark.getBenchmarkList();return value;";
+    private static String TAKE_T2B_COMPILER_HINTS = "Object value=com.gocypher.cybench.Test2Benchmark.getCompilerHints();return value;";
 
     private static String BENCHMARK_GENERATOR_CLASS = "org.openjdk.jmh.generators.core.BenchmarkGenerator";
     private static String BENCHMARK_LIST_CLASS = "org.openjdk.jmh.runner.BenchmarkList";
@@ -47,9 +47,9 @@ public class Test2BenchmarkAgent {
             byte[] compilerHintsBytes = getBytes(jarFile, COMPILER_HINTS_CLASS);
             byte[] benchmarkGeneratorBytes = getBytes(jarFile, BENCHMARK_GENERATOR_CLASS);
             // Put in code to basically call MY replacement methods and return MY values - instead of JMH
-            replaceCode(BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet", TAKE_FAKE_ANNOTATIONS, benchmarkGeneratorBytes);
-            replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_FAKE_BENCHMARK_LIST, benchmarkListBytes);
-            replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_FAKE_COMPILER_HINTS, compilerHintsBytes);
+            replaceCode(BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet", TAKE_T2B_ANNOTATIONS, benchmarkGeneratorBytes);
+            replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_T2B_BENCHMARK_LIST, benchmarkListBytes);
+            replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_T2B_COMPILER_HINTS, compilerHintsBytes);
         } catch (Exception e) {
             Test2Benchmark.errWithTrace("failed to initialize agent", e);
         }
