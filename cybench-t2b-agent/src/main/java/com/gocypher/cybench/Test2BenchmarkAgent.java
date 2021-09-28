@@ -37,9 +37,9 @@ public class Test2BenchmarkAgent {
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
             // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.32/jmh-core-1.32.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
-            Test2Benchmark.log("JMH:" + split[0]);
+            Test2Benchmark.log("JMH: " + split[0]);
             File file = Paths.get(split[0]).toFile();
-            Test2Benchmark.log("JMH:" + file.getAbsolutePath());
+            Test2Benchmark.log("JMH: " + file.getAbsolutePath());
 
             JarFile jarFile = new JarFile(file);
 
@@ -56,7 +56,7 @@ public class Test2BenchmarkAgent {
     }
 
     private static byte[] getBytes(JarFile jarFile, String className) throws IOException {
-        return getJMHBytesForClass(jarFile, className.replace(".", "/") + ".class");
+        return getJMHBytesForClass(jarFile, className.replace('.', '/') + ".class");
     }
 
     static void replaceCode(String className, String methodName, String code, byte[] bytes) {
@@ -68,7 +68,7 @@ public class Test2BenchmarkAgent {
             methods[0].insertBefore(code);
             ClassDefinition definition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
             instrumentation.redefineClasses(definition);
-            Test2Benchmark.log("Modified " + className + "." + methodName);
+            Test2Benchmark.log("Modified method: " + className + "." + methodName);
         } catch (Throwable t) {
             Test2Benchmark.log("Could not modify class method: " + className + "." + methodName + ", exc: " + t);
         }
