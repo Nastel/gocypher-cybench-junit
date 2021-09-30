@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +29,7 @@ public class BenchmarkMetadata {
     private static final Pattern VARIABLE_PACKAGE_PATTERN = Pattern.compile("package\\.(.[^:]+)");
     private static final Pattern VARIABLE_SYS_PROP_PATTERN = Pattern.compile("sys#(.[^:]+)");
     private static final Pattern VARIABLE_ENV_VAR_PATTERN = Pattern.compile("env#(.[^:]+)");
+    private static final Pattern VARIABLE_VM_VAR_PATTERN = Pattern.compile("vm#(.[^:]+)");
 
     private static final Pattern VARIABLE_EXP_METHOD_PATTERN = Pattern.compile("\\$\\{method\\.(.[^:]+)\\}");
 
@@ -170,7 +172,8 @@ public class BenchmarkMetadata {
         try {
             String varValue = null;
             if (VARIABLE_SYS_PROP_PATTERN.matcher(variable).matches()
-                    || VARIABLE_ENV_VAR_PATTERN.matcher(variable).matches()) {
+                    || VARIABLE_ENV_VAR_PATTERN.matcher(variable).matches()
+                    || VARIABLE_VM_VAR_PATTERN.matcher(variable).matches()) {
                 varValue = EnvValueResolver.getValue(variable);
             } else if (VARIABLE_CLASS_PATTERN.matcher(variable).matches()) {
                 ClassInfo classInfo;
@@ -226,6 +229,12 @@ public class BenchmarkMetadata {
     static class EnvValueResolver {
         static final String SYS_PROP_VAR = "sys#";
         static final String ENV_VAR = "env#";
+        static final String VM_VAR = "vm#";
+
+        static final String VM_TIME_MILLIS = "time.millis";
+        static final String VM_TIME_NANOS = "time.nanos";
+        static final String VM_UUID = "uuid";
+        static final String VM_RANDOM = "random";
 
         static String getValue(String variable) {
             if (variable.startsWith(SYS_PROP_VAR)) {
@@ -236,6 +245,28 @@ public class BenchmarkMetadata {
                 String varName = variable.substring(ENV_VAR.length());
 
                 return System.getenv(varName);
+            } else if (variable.startsWith(VM_VAR)) {
+                String varName = variable.substring(VM_VAR.length());
+
+                return getVMVariable(varName);
+            }
+
+            return null;
+        }
+
+        static String getVMVariable(String varName) {
+            if (varName != null) {
+                switch (varName) {
+                case VM_TIME_MILLIS:
+                    return String.valueOf(System.currentTimeMillis());
+                case VM_TIME_NANOS:
+                    return String.valueOf(System.nanoTime());
+                case VM_UUID:
+                    return UUID.randomUUID().toString();
+                case VM_RANDOM:
+                    return String.valueOf((int) (Math.random() * 10000));
+                default:
+                }
             }
 
             return null;
