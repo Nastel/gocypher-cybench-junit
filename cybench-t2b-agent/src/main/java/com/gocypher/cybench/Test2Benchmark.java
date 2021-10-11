@@ -266,6 +266,7 @@ public class Test2Benchmark {
 
     private void buildBenchmarks() throws Exception {
         generateBenchmarkList();
+        Test2BenchmarkAgent.restoreJMHCode();
         CompileProcess compileProcess = new CompileProcess.APICompileProcess();
         compileProcess.compile();
         String cp = getT2BClassPath();

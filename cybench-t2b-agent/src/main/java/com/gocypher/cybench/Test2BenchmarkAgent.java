@@ -20,13 +20,17 @@ public class Test2BenchmarkAgent {
 
     static Instrumentation instrumentation;
 
-    private static String TAKE_T2B_ANNOTATIONS = "Object value=com.gocypher.cybench.Test2Benchmark.buildT2BAnnotatedSet();return value;";
-    private static String TAKE_T2B_BENCHMARK_LIST = "Object value=com.gocypher.cybench.Test2Benchmark.getBenchmarkList();return value;";
-    private static String TAKE_T2B_COMPILER_HINTS = "Object value=com.gocypher.cybench.Test2Benchmark.getCompilerHints();return value;";
+    private static String PLUG_T2B_ANNOTATIONS = "Object value=com.gocypher.cybench.Test2Benchmark.buildT2BAnnotatedSet();return value;";
+    private static String PLUG_T2B_BENCHMARK_LIST = "Object value=com.gocypher.cybench.Test2Benchmark.getBenchmarkList();return value;";
+    private static String PLUG_T2B_COMPILER_HINTS = "Object value=com.gocypher.cybench.Test2Benchmark.getCompilerHints();return value;";
 
     private static String BENCHMARK_GENERATOR_CLASS = "org.openjdk.jmh.generators.core.BenchmarkGenerator";
     private static String BENCHMARK_LIST_CLASS = "org.openjdk.jmh.runner.BenchmarkList";
     private static String COMPILER_HINTS_CLASS = "org.openjdk.jmh.runner.CompilerHints";
+
+    private static byte[] origBenchmarkListBytes;
+    private static byte[] origCompilerHintsBytes;
+    private static byte[] origBenchmarkGeneratorBytes;
 
     public static void premain(String agentArgs, Instrumentation inst) {
         try {
@@ -43,13 +47,14 @@ public class Test2BenchmarkAgent {
 
             JarFile jarFile = new JarFile(file);
 
-            byte[] benchmarkListBytes = getBytes(jarFile, BENCHMARK_LIST_CLASS);
-            byte[] compilerHintsBytes = getBytes(jarFile, COMPILER_HINTS_CLASS);
-            byte[] benchmarkGeneratorBytes = getBytes(jarFile, BENCHMARK_GENERATOR_CLASS);
+            origBenchmarkListBytes = getBytes(jarFile, BENCHMARK_LIST_CLASS);
+            origCompilerHintsBytes = getBytes(jarFile, COMPILER_HINTS_CLASS);
+            origBenchmarkGeneratorBytes = getBytes(jarFile, BENCHMARK_GENERATOR_CLASS);
             // Put in code to basically call MY replacement methods and return MY values - instead of JMH
-            replaceCode(BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet", TAKE_T2B_ANNOTATIONS, benchmarkGeneratorBytes);
-            replaceCode(BENCHMARK_LIST_CLASS, "defaultList", TAKE_T2B_BENCHMARK_LIST, benchmarkListBytes);
-            replaceCode(COMPILER_HINTS_CLASS, "defaultList", TAKE_T2B_COMPILER_HINTS, compilerHintsBytes);
+            replaceCode(BENCHMARK_GENERATOR_CLASS, "buildAnnotatedSet", PLUG_T2B_ANNOTATIONS,
+                    origBenchmarkGeneratorBytes);
+            replaceCode(BENCHMARK_LIST_CLASS, "defaultList", PLUG_T2B_BENCHMARK_LIST, origBenchmarkListBytes);
+            replaceCode(COMPILER_HINTS_CLASS, "defaultList", PLUG_T2B_COMPILER_HINTS, origCompilerHintsBytes);
         } catch (Exception e) {
             Test2Benchmark.errWithTrace("failed to initialize agent", e);
         }
@@ -59,13 +64,13 @@ public class Test2BenchmarkAgent {
         return getJMHBytesForClass(jarFile, className.replace('.', '/') + ".class");
     }
 
-    static void replaceCode(String className, String methodName, String code, byte[] bytes) {
+    static void replaceCode(String className, String methodName, String plugCode, byte[] classBytes) {
         try {
             ClassPool pool = ClassPool.getDefault(); // Edited to simplify
-            pool.insertClassPath(new ByteArrayClassPath(className, bytes));
+            pool.insertClassPath(new ByteArrayClassPath(className, classBytes));
             CtClass ctClass = pool.get(className);
             CtMethod[] methods = ctClass.getDeclaredMethods(methodName);
-            methods[0].insertBefore(code);
+            methods[0].insertBefore(plugCode);
             ClassDefinition definition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
             instrumentation.redefineClasses(definition);
             Test2Benchmark.log("Modified method: " + className + "." + methodName);
@@ -77,6 +82,26 @@ public class Test2BenchmarkAgent {
     static byte[] getJMHBytesForClass(JarFile jarFile, String className) throws IOException {
         JarEntry entry = jarFile.getJarEntry(className);
         return streamToByteArray(jarFile.getInputStream(entry));
+    }
+
+    static void restoreJMHCode() {
+        restore(COMPILER_HINTS_CLASS, origCompilerHintsBytes);
+        restore(BENCHMARK_LIST_CLASS, origBenchmarkListBytes);
+        restore(BENCHMARK_GENERATOR_CLASS, origBenchmarkGeneratorBytes);
+    }
+
+    static void restore(String className, byte[] classBytes) {
+        if (instrumentation == null || classBytes == null) {
+            return;
+        }
+
+        try {
+            ClassDefinition definition = new ClassDefinition(Class.forName(className), classBytes);
+            instrumentation.redefineClasses(definition);
+            Test2Benchmark.log("Restored class: " + className);
+        } catch (Throwable t) {
+            Test2Benchmark.log("Could not restore class: " + className + ", exc: " + t);
+        }
     }
 
     static byte[] streamToByteArray(InputStream stream) throws IOException {
