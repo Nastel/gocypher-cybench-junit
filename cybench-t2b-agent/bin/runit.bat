@@ -54,7 +54,7 @@ IF %jver% GTR 18 set JAVA9_OPTS="--add-exports=java.base/jdk.internal.loader=ALL
     set /p yn= Type a number :
         if [%yn%] == [1] (
             rem ### Compile Tests to benchmarks ###
-            %JAVA_HOME%\bin\java %JAVA9_OPTS% -javaagent:"%RUNDIR%..\libs\cybench-t2b-agent-1.0.4-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
+            %JAVA_HOME%\bin\java %JAVA9_OPTS% -javaagent:"%RUNDIR%..\libs\cybench-t2b-agent-1.0.5-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
             goto done
             )
         if [%yn%] == [2] (
