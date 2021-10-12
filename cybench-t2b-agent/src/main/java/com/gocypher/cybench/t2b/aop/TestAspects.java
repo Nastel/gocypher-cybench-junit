@@ -75,14 +75,16 @@ public class TestAspects {
             T2BMapper.MethodState state = testMapper.isValid(method);
 
             if (state == T2BMapper.MethodState.VALID) {
-                try {
-                    int rnd = (int) (10 * Math.random());
-                    TestAspects.log(joinPoint);
-                    for (int i = 0; i < rnd; i++) {
-                        Object value = joinPoint.proceed();
+                Thread testRunnerThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TestAspects.executeTest(joinPoint);
                     }
-                } catch (Throwable t) {
-                    Test2Benchmark.errWithTrace("test.around failed", t);
+                });
+                testRunnerThread.start();
+                try {
+                    testRunnerThread.join();
+                } catch (Exception exc) {
                 }
             } else {
                 Test2Benchmark.warn("Skipping test: " + joinPoint.getSignature().getName());
@@ -149,5 +151,17 @@ public class TestAspects {
                 + "\n\t    static=" + sp //
                 + "\n\t      this=" + tis //
                 + "\n}");
+    }
+
+    private static void executeTest(ProceedingJoinPoint joinPoint) {
+        try {
+            int rnd = (int) (10 * Math.random());
+            // TestAspects.log(joinPoint);
+            for (int i = 0; i < rnd; i++) {
+                Object value = joinPoint.proceed();
+            }
+        } catch (Throwable t) {
+            Test2Benchmark.errWithTrace("test.around failed", t);
+        }
     }
 }
