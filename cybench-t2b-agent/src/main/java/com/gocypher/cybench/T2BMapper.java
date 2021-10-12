@@ -1,6 +1,8 @@
 package com.gocypher.cybench;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
@@ -29,7 +31,15 @@ public abstract class T2BMapper {
         return mi.getAnnotation(annotation) != null;
     }
 
+    public boolean isAnnotated(Method mi) {
+        return mi.getAnnotation(annotation) != null;
+    }
+
     public boolean isSkipAnnotated(MethodInfo mi) {
+        return skipAnnotation != null && mi.getAnnotation(skipAnnotation) != null;
+    }
+
+    public boolean isSkipAnnotated(Method mi) {
         return skipAnnotation != null && mi.getAnnotation(skipAnnotation) != null;
     }
 
@@ -66,16 +76,63 @@ public abstract class T2BMapper {
         return MethodState.NOT_TEST;
     }
 
+    public MethodState isValid(Method mi) {
+        Annotation ann = mi.getAnnotation(annotation);
+        if (ann != null) {
+            if (isSkipAnnotated(mi)) {
+                return MethodState.DISABLED;
+            }
+            MethodState ms = isAnnotationSkippable(ann);
+            if (isAnnotationSkippable(ann) != MethodState.VALID) {
+                return ms;
+            }
+
+            if (!Modifier.isPublic(mi.getModifiers())) {
+                Class<?> cls = mi.getDeclaringClass();
+                if (!Modifier.isPublic(cls.getModifiers())) {
+                    String clsName = cls.getName();
+                    if (clsName.contains("$")) {
+                        return MethodState.VISIBILITY;
+                    }
+                }
+            }
+
+            return MethodState.VALID;
+        }
+
+        return MethodState.NOT_TEST;
+    }
+
     public boolean isSetupMethod(MethodInfo mi) {
         Annotation ann = mi.getAnnotation(getSetupAnnotation());
 
         return ann != null;
     }
 
+    public boolean isSetupMethod(Method mi) {
+        Annotation ann = mi.getAnnotation(getSetupAnnotation());
+
+        return ann != null;
+    }
+
+    public boolean isSetupMethod(Annotation ann) {
+        return getSetupAnnotation().equals(ann.getClass());
+    }
+
     public boolean isTearDownMethod(MethodInfo mi) {
         Annotation ann = mi.getAnnotation(getTearDownAnnotation());
 
         return ann != null;
+    }
+
+    public boolean isTearDownMethod(Method mi) {
+        Annotation ann = mi.getAnnotation(getTearDownAnnotation());
+
+        return ann != null;
+    }
+
+    public boolean isTearDownMethod(Annotation ann) {
+        return getTearDownAnnotation().equals(ann.getClass());
     }
 
     public enum MethodState {
