@@ -131,6 +131,9 @@ public class T2BClassTransformer {
 
     public void annotateBenchmarkMetadataList(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
         List<Map<String, String>> metaDataList = getMetadata(methodInfo);
+        if (metaDataList.isEmpty()) {
+            return;
+        }
 
         annotateBenchmarkMethod(methodInfo, CyBenchMetadataList.class.getName(), BenchmarkMetaData.class.getName(),
                 metaDataList);
@@ -164,6 +167,9 @@ public class T2BClassTransformer {
 
     public void annotateClassMetadataList(ClassInfo classInfo) {
         List<Map<String, String>> metaDataList = getMetadata(classInfo);
+        if (metaDataList.isEmpty()) {
+            return;
+        }
 
         annotateBenchmarkClass(classInfo, CyBenchMetadataList.class.getName(), BenchmarkMetaData.class.getName(),
                 metaDataList);
