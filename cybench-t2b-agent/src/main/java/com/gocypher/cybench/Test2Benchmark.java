@@ -29,7 +29,7 @@ public class Test2Benchmark {
     static String TEST_DIR;
     static String BENCH_DIR;
 
-    private static T2BMapper JUNIT4_MAPPER = new T2BMapper(org.junit.Test.class, org.junit.Ignore.class) {
+    public static T2BMapper JUNIT4_MAPPER = new T2BMapper(org.junit.Test.class, org.junit.Ignore.class) {
 
         @Override
         public MethodState isAnnotationSkippable(Annotation ann) {
@@ -50,7 +50,7 @@ public class Test2Benchmark {
             return org.junit.After.class;
         }
     };
-    private static T2BMapper JUNIT5_MAPPER = new T2BMapper(org.junit.jupiter.api.Test.class,
+    public static T2BMapper JUNIT5_MAPPER = new T2BMapper(org.junit.jupiter.api.Test.class,
             org.junit.jupiter.api.Disabled.class) {
 
         @Override
@@ -68,7 +68,7 @@ public class Test2Benchmark {
             return org.junit.jupiter.api.AfterEach.class;
         }
     };
-    private static T2BMapper TESTNG_MAPPER = new T2BMapper(org.testng.annotations.Test.class,
+    public static T2BMapper TESTNG_MAPPER = new T2BMapper(org.testng.annotations.Test.class,
             org.testng.annotations.Ignore.class) {
 
         @Override

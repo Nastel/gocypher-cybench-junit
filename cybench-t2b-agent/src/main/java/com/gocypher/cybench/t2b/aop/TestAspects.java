@@ -6,10 +6,8 @@ import java.util.Arrays;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.reflect.SourceLocation;
 
@@ -17,43 +15,12 @@ import com.gocypher.cybench.T2BMapper;
 import com.gocypher.cybench.Test2Benchmark;
 
 public class TestAspects {
-    private static final String ASPECT_ADVICE_EXPRESSION = ""//
-            + "    @annotation(org.junit.Test)" // JUnit4
-            + " || @annotation(org.junit.jupiter.api.Test)" // JUnit5
-            + " || @annotation(org.testng.annotations.Test)"; // TestNG
 
-    @Aspect
-    public static class TestBeforeAfterAspect {
-
-        public TestBeforeAfterAspect() {
-            Test2Benchmark.log("Initiating aspect " + getClass().getSimpleName() + "...");
-        }
-
-        // @Pointcut("execution(@org.junit.jupiter.api.Test * *(..))")
-        // public void transactionalMethod() {
-        // }
-
-        @Before(TestAspects.ASPECT_ADVICE_EXPRESSION)
-        public void before(JoinPoint joinPoint) throws Throwable {
-            Test2Benchmark.log("test.before, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName()
-                    + ", method: " + joinPoint.getSignature().getName());
-
-            TestAspects.log(joinPoint);
-        }
-
-        @After(TestAspects.ASPECT_ADVICE_EXPRESSION)
-        public void after(JoinPoint joinPoint) throws Throwable {
-            Test2Benchmark.log("test.after, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName()
-                    + ", method: " + joinPoint.getSignature().getName());
-        }
-    }
-
-    // @Aspect
-    public abstract static class TestAroundAspect {
+    public abstract static class AbstractT2BAspect {
 
         final T2BMapper testMapper;
 
-        public TestAroundAspect(T2BMapper t2BMapper) {
+        public AbstractT2BAspect(T2BMapper t2BMapper) {
             Test2Benchmark.log("Initiating aspect " + getClass().getSimpleName() + "...");
 
             testMapper = t2BMapper;
@@ -63,7 +30,6 @@ public class TestAspects {
         // public void transactionalMethod() {
         // }
 
-        // @Around(TestAspects.ASPECT_ADVICE_EXPRESSION)
         public void around(ProceedingJoinPoint joinPoint) {
             Test2Benchmark
                     .log("test.around.before, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName()
@@ -96,39 +62,45 @@ public class TestAspects {
     }
 
     @Aspect
-    public static class JUTestAroundAspect extends TestAroundAspect {
-        public JUTestAroundAspect() {
-            super(Test2Benchmark.T2B_MAPPERS[0]);
+    public static class JU4TestAspect extends AbstractT2BAspect {
+        private static final String TEST_ANNOTATION_CLASS = "org.junit.Test";
+
+        public JU4TestAspect() {
+            super(Test2Benchmark.JUNIT4_MAPPER);
         }
 
         @Override
-        @Around("@annotation(org.junit.Test)")
+        @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
         public void around(ProceedingJoinPoint joinPoint) {
             super.around(joinPoint);
         }
     }
 
     @Aspect
-    public static class JU5TestAroundAspect extends TestAroundAspect {
-        public JU5TestAroundAspect() {
-            super(Test2Benchmark.T2B_MAPPERS[1]);
+    public static class JU5TestAspect extends AbstractT2BAspect {
+        private static final String TEST_ANNOTATION_CLASS = "org.junit.jupiter.api.Test";
+
+        public JU5TestAspect() {
+            super(Test2Benchmark.JUNIT5_MAPPER);
         }
 
         @Override
-        @Around("@annotation(org.junit.jupiter.api.Test)")
+        @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
         public void around(ProceedingJoinPoint joinPoint) {
             super.around(joinPoint);
         }
     }
 
     @Aspect
-    public static class NGTestAroundAspect extends TestAroundAspect {
-        public NGTestAroundAspect() {
-            super(Test2Benchmark.T2B_MAPPERS[2]);
+    public static class NGTestAspect extends AbstractT2BAspect {
+        private static final String TEST_ANNOTATION_CLASS = "org.testng.annotations.Test";
+
+        public NGTestAspect() {
+            super(Test2Benchmark.TESTNG_MAPPER);
         }
 
         @Override
-        @Around("@annotation(org.testng.annotations.Test)")
+        @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
         public void around(ProceedingJoinPoint joinPoint) {
             super.around(joinPoint);
         }
@@ -156,7 +128,7 @@ public class TestAspects {
     private static void executeTest(ProceedingJoinPoint joinPoint) {
         try {
             int rnd = (int) (10 * Math.random());
-            // TestAspects.log(joinPoint);
+            Test2Benchmark.log("Will run test " + rnd + " times...");
             for (int i = 0; i < rnd; i++) {
                 Object value = joinPoint.proceed();
             }
