@@ -271,6 +271,15 @@ public class Test2Benchmark {
         compileProcess.compile();
         String cp = getT2BClassPath();
         writePropsToFile(BENCH_DIR, cp);
+        cleanup();
+    }
+
+    private void cleanup() {
+        // remove JMH compiler generated empty files
+        File tFile = new File("BenchmarkList");
+        boolean deleted = tFile.delete();
+        tFile = new File("CompilerHints");
+        deleted = tFile.delete();
     }
 
     private static String getT2BClassPath() {
