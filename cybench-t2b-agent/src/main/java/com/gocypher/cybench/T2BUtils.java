@@ -69,7 +69,7 @@ public final class T2BUtils {
     }
 
     public static String getCurrentClassPath() throws Exception {
-        String cp = "";
+        StringBuilder cp = new StringBuilder();
         ClassLoader sys = ClassLoader.getSystemClassLoader();
         ClassLoader cl = T2BUtils.class.getClassLoader();
         boolean clEq = cl == sys;
@@ -79,13 +79,13 @@ public final class T2BUtils {
             }
 
             URL[] urls = getClassLoaderURLs(cl);
-            cp += toString(urls);
+            cp.append(toString(urls));
 
             if (cl == sys && clEq) {
                 break;
             }
         }
-        return cp;
+        return cp.toString();
     }
 
     public static void addClassPath(File classDir) throws Exception {
