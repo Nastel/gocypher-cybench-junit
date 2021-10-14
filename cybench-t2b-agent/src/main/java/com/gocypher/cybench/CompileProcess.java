@@ -121,7 +121,7 @@ public abstract class CompileProcess {
             String line;
             BufferedReader in = new BufferedReader(new InputStreamReader(ins));
             while ((line = in.readLine()) != null) {
-                Test2Benchmark.log(cmd + " " + line.replaceAll("\\r|\\n", ""));
+                Test2Benchmark.log(cmd + " " + line.replaceAll("[\\r\\n]", ""));
             }
         }
 
