@@ -30,12 +30,12 @@ public class TestAspects {
         // public void transactionalMethod() {
         // }
 
-        public void around(ProceedingJoinPoint joinPoint) {
+        public void around(ProceedingJoinPoint testPoint) {
             Test2Benchmark
-                    .log("test.around.before, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName()
-                            + ", method: " + joinPoint.getSignature().getName());
+                    .log("test.around.before, class: " + testPoint.getSignature().getDeclaringType().getSimpleName()
+                            + ", method: " + testPoint.getSignature().getName());
 
-            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            MethodSignature signature = (MethodSignature) testPoint.getSignature();
             Method method = signature.getMethod();
 
             T2BMapper.MethodState state = testMapper.isValid(method);
@@ -44,7 +44,7 @@ public class TestAspects {
                 Thread testRunnerThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        TestAspects.executeTest(joinPoint);
+                        TestAspects.executeTest(testPoint);
                     }
                 });
                 testRunnerThread.start();
@@ -53,11 +53,11 @@ public class TestAspects {
                 } catch (Exception exc) {
                 }
             } else {
-                Test2Benchmark.warn("Skipping test: " + joinPoint.getSignature().getName());
+                Test2Benchmark.warn("Skipping test: " + testPoint.getSignature().getName());
             }
 
             Test2Benchmark
-                    .log("test.around.after, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName());
+                    .log("test.around.after, class: " + testPoint.getSignature().getDeclaringType().getSimpleName());
         }
     }
 
@@ -71,8 +71,8 @@ public class TestAspects {
 
         @Override
         @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
-        public void around(ProceedingJoinPoint joinPoint) {
-            super.around(joinPoint);
+        public void around(ProceedingJoinPoint testPoint) {
+            super.around(testPoint);
         }
     }
 
@@ -86,8 +86,8 @@ public class TestAspects {
 
         @Override
         @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
-        public void around(ProceedingJoinPoint joinPoint) {
-            super.around(joinPoint);
+        public void around(ProceedingJoinPoint testPoint) {
+            super.around(testPoint);
         }
     }
 
@@ -101,12 +101,16 @@ public class TestAspects {
 
         @Override
         @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
-        public void around(ProceedingJoinPoint joinPoint) {
-            super.around(joinPoint);
+        public void around(ProceedingJoinPoint testPoint) {
+            super.around(testPoint);
         }
     }
 
-    private static void log(JoinPoint joinPoint) {
+    public static void log(JoinPoint joinPoint) {
+        if (joinPoint == null) {
+            Test2Benchmark.log("JointPoint: {null}");
+            return;
+        }
         Signature sig = joinPoint.getSignature();
         String kind = joinPoint.getKind();
         Object[] args = joinPoint.getArgs();
@@ -125,12 +129,12 @@ public class TestAspects {
                 + "\n}");
     }
 
-    private static void executeTest(ProceedingJoinPoint joinPoint) {
+    private static void executeTest(ProceedingJoinPoint testPoint) {
         try {
             int rnd = (int) (10 * Math.random());
             Test2Benchmark.log("Will run test " + rnd + " times...");
             for (int i = 0; i < rnd; i++) {
-                Object value = joinPoint.proceed();
+                Object value = testPoint.proceed();
             }
         } catch (Throwable t) {
             Test2Benchmark.errWithTrace("test.around failed", t);
