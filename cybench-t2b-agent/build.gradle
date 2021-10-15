@@ -49,9 +49,9 @@ dependencies {
     compile 'junit:junit:4.13.2'
     compile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     compile 'com.gocypher.cybench.client:gocypher-cybench-annotations:1.2-SNAPSHOT'
-    // compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
-    testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
+    compile 'org.aspectj:aspectjweaver:1.9.7'
+    compile 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
     testCompile 'org.testng:testng:7.4.0'
     testCompile 'junit:junit:4.13.2'
 }

@@ -1,7 +1,10 @@
 package com.gocypher.cybench.t2b.aop;
 
+import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,8 +16,52 @@ import org.aspectj.lang.reflect.SourceLocation;
 
 import com.gocypher.cybench.T2BMapper;
 import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.t2b.aop.benchmark.wrapper.BenchmarkRunnerWrapper;
 
 public class TestAspects {
+
+    private static final String SYS_PROP_AOP_CONFIG = "t2b.aop.cfg.path"; // TODO: change name
+    private static final String DEFAULT_AOP_CONFIG_PATH = "config/t2b.properties";
+    private static String configPath = System.getProperty(SYS_PROP_AOP_CONFIG, DEFAULT_AOP_CONFIG_PATH);
+
+    private static BenchmarkRunnerWrapper benchmarkRunner;
+
+    static {
+        loadConfig(configPath);
+    }
+
+    protected static void loadConfig(String cfgPath) {
+        Properties aopCfgProps = new Properties();
+        if (new File(cfgPath).exists()) {
+            try (Reader rdr = new BufferedReader(new FileReader(cfgPath))) {
+                aopCfgProps.load(rdr);
+            } catch (IOException exc) {
+                Test2Benchmark.err("failed to load aop config from: " + cfgPath, exc);
+            }
+        } else {
+            String cfgProp = System.getProperty(SYS_PROP_AOP_CONFIG);
+            if (cfgProp != null) {
+                Test2Benchmark.warn("system property " + SYS_PROP_AOP_CONFIG + " defined aop configuration file "
+                        + cfgPath + " not found!");
+            } else {
+                Test2Benchmark.log("default metadata configuration file " + cfgPath + " not found!");
+            }
+        }
+
+        String bwClassName = aopCfgProps.getProperty("t2b.benchmark.runner.wrapper",
+                "com.gocypher.cybench.t2b.aop.benchmark.wrapper.CybenchRunnerWrapper");
+        String bwArgs = aopCfgProps.getProperty("t2b.benchmark.runner.wrapper.args",
+                "cfg=config/cybench-launcher.properties");
+        try {
+            @SuppressWarnings("unchecked")
+            Class<? extends BenchmarkRunnerWrapper> bwClass = (Class<? extends BenchmarkRunnerWrapper>) Class
+                    .forName(bwClassName);
+            Constructor<? extends BenchmarkRunnerWrapper> bwConstructor = bwClass.getConstructor(String.class);
+            benchmarkRunner = bwConstructor.newInstance(bwArgs);
+        } catch (Exception exc) {
+            Test2Benchmark.err("failed to load benchmark runner wrapper", exc);
+        }
+    }
 
     public abstract static class AbstractT2BAspect {
 
@@ -44,7 +91,13 @@ public class TestAspects {
                 Thread testRunnerThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        TestAspects.executeTest(testPoint);
+                        try {
+                            benchmarkRunner.run(testPoint);
+                        } catch (Throwable exc) {
+                            Test2Benchmark.err("benchmark run failed", exc);
+                        } finally {
+                            benchmarkRunner.cleanup();
+                        }
                     }
                 });
                 testRunnerThread.start();
@@ -127,17 +180,5 @@ public class TestAspects {
                 + "\n\t    static=" + sp //
                 + "\n\t      this=" + tis //
                 + "\n}");
-    }
-
-    private static void executeTest(ProceedingJoinPoint testPoint) {
-        try {
-            int rnd = (int) (10 * Math.random());
-            Test2Benchmark.log("Will run test " + rnd + " times...");
-            for (int i = 0; i < rnd; i++) {
-                Object value = testPoint.proceed();
-            }
-        } catch (Throwable t) {
-            Test2Benchmark.errWithTrace("test.around failed", t);
-        }
     }
 }

@@ -61,7 +61,7 @@ public class BenchmarkMetadata {
             String cfgProp = System.getProperty(SYS_PROP_METADATA_CONFIG);
             if (cfgProp != null) {
                 Test2Benchmark.warn("system property " + SYS_PROP_METADATA_CONFIG
-                        + " defined aggregations configuration file " + cfgPath + " not found!");
+                        + " defined metadata configuration file " + cfgPath + " not found!");
             } else {
                 Test2Benchmark.log("default metadata configuration file " + cfgPath + " not found!");
             }
