@@ -20,6 +20,10 @@ rem ### Define dir where compiled tests are
 rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.test.dir=%BUILD_PATH%\test-classes"
 rem ### Define dir where to place generated benchmarks
 rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.bench.dir=%BUILD_PATH%\t2b"
+rem ### Define metadata configuration path
+rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.metadata.cfg.path=%BUILD_PATH%\t2b\metadata.properties"
+rem ### Define class name suffix for generated benchmarks
+rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.bench.class.name.suffix=T2BBenchmark"
 set /p AGENT_OPTS= Enter agent options: [%AGENT_OPTS%] :
 
 for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_HOME%\bin\java -fullversion 2^>^&1') do set "jver=%%j%%k"

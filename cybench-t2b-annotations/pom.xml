@@ -204,6 +204,8 @@
                 <!-- @@@ Additional Dir props to customize @@@ -->
                 <!-- -Dt2b.test.dir="${project.build.testOutputDirectory}"-->
                 <!-- -Dt2b.bench.dir="${project.build.directory}"/t2b-->
+                <!-- -Dt2b.metadata.cfg.path="${project.build.directory}"/t2b/metadata.properties-->
+                <!-- -Dt2b.bench.class.name.suffix=T2BBenchmark-->
                 <t2b.sys.props>-Dt2b.build.dir="${project.build.directory}"</t2b.sys.props>
                 <!-- ### Skip running built benchmarks ### -->
                 <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
