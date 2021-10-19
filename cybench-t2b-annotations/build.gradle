@@ -25,17 +25,17 @@ configurations {
 
 dependencies {
     compile 'com.google.auto.service:auto-service:1.0'
-    compile 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
+    compile 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
     compile 'org.openjdk.jmh:jmh-core:1.32'
     compile 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
     compile 'org.testng:testng:7.4.0'
     compile 'junit:junit:4.13.2'
-    compile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    compile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     testCompile 'org.testng:testng:7.4.0'
     testCompile 'junit:junit:4.13.2'
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.5-SNAPSHOT'
     cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
 }
