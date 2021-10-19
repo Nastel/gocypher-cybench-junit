@@ -33,6 +33,11 @@ public class Test2BenchmarkAgent {
     private static byte[] origBenchmarkGeneratorBytes;
 
     public static void premain(String agentArgs, Instrumentation inst) {
+        // Handle duplicate agents
+        if (instrumentation != null) {
+            return;
+        }
+
         try {
             instrumentation = inst;
             Test2Benchmark.log("Test2Benchmark Agent Premain called...");
@@ -58,6 +63,10 @@ public class Test2BenchmarkAgent {
         } catch (Exception e) {
             Test2Benchmark.errWithTrace("failed to initialize agent", e);
         }
+    }
+
+    public static void agentmain(String options, Instrumentation instrumentation) {
+        premain(options, instrumentation);
     }
 
     private static byte[] getBytes(JarFile jarFile, String className) throws IOException {
@@ -122,5 +131,13 @@ public class Test2BenchmarkAgent {
         } finally {
             stream.close();
         }
+    }
+
+    public static Instrumentation getInstrumentation() {
+        if (instrumentation == null) {
+            throw new UnsupportedOperationException("Cybench T2B agent was neither started via '-javaagent' (preMain) "
+                    + "nor attached via 'VirtualMachine.loadAgent' (agentMain)");
+        }
+        return instrumentation;
     }
 }

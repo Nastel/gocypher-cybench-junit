@@ -29,7 +29,7 @@ import javassist.bytecode.*;
 
 public class T2BClassTransformer {
 
-    static final String NEW_CLASS_NAME_SUFFIX = "_T2B_JMH_Benchmark";
+    static final String NEW_CLASS_NAME_SUFFIX = "BenchmarkByT2B";
 
     private ClassInfo clsInfo;
     private CtClass alteredClass;
