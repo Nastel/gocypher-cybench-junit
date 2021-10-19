@@ -29,7 +29,10 @@ import javassist.bytecode.*;
 
 public class T2BClassTransformer {
 
-    static final String NEW_CLASS_NAME_SUFFIX = "_T2B_JMH_Benchmark";
+    private static final String SYS_PROP_CLASS_NAME_SUFFIX = "t2b.bench.class.name.suffix";
+    private static final String DEFAULT_CLASS_NAME_SUFFIX = "BenchmarkByT2B";
+    private static String benchClassNameSuffix = System.getProperty(SYS_PROP_CLASS_NAME_SUFFIX,
+            DEFAULT_CLASS_NAME_SUFFIX);
 
     private ClassInfo clsInfo;
     private CtClass alteredClass;
@@ -195,10 +198,10 @@ public class T2BClassTransformer {
     public static String getAlteredClassName(String className) {
         if (className.contains("$")) {
             String[] cnt = className.split("\\$");
-            cnt[0] = cnt[0] + NEW_CLASS_NAME_SUFFIX;
+            cnt[0] = cnt[0] + benchClassNameSuffix;
             return String.join("$", cnt);
         } else {
-            return className + NEW_CLASS_NAME_SUFFIX;
+            return className + benchClassNameSuffix;
         }
     }
 

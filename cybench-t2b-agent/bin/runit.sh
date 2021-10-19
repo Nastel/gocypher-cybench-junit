@@ -23,6 +23,10 @@ AGENT_OPTS="-Dt2b.build.dir=$BUILD_PATH"
 #AGENT_OPTS="$AGENT_OPTS -Dt2b.test.dir=$BUILD_PATH/test-classes"
 ### Define dir where to place generated benchmarks
 #AGENT_OPTS="$AGENT_OPTS -Dt2b.bench.dir=$BUILD_PATH/t2b"
+### Define metadata configuration path
+#AGENT_OPTS="$AGENT_OPTS -Dt2b.metadata.cfg.path=$BUILD_PATH/t2b/metadata.properties"
+### Define class name suffix for generated benchmarks
+#AGENT_OPTS="$AGENT_OPTS -Dt2b.bench.class.name.suffix=T2BBenchmark"
 read -e -p "Enter agent options: " -i "$AGENT_OPTS" AGENT_OPTS
 
 jver=$("${JAVA_PATH}" -fullversion 2>&1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1 | cut -d'-' -f1 | cut -d'+' -f1 | cut -d'_' -f1)
