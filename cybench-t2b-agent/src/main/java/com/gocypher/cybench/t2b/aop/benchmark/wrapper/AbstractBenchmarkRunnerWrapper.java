@@ -6,11 +6,13 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 public abstract class AbstractBenchmarkRunnerWrapper implements BenchmarkRunnerWrapper {
 
+    private static final String[] EMPTY_ARGS = new String[0];
+
     private static final AtomicReference<ProceedingJoinPoint> testPoint = new AtomicReference<>();
     protected final String[] args;
 
     public AbstractBenchmarkRunnerWrapper(String args) {
-        this.args = args == null ? new String[0] : args.split("\\s");
+        this.args = args == null ? EMPTY_ARGS : args.split("\\s");
     }
 
     public static ProceedingJoinPoint getTestPoint() {
