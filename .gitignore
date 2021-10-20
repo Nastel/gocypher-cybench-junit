@@ -44,7 +44,6 @@ hs_err_pid*
 /**/reports
 
 # Eclipse Files #
-.project
 **/.project
 **/.settings/*
 **/.classpath
