@@ -11,7 +11,7 @@ import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 
 import com.gocypher.cybench.Test2Benchmark;
-import com.gocypher.cybench.t2b.transform.T2BClassTransformer;
+import com.gocypher.cybench.t2b.transform.AbstractClassTransformer;
 
 public class BenchmarkMetadata {
 
@@ -239,9 +239,10 @@ public class BenchmarkMetadata {
             } else if (VARIABLE_PACKAGE_PATTERN.matcher(variable).matches()) {
                 Package pckg = null;
                 if (metadataInfo instanceof ClassInfo) {
-                    pckg = T2BClassTransformer.getClass((ClassInfo) metadataInfo).getPackage();
+                    pckg = AbstractClassTransformer.getClass((ClassInfo) metadataInfo).getPackage();
                 } else if (metadataInfo instanceof MetadataInfo) {
-                    pckg = T2BClassTransformer.getClass(((MethodInfo) metadataInfo).getDeclaringClass()).getPackage();
+                    pckg = AbstractClassTransformer.getClass(((MethodInfo) metadataInfo).getDeclaringClass())
+                            .getPackage();
                 } else {
                     Test2Benchmark.warn("unknown package metadata entity found: " + metadataInfo.getClass().getName());
                     pckg = null;
@@ -382,7 +383,7 @@ public class BenchmarkMetadata {
             case VAR_NAME:
                 return methodInfo.getName();
             case VAR_SIGNATURE:
-                return T2BClassTransformer.getSignature(methodInfo);
+                return AbstractClassTransformer.getSignature(methodInfo);
             case VAR_CLASS:
                 return methodInfo.getDeclaringClass().getQualifiedName();
             case VAR_RETURN_TYPE:
@@ -401,7 +402,7 @@ public class BenchmarkMetadata {
             case VAR_NAME:
                 return method.getName();
             case VAR_SIGNATURE:
-                return T2BClassTransformer.getSignature(method);
+                return AbstractClassTransformer.getSignature(method);
             case VAR_CLASS:
                 return method.getDeclaringClass().getName();
             case VAR_RETURN_TYPE:

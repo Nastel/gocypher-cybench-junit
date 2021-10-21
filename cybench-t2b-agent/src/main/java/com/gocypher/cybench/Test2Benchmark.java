@@ -17,7 +17,7 @@ import org.openjdk.jmh.runner.CompilerHints;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
-import com.gocypher.cybench.t2b.transform.T2BClassTransformer;
+import com.gocypher.cybench.t2b.transform.TestClassTransformer;
 
 public class Test2Benchmark {
 
@@ -217,7 +217,7 @@ public class Test2Benchmark {
                 continue;
             }
 
-            T2BClassTransformer clsTransform = new T2BClassTransformer(classInfo);
+            TestClassTransformer clsTransform = new TestClassTransformer(classInfo);
             clsTransform.doTransform(T2B_MAPPERS);
             clsTransform.storeTransformedClass(BENCH_DIR);
 

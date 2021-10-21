@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 
-import com.gocypher.cybench.t2b.transform.T2BClassTransformer;
+import com.gocypher.cybench.t2b.transform.AbstractClassTransformer;
 
 public abstract class T2BMapper {
 
@@ -63,7 +63,7 @@ public abstract class T2BMapper {
             if (!mi.isPublic()) {
                 ClassInfo cls = mi.getDeclaringClass();
                 if (!cls.isPublic()) {
-                    String clsName = T2BClassTransformer.getClassName(cls);
+                    String clsName = AbstractClassTransformer.getClassName(cls);
                     if (clsName.contains("$")) {
                         return MethodState.VISIBILITY;
                     }

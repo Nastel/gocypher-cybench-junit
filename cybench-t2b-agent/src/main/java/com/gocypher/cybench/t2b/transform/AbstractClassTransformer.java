@@ -1,6 +1,5 @@
 package com.gocypher.cybench.t2b.transform;
 
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -13,9 +12,7 @@ import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.FieldInfo;
 import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
-import org.openjdk.jmh.generators.reflection.T2BClassInfo;
 
-import com.gocypher.cybench.T2BMapper;
 import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.Test2Benchmark;
 import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
@@ -24,39 +21,38 @@ import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
 import com.gocypher.cybench.t2b.transform.annotation.*;
 import com.gocypher.cybench.t2b.transform.metadata.BenchmarkMetadata;
 
-import javassist.*;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.Modifier;
 import javassist.bytecode.*;
 
-public class T2BClassTransformer {
-
-    private static final String SYS_PROP_CLASS_NAME_SUFFIX = "t2b.bench.class.name.suffix";
-    private static final String DEFAULT_CLASS_NAME_SUFFIX = "BenchmarkByT2B";
-    private static String benchClassNameSuffix = System.getProperty(SYS_PROP_CLASS_NAME_SUFFIX,
-            DEFAULT_CLASS_NAME_SUFFIX);
+public abstract class AbstractClassTransformer {
 
     private ClassInfo clsInfo;
     private CtClass alteredClass;
-    List<org.openjdk.jmh.generators.core.MethodInfo> benchmarksList = new ArrayList<>();
-    private ClassInfo aClsInfo;
 
-    public T2BClassTransformer(ClassInfo clsInfo) {
-        this.clsInfo = checkClassLoaderForAlteredClass(clsInfo);
+    public AbstractClassTransformer() {
     }
 
-    private ClassInfo checkClassLoaderForAlteredClass(ClassInfo clsInfo) {
-        String clsName = getClassName(clsInfo);
-        String alteredClassName = getAlteredClassName(clsName);
-        try {
-            Class<?> alteredCLClass = Class.forName(alteredClassName);
-            return new T2BClassInfo(alteredCLClass);
-        } catch (Exception exc) {
-            try {
-                getCtClass(clsName);
-            } catch (Exception exc2) {
-                exc2.printStackTrace(); // TODO:
-            }
-            return clsInfo;
-        }
+    public AbstractClassTransformer(ClassInfo clsInfo) {
+        this.clsInfo = clsInfo;
+    }
+
+    protected void setClassInfo(ClassInfo clsInfo) {
+        this.clsInfo = clsInfo;
+    }
+
+    protected ClassInfo getClsInfo() {
+        return clsInfo;
+    }
+
+    protected void setAlteredClass(CtClass alteredClass) {
+        this.alteredClass = alteredClass;
+    }
+
+    protected CtClass getAlteredClass() {
+        return alteredClass;
     }
 
     public boolean hasNonStaticFields() {
@@ -77,30 +73,6 @@ public class T2BClassTransformer {
         return ls;
     }
 
-    public void doTransform(T2BMapper... t2bMappers) {
-        if (hasNonStaticFields()) {
-            annotateClassState();
-        }
-
-        annotateClassMetadataList(clsInfo);
-
-        for (org.openjdk.jmh.generators.core.MethodInfo methodInfo : clsInfo.getMethods()) {
-            annotateMethod(methodInfo, t2bMappers);
-        }
-    }
-
-    public void storeTransformedClass(String dir) {
-        if (isClassAltered()) {
-            try {
-                storeClass(dir);
-                toClass();
-            } catch (Exception exc) {
-                Test2Benchmark.errWithTrace("failed to use altered class: " + getAlteredClassName(), exc);
-            }
-        }
-
-    }
-
     public void annotateClassState() {
         Annotation stateAnnotation = clsInfo.getAnnotation(State.class);
         if (stateAnnotation == null) {
@@ -108,32 +80,36 @@ public class T2BClassTransformer {
         }
     }
 
-    public void annotateBenchmark(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
-        annotateBenchmarkMethod(methodInfo, Benchmark.class.getName(), null);
+    public List<Map<String, String>> getMetadata(MetadataInfo metadataInfo) {
+        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(metadataInfo);
+
+        return makeMetadataList(metaDataMap);
     }
 
-    public void annotateBenchmarkTag(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
-        String methodSignature = getSignature(methodInfo);
+    protected List<Map<String, String>> makeMetadataList(Map<String, String> metaDataMap) {
+        List<Map<String, String>> metaDataList = new ArrayList<>(metaDataMap.size());
+
+        if (metaDataMap != null) {
+            for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
+                Map<String, String> tagMembers = new LinkedHashMap<>(2);
+                tagMembers.put("key", mde.getKey());
+                tagMembers.put("value", mde.getValue());
+                metaDataList.add(tagMembers);
+            }
+        }
+
+        return metaDataList;
+    }
+
+    public void annotateBenchmarkTag(org.openjdk.jmh.generators.core.MethodInfo methodInfo, String methodSignature) {
         Map<String, String> tagMembers = new LinkedHashMap<>(1);
         tagMembers.put("tag", UUID.nameUUIDFromBytes(methodSignature.getBytes()).toString());
 
         annotateBenchmarkMethod(methodInfo, BenchmarkTag.class.getName(), tagMembers);
     }
 
-    // NOTE: Javassist does not support @Repeatable annotations yet...
-    public void annotateBenchmarkMetadata(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
-        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(methodInfo);
-
-        for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
-            Map<String, String> tagMembers = new LinkedHashMap<>(2);
-            tagMembers.put("key", mde.getKey());
-            tagMembers.put("value", mde.getValue());
-            annotateBenchmarkMethod(methodInfo, BenchmarkMetaData.class.getName(), tagMembers);
-        }
-    }
-
-    public void annotateBenchmarkMetadataList(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
-        List<Map<String, String>> metaDataList = getMetadata(methodInfo);
+    public void annotateBenchmarkMetadataList(org.openjdk.jmh.generators.core.MethodInfo methodInfo,
+            List<Map<String, String>> metaDataList) {
         if (metaDataList.isEmpty()) {
             return;
         }
@@ -142,31 +118,29 @@ public class T2BClassTransformer {
                 metaDataList);
     }
 
-    public List<Map<String, String>> getMetadata(MetadataInfo metadataInfo) {
-        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(metadataInfo);
-        List<Map<String, String>> metaDataList = new ArrayList<>(metaDataMap.size());
-
-        for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
-            Map<String, String> tagMembers = new LinkedHashMap<>(2);
-            tagMembers.put("key", mde.getKey());
-            tagMembers.put("value", mde.getValue());
-            metaDataList.add(tagMembers);
-        }
-
-        return metaDataList;
-    }
+    // NOTE: Javassist does not support @Repeatable annotations yet...
+    // public void annotateBenchmarkMetadata(org.openjdk.jmh.generators.core.MethodInfo methodInfo) {
+    // Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(methodInfo);
+    //
+    // for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
+    // Map<String, String> tagMembers = new LinkedHashMap<>(2);
+    // tagMembers.put("key", mde.getKey());
+    // tagMembers.put("value", mde.getValue());
+    // annotateBenchmarkMethod(methodInfo, BenchmarkMetaData.class.getName(), tagMembers);
+    // }
+    // }
 
     // NOTE: Javassist does not support @Repeatable annotations yet...
-    public void annotateClassMetadata(ClassInfo classInfo) {
-        Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(classInfo);
-
-        for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
-            Map<String, String> tagMembers = new LinkedHashMap<>(2);
-            tagMembers.put("key", mde.getKey());
-            tagMembers.put("value", mde.getValue());
-            annotateBenchmarkClass(classInfo, BenchmarkMetaData.class.getName(), tagMembers);
-        }
-    }
+    // public void annotateClassMetadata(ClassInfo classInfo) {
+    // Map<String, String> metaDataMap = BenchmarkMetadata.fillMetadata(classInfo);
+    //
+    // for (Map.Entry<String, String> mde : metaDataMap.entrySet()) {
+    // Map<String, String> tagMembers = new LinkedHashMap<>(2);
+    // tagMembers.put("key", mde.getKey());
+    // tagMembers.put("value", mde.getValue());
+    // annotateBenchmarkClass(classInfo, BenchmarkMetaData.class.getName(), tagMembers);
+    // }
+    // }
 
     public void annotateClassMetadataList(ClassInfo classInfo) {
         List<Map<String, String>> metaDataList = getMetadata(classInfo);
@@ -193,16 +167,6 @@ public class T2BClassTransformer {
 
     public String getClassName() {
         return alteredClass == null ? getClassName(clsInfo) : alteredClass.getName();
-    }
-
-    public static String getAlteredClassName(String className) {
-        if (className.contains("$")) {
-            String[] cnt = className.split("\\$");
-            cnt[0] = cnt[0] + benchClassNameSuffix;
-            return String.join("$", cnt);
-        } else {
-            return className + benchClassNameSuffix;
-        }
     }
 
     private static Map<String, Pair<String, String>> STATE_ANNOTATION_MEMBERS = new LinkedHashMap<>();
@@ -343,20 +307,6 @@ public class T2BClassTransformer {
         }
     }
 
-    private CtClass getCtClass(String className) throws Exception {
-        if (alteredClass == null) {
-            ClassPool pool = ClassPool.getDefault();
-            CtClass ctClass = pool.getAndRename(className, getAlteredClassName(className));
-            Test2Benchmark.log(String.format("%-15.15s: %s", "Rename",
-                    "altering class " + className + " and named it " + ctClass.getName()));
-            alteredClass = ctClass;
-
-            return ctClass;
-        }
-
-        return alteredClass;
-    }
-
     private static void alterClass(CtClass ctClass) throws Exception {
         if (ctClass.isFrozen()) {
             ctClass.defrost();
@@ -469,6 +419,8 @@ public class T2BClassTransformer {
         return ctClass;
     }
 
+    protected abstract CtClass getCtClass(String className) throws Exception;
+
     static AnnotationsAttribute getAnnotationAttribute(List<AttributeInfo> attributes) {
         for (Object object : attributes) {
             if (AnnotationsAttribute.class.isAssignableFrom(object.getClass())) {
@@ -482,118 +434,4 @@ public class T2BClassTransformer {
     private static boolean isNestedClass(CtClass cls) {
         return cls.getName().contains("$");
     }
-
-    public void toClass() throws Exception {
-        if (alteredClass != null) {
-            Class<?> cls = alteredClass.toClass();
-            aClsInfo = new T2BClassInfo(cls);
-        }
-    }
-
-    public ClassInfo getClassInfo() {
-        return aClsInfo == null ? clsInfo : aClsInfo;
-    }
-
-    public boolean isClassAltered() {
-        return alteredClass != null;
-    }
-
-    public void storeClass(String classDir) throws Exception {
-        alteredClass.writeFile(new File(classDir).getCanonicalPath());
-    }
-
-    public String getAlteredClassName() {
-        return alteredClass == null ? "null" : alteredClass.getName();
-    }
-
-    public boolean hasBenchmarks() {
-        return !benchmarksList.isEmpty();
-    }
-
-    public Collection<org.openjdk.jmh.generators.core.MethodInfo> getBenchmarkMethods() {
-        if (isClassAltered()) {
-            Collection<org.openjdk.jmh.generators.core.MethodInfo> amil = aClsInfo.getMethods();
-            for (int i = 0; i < benchmarksList.size(); i++) {
-                org.openjdk.jmh.generators.core.MethodInfo mi = benchmarksList.get(i);
-                org.openjdk.jmh.generators.core.MethodInfo ami = getAlteredMethod(mi, amil);
-                if (ami != null) {
-                    benchmarksList.set(i, ami);
-                }
-            }
-        }
-
-        return benchmarksList;
-    }
-
-    private static org.openjdk.jmh.generators.core.MethodInfo getAlteredMethod(
-            org.openjdk.jmh.generators.core.MethodInfo mi,
-            Collection<org.openjdk.jmh.generators.core.MethodInfo> amil) {
-        for (org.openjdk.jmh.generators.core.MethodInfo ami : amil) {
-            if (ami.getName().equals(mi.getName())) {
-                return ami;
-            }
-        }
-
-        return null;
-    }
-
-    public void annotateMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2BMappers) {
-        T2BMapper.MethodState testValid = isValidTest(mi, t2BMappers);
-        if (testValid == T2BMapper.MethodState.VALID) {
-            annotateBenchmark(mi);
-            annotateBenchmarkTag(mi);
-            annotateBenchmarkMetadataList(mi);
-            benchmarksList.add(mi);
-        } else if (isSetupMethod(mi, t2BMappers)) {
-            annotateMethodSetup(mi);
-        } else if (isTearDownMethod(mi, t2BMappers)) {
-            annotateMethodTearDown(mi);
-        } else if (testValid != T2BMapper.MethodState.NOT_TEST) {
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Skipping",
-                    "test method " + mi.getQualifiedName() + ", reason: " + testValid.name()));
-        }
-    }
-
-    private static T2BMapper.MethodState isValidTest(org.openjdk.jmh.generators.core.MethodInfo mi,
-            T2BMapper... t2bMappers) {
-        if (t2bMappers != null) {
-            for (T2BMapper mapper : t2bMappers) {
-                T2BMapper.MethodState ms = mapper.isValid(mi);
-                if (ms == T2BMapper.MethodState.NOT_TEST) {
-                    continue;
-                } else {
-                    return ms;
-                }
-            }
-        }
-
-        return T2BMapper.MethodState.NOT_TEST;
-    }
-
-    private static boolean isSetupMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2bMappers) {
-        if (t2bMappers != null) {
-            for (T2BMapper mapper : t2bMappers) {
-                boolean setupMethod = mapper.isSetupMethod(mi);
-                if (setupMethod) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean isTearDownMethod(org.openjdk.jmh.generators.core.MethodInfo mi, T2BMapper... t2bMappers) {
-        if (t2bMappers != null) {
-            for (T2BMapper mapper : t2bMappers) {
-                boolean setupMethod = mapper.isTearDownMethod(mi);
-                if (setupMethod) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
 }
