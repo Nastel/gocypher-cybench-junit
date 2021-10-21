@@ -5,10 +5,10 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
 import com.gocypher.cybench.t2b.aop.TestAspects;
-import com.gocypher.cybench.t2b.aop.benchmark.wrapper.AbstractBenchmarkRunnerWrapper;
+import com.gocypher.cybench.t2b.aop.benchmark.runner.AbstractBenchmarkRunnerWrapper;
 
 @State(Scope.Benchmark)
-public class TestBenchmarkTemplate {
+public class T2BTestBenchmark {
     private ProceedingJoinPoint testPoint;
 
     @Benchmark
