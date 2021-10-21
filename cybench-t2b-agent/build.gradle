@@ -54,6 +54,7 @@ dependencies {
     annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
     testCompile 'org.testng:testng:7.4.0'
     testCompile 'junit:junit:4.13.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -266,4 +267,4 @@ distZip {
     dependsOn('javadocJar', 'sourceJar')
 }
 
-//build.finalizedBy(copyClientLibs)
+build.finalizedBy(copyClientLibs)
