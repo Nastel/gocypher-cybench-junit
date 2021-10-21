@@ -4,19 +4,14 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
-import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import com.gocypher.cybench.t2b.aop.TestAspects;
 import com.gocypher.cybench.t2b.aop.benchmark.wrapper.AbstractBenchmarkRunnerWrapper;
 
 @State(Scope.Benchmark)
-@BenchmarkMetaData(key = "c", value = "t")
 public class TestBenchmarkTemplate {
     private ProceedingJoinPoint testPoint;
 
     @Benchmark
-    @BenchmarkMetaData(key = "a", value = "b")
-    @BenchmarkTag(tag = "ddddddd")
     public void testBenchmark(Blackhole b) throws Throwable {
         if (testPoint != null) {
             testPoint.proceed();
