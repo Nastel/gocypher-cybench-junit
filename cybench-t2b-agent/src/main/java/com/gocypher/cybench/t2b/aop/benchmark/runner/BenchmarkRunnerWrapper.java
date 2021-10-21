@@ -1,4 +1,4 @@
-package com.gocypher.cybench.t2b.aop.benchmark.wrapper;
+package com.gocypher.cybench.t2b.aop.benchmark.runner;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 
