@@ -1,10 +1,8 @@
 package com.gocypher.cybench.t2b.transform.metadata;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -136,9 +134,28 @@ public class BenchmarkMetadata {
         return metaDataMap;
     }
 
+    public static Map<String, String> fillMetadata(Method method) {
+        Map<String, String> metadataCfg = getMethodMetadata();
+        Map<String, String> metaDataMap = new HashMap<>(metadataCfg.size());
+
+        for (Map.Entry<String, String> cfgEntry : metadataCfg.entrySet()) {
+            metaDataMap.put(cfgEntry.getKey(), fillMetadataValue(cfgEntry.getValue(), method));
+        }
+
+        return metaDataMap;
+    }
+
     protected static String fillMetadataValue(String value, MetadataInfo metadataInfo) {
         if (isVariableValue(value)) {
             return VARIABLE_EXP_RANGE_PATTERN.matcher(value).replaceAll(resolveVarExpressionValue(value, metadataInfo));
+        }
+
+        return value;
+    }
+
+    protected static String fillMetadataValue(String value, Method method) {
+        if (isVariableValue(value)) {
+            return VARIABLE_EXP_RANGE_PATTERN.matcher(value).replaceAll(resolveVarExpressionValue(value, method));
         }
 
         return value;
@@ -156,6 +173,26 @@ public class BenchmarkMetadata {
             String defaultValue = vMatcher.group(4);
 
             String varValue = resolveVarValue(varName, metadataInfo);
+            if (varValue == null && defaultValue != null) {
+                varValue = defaultValue;
+            }
+
+            if (varValue != null) {
+                return varValue;
+            }
+        }
+
+        return FALLBACK_VALUE;
+    }
+
+    protected static String resolveVarExpressionValue(String value, Method method) {
+        Matcher vMatcher = VARIABLE_EXP_PATTERN.matcher(value);
+
+        while (vMatcher.find()) {
+            String varName = vMatcher.group(2);
+            String defaultValue = vMatcher.group(4);
+
+            String varValue = resolveVarValue(varName, method);
             if (varValue == null && defaultValue != null) {
                 varValue = defaultValue;
             }
@@ -213,6 +250,32 @@ public class BenchmarkMetadata {
                 if (pckg != null) {
                     varValue = PackageValueResolver.getValue(variable, pckg);
                 }
+            } else {
+                throw new InvalidVariableException("Unknown variable: " + variable);
+            }
+
+            return varValue;
+        } catch (InvalidVariableException exc) {
+            Test2Benchmark.warn(exc.getLocalizedMessage());
+        } catch (Exception exc) {
+            Test2Benchmark.err("failed to resolve variable value for: " + variable, exc);
+        }
+        return null;
+    }
+
+    protected static String resolveVarValue(String variable, Method method) {
+        try {
+            String varValue = null;
+            if (VARIABLE_SYS_PROP_PATTERN.matcher(variable).matches()
+                    || VARIABLE_ENV_VAR_PATTERN.matcher(variable).matches()
+                    || VARIABLE_VM_VAR_PATTERN.matcher(variable).matches()) {
+                varValue = EnvValueResolver.getValue(variable);
+            } else if (VARIABLE_CLASS_PATTERN.matcher(variable).matches()) {
+                varValue = ClassValueResolver.getValue(variable, method.getDeclaringClass());
+            } else if (VARIABLE_METHOD_PATTERN.matcher(variable).matches()) {
+                varValue = MethodValueResolver.getValue(variable, method);
+            } else if (VARIABLE_PACKAGE_PATTERN.matcher(variable).matches()) {
+                varValue = PackageValueResolver.getValue(variable, method.getDeclaringClass().getPackage());
             } else {
                 throw new InvalidVariableException("Unknown variable: " + variable);
             }
@@ -332,6 +395,25 @@ public class BenchmarkMetadata {
                 throw new InvalidVariableException("Unknown METHOD scope variable: " + variable);
             }
         }
+
+        static String getValue(String variable, Method method) {
+            switch (variable) {
+            case VAR_NAME:
+                return method.getName();
+            case VAR_SIGNATURE:
+                return T2BClassTransformer.getSignature(method);
+            case VAR_CLASS:
+                return method.getDeclaringClass().getName();
+            case VAR_RETURN_TYPE:
+                return method.getReturnType().getCanonicalName();
+            case VAR_QUALIFIED_NAME:
+                return method.getDeclaringClass().getName() + "." + method.getName();
+            case VAR_PARAMETERS:
+                return Arrays.toString(method.getParameters());
+            default:
+                throw new InvalidVariableException("Unknown METHOD scope variable: " + variable);
+            }
+        }
     }
 
     static class ClassValueResolver {
@@ -351,6 +433,21 @@ public class BenchmarkMetadata {
                 return classInfo.getPackageName();
             case VAR_SUPER_CLASS:
                 return classInfo.getSuperClass().getQualifiedName();
+            default:
+                throw new InvalidVariableException("Unknown CLASS scope variable: " + variable);
+            }
+        }
+
+        static String getValue(String variable, Class<?> cls) {
+            switch (variable) {
+            case VAR_NAME:
+                return cls.getSimpleName();
+            case VAR_QUALIFIED_NAME:
+                return cls.getName();
+            case VAR_PACKAGE:
+                return cls.getPackage().getName();
+            case VAR_SUPER_CLASS:
+                return cls.getSuperclass().getName();
             default:
                 throw new InvalidVariableException("Unknown CLASS scope variable: " + variable);
             }
