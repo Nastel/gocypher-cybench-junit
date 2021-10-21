@@ -38,7 +38,7 @@ public class AOPConfigHandler {
         }
 
         String bwClassName = aopCfgProps.getProperty("t2b.benchmark.runner.wrapper",
-                "com.gocypher.cybench.t2b.aop.benchmark.wrapper.CybenchRunnerWrapper");
+                "com.gocypher.cybench.t2b.aop.benchmark.runner.CybenchRunnerWrapper");
         String bwArgs = aopCfgProps.getProperty("t2b.benchmark.runner.wrapper.args",
                 "cfg=config/cybench-launcher.properties");
         try {
