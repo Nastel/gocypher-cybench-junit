@@ -7,19 +7,19 @@ import javassist.bytecode.annotation.StringMemberValue;
 
 public class StringAnnotationBuilder extends AbstractAnnotationBuilder<Map<String, String>> {
 
-    public StringAnnotationBuilder(String annotationName) {
-        super(annotationName);
+    public StringAnnotationBuilder(String annotationType) {
+        super(annotationType);
     }
 
-    public StringAnnotationBuilder(String annotationName, Map<String, String> members) {
-        super(annotationName, members);
+    public StringAnnotationBuilder(String annotationType, Map<String, String> members) {
+        super(annotationType, members);
     }
 
     @Override
-    javassist.bytecode.annotation.Annotation buildAnnotation(String annotationName, ConstPool constPool,
+    javassist.bytecode.annotation.Annotation buildAnnotation(String annotationType, ConstPool constPool,
             Map<String, String> membersMap) {
         javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constPool);
+                annotationType, constPool);
         if (membersMap != null) {
             for (Map.Entry<String, String> me : membersMap.entrySet()) {
                 StringMemberValue smv = new StringMemberValue(constPool);
