@@ -12,16 +12,16 @@ public class ArrayAnnotationBuilder extends AbstractAnnotationBuilder<Annotation
     private static final String MEMBER_NAME = "value";
     private static final MemberValue[] EMPTY_ARRAY = new MemberValue[0];
 
-    public ArrayAnnotationBuilder(String annotationName, AnnotationArrayBuilder membersBuilder) {
-        super(annotationName, membersBuilder);
+    public ArrayAnnotationBuilder(String annotationType, AnnotationArrayBuilder membersBuilder) {
+        super(annotationType, membersBuilder);
     }
 
     @Override
-    javassist.bytecode.annotation.Annotation buildAnnotation(String annotationName, ConstPool constPool,
+    javassist.bytecode.annotation.Annotation buildAnnotation(String annotationType, ConstPool constPool,
             AnnotationArrayBuilder membersBuilder) {
         javassist.bytecode.annotation.Annotation[] membersArray = membersBuilder.buildAnnotations(constPool);
         javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
-                annotationName, constPool);
+                annotationType, constPool);
         if (membersArray != null) {
             ArrayList<AnnotationMemberValue> memberValues = new ArrayList<>(membersArray.length);
             AnnotationMemberValue annmv;

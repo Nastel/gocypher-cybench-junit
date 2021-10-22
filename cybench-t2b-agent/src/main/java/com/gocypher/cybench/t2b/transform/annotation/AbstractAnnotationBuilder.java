@@ -3,17 +3,22 @@ package com.gocypher.cybench.t2b.transform.annotation;
 import javassist.bytecode.ConstPool;
 
 public abstract class AbstractAnnotationBuilder<T> implements AnnotationBuilder<T> {
-    String annotationName;
+    String annotationType;
     T members;
 
-    public AbstractAnnotationBuilder(String annotationName) {
-        this.annotationName = annotationName;
+    public AbstractAnnotationBuilder(String annotationType) {
+        this.annotationType = annotationType;
     }
 
-    public AbstractAnnotationBuilder(String annotationName, T members) {
-        this(annotationName);
+    public AbstractAnnotationBuilder(String annotationType, T members) {
+        this(annotationType);
 
         setMembers(members);
+    }
+
+    @Override
+    public String getAnnotationType() {
+        return annotationType;
     }
 
     @Override
@@ -23,9 +28,9 @@ public abstract class AbstractAnnotationBuilder<T> implements AnnotationBuilder<
 
     @Override
     public javassist.bytecode.annotation.Annotation buildAnnotation(ConstPool constPool) {
-        return buildAnnotation(annotationName, constPool, members);
+        return buildAnnotation(annotationType, constPool, members);
     }
 
-    abstract javassist.bytecode.annotation.Annotation buildAnnotation(String annotationName, ConstPool constPool,
+    abstract javassist.bytecode.annotation.Annotation buildAnnotation(String annotationType, ConstPool constPool,
             T members);
 }
