@@ -60,7 +60,7 @@ while true; do
     while true; do
         read -p "Type a number: " yn
         case $yn in
-        1 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -javaagent:"$SCRIPTPATH"/../libs/cybench-t2b-agent-1.0.5-SNAPSHOT.jar -cp "$CLASS_PATH" "$AGENT_OPTS" com.gocypher.cybench.Test2Benchmark;
+        1 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -javaagent:"$SCRIPTPATH"/../libs/cybench-t2b-agent-1.0.6-SNAPSHOT.jar -cp "$CLASS_PATH" "$AGENT_OPTS" com.gocypher.cybench.Test2Benchmark;
             break;;
         2 ) "$JAVA_HOME"/bin/java $JAVA9_OPTS -cp "$CLASS_PATH":"$T2B_CLASS_PATH" com.gocypher.cybench.launcher.BenchmarkRunner cfg="$SCRIPTPATH"/../config/cybench-launcher.properties;
             break;;
