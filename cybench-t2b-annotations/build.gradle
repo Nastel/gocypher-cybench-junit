@@ -98,6 +98,12 @@ task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
             project.sourceSets.test.runtimeClasspath,
             configurations.t2b
     )
+//    debugOptions {
+//        enabled = true
+//        port = 5005
+//        server = true
+//        suspend = true
+//    }
     if (JavaVersion.current().isJava9Compatible()) {
         jvmArgs = [
                 "-javaagent:\"${configurations.t2b.iterator().next()}\"",
