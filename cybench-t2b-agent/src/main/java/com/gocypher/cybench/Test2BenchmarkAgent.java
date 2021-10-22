@@ -80,8 +80,8 @@ public class Test2BenchmarkAgent {
             CtClass ctClass = pool.get(className);
             CtMethod[] methods = ctClass.getDeclaredMethods(methodName);
             methods[0].insertBefore(plugCode);
-            ClassDefinition definition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
-            instrumentation.redefineClasses(definition);
+            ClassDefinition clsDefinition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
+            instrumentation.redefineClasses(clsDefinition);
             Test2Benchmark.log("Modified method: " + className + "." + methodName);
         } catch (Throwable t) {
             Test2Benchmark.log("Could not modify class method: " + className + "." + methodName + ", exc: " + t);
@@ -105,8 +105,8 @@ public class Test2BenchmarkAgent {
         }
 
         try {
-            ClassDefinition definition = new ClassDefinition(Class.forName(className), classBytes);
-            instrumentation.redefineClasses(definition);
+            ClassDefinition clsDefinition = new ClassDefinition(Class.forName(className), classBytes);
+            instrumentation.redefineClasses(clsDefinition);
             Test2Benchmark.log("Restored class: " + className);
         } catch (Throwable t) {
             Test2Benchmark.log("Could not restore class: " + className + ", exc: " + t);
