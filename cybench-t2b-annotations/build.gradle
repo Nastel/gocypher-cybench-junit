@@ -34,8 +34,11 @@ version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+// System properties to choose unit testing framework. JUnit5 is default
 ext {
+    // JUnit4
     isJU4 = System.properties['unitTests'] == 'junit4'
+    // TestNG
     isTNG = System.properties['unitTests'] == 'testng'
 }
 
