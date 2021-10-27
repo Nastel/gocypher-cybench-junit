@@ -22,30 +22,30 @@ package org.openjdk.jmh.generators.core;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.util.Context;
 
-public class TestScopeBenchmarkGeneratorTest {
+public class TestScopeBenchmarkGeneratorTestNG {
 
-    @org.junit.jupiter.api.BeforeEach
+    @org.testng.annotations.BeforeTest
     public void setupTest() {
 
     }
 
-    @org.junit.jupiter.api.AfterEach
+    @org.testng.annotations.AfterTest
     public void teardownTest() {
 
     }
 
-    @org.junit.jupiter.api.Test
+    @org.testng.annotations.Test
     public void getAndRunPrivateMethod() throws Exception {
         A a = new A();
         System.out.println(TestScopeBenchmarkGenerator._getAndRunPrivateMethod(a, "privMethod", "a"));
     }
 
-    @org.junit.jupiter.api.Test
-    @org.junit.jupiter.api.Disabled
+    @org.testng.annotations.Test
+    @org.testng.annotations.Ignore
     public void disabledTest() throws Exception {
     }
 
-    @org.junit.jupiter.api.Test
+    @org.testng.annotations.Test
     public void setProcessingEnvTest() throws Exception {
         TestScopeBenchmarkGenerator tbg = new TestScopeBenchmarkGenerator();
         tbg.setProcessingEnv(JavacProcessingEnvironment.instance(new Context()));
