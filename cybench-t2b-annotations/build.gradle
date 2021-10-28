@@ -62,8 +62,6 @@ dependencies {
     // Needed to run JUnit5 tests
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
-    // Needed by TestNG
-    testRuntimeOnly 'com.google.inject:guice:5.0.1'
     // T2B runtime dependency
     t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT'
     // To have agent reference
@@ -132,7 +130,7 @@ allprojects {
 }
 
 task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
-    group = 'CyBench-T2B'
+    group = 'cybench-t2b'
     description = 'Run unit tests as JMH benchmarks'
     classpath = files(
             project.sourceSets.main.runtimeClasspath,
@@ -177,7 +175,7 @@ task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
         //    ### Config for JUnit5 runner ###
         main = 'org.junit.platform.console.ConsoleLauncher'
         args = [
-                '-c', 'org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTest'
+                '--scan-class-path'
         ]
     }
 }

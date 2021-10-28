@@ -3,9 +3,9 @@
 rem ####################################################################
 rem # Arguments:                                                       #
 rem ####################################################################
-rem #  junit4                               # to run Junit 4 tests     #
+rem #  junit4                               # to run JUnit 4 tests     #
 rem #  testng                               # to run TestNG tests      #
-rem #  junit5 (also works as fallback case) # to run Junit 5 tests     #
+rem #  junit5 (also works as fallback case) # to run JUnit 5 tests     #
 rem ####################################################################
 
 set JAVA_HOME=d:\java\jdk-11
@@ -37,7 +37,7 @@ IF /I ["%UNIT_FRAMEWORK%"] EQU ["junit4"] (
 ) ELSE (
   rem JUNIT5
   set MAIN_CLASS=org.junit.platform.console.ConsoleLauncher
-  set TEST_ARGS=-c org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTest
+  set TEST_ARGS=--scan-class-path
 )
 
 rem set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"

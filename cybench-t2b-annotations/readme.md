@@ -1,6 +1,6 @@
 To set up Maven, you need to:
 
-Add Cybench Maven dependencies:
+Add CyBench Maven dependencies:
 ```xml
 <dependency>
     <groupId>com.gocypher.cybench</groupId>

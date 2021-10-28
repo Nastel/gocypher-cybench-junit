@@ -39,10 +39,10 @@
         <java.compiler.verbose>false</java.compiler.verbose>
         <!-- ### Java 9+ OPTIONS ### -->
         <t2b.module.prop></t2b.module.prop>
-        <!-- ### Config for Junit5 launcher - default one ### -->
+        <!-- ### Config for JUnit5 launcher - default one ### -->
         <t2b.test.runner.class>org.junit.platform.console.ConsoleLauncher</t2b.test.runner.class>
         <t2b.test.runner.class.args>
-            -c org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTest
+            --scan-class-path
         </t2b.test.runner.class.args>
 
         <jmh.version>1.33</jmh.version>
@@ -86,13 +86,6 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>7.4.0</version>
-        </dependency>
-        <!-- Needed by TestNG -->
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>5.0.1</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -180,7 +173,7 @@
         <profile>
             <id>run-junit4</id>
             <properties>
-                <!-- ### Config for Junit4 launcher ### -->
+                <!-- ### Config for JUnit4 launcher ### -->
                 <t2b.test.runner.class>org.junit.runner.JUnitCore</t2b.test.runner.class>
                 <t2b.test.runner.class.args>
                     org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestJU4
