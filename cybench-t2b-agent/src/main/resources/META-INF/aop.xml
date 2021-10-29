@@ -35,13 +35,13 @@
         <!--        <exclude within="@CoolAspect *"/>-->
     </aspects>
 
-    <!--    <weaver options="-verbose -XlazyTjp">-->
-    <!-- Weave types that are within the javax.* or org.aspectj.*
-         packages. Also weave all types in the foo package that do
-         not have the @NoWeave annotation. -->
-    <!--        <include within="javax.*"/>-->
-    <!--        <include within="org.aspectj.*"/>-->
-    <!--        <include within="(!@NoWeave foo.*) AND foo.*"/>-->
-    <!--        <dump within="somepack.*"/>&lt;!&ndash; will dump weaved classes to the "./_ajdump" folder on disk (for diagnostic purpose) &ndash;&gt;-->
-    <!--    </weaver>-->
+    <weaver options="-verbose -showWeaveInfo -Xlint:unresolvableMember=ignore">
+        <!-- Weave types that are within the javax.* or org.aspectj.*
+             packages. Also weave all types in the foo package that do
+             not have the @NoWeave annotation. -->
+        <!--        <include within="javax.*"/>-->
+        <!--        <include within="org.aspectj.*"/>-->
+        <!--        <include within="(!@NoWeave foo.*) AND foo.*"/>-->
+        <!--        <dump within="somepack.*"/>&lt;!&ndash; will dump weaved classes to the "./_ajdump" folder on disk (for diagnostic purpose) &ndash;&gt;-->
+    </weaver>
 </aspectj>
