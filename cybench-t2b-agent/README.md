@@ -169,7 +169,7 @@ for configuration options and details.
                         --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
                     </t2b.module.prop>
                 </properties>
-            </profile>    
+            </profile>
             <!-- Profile to use JUnit4 tests launcher --> 
             <profile>
                 <id>run-junit4</id>
@@ -344,7 +344,7 @@ for configuration options and details.
         repositories {
             mavenCentral()
             maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-        }     
+        }
         // ...
         // System properties to choose unit testing framework. JUnit5 is default
         ext {
@@ -378,7 +378,7 @@ for configuration options and details.
                project.sourceSets.test.runtimeClasspath,
                configurations.t2b
            )
-  
+
            if (JavaVersion.current().isJava9Compatible()) {
                 jvmArgs = [
                     "-javaagent:\"${configurations.aspectj.iterator().next()}\"",
@@ -454,7 +454,7 @@ for configuration options and details.
         val launcher = javaToolchains.launcherFor {
           languageVersion.set(JavaLanguageVersion.of(11))
         }
-  
+
         tasks {
           val runBenchmarksFromUnitTests by registering(JavaExec::class) {
             group = "cybench-t2b"

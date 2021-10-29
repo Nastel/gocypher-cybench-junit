@@ -1,6 +1,6 @@
 # gocypher-cybench-junit
 
-CyBench performance benchmarks (JMH) for your unit tests. 
+CyBench performance benchmarks (JMH) for your unit tests.
 
 Supported unit testing frameworks:
 
@@ -14,4 +14,4 @@ Supported unit testing frameworks:
 
 Java agent app building JMH benchmarks for compiled unit tests.
 
-See [cybench-t2b-agent](cybench-t2b-agent) [readme](cybench-t2b-agent/README.md) file for usage details. 
+See [cybench-t2b-agent](cybench-t2b-agent) [readme](cybench-t2b-agent/README.md) file for usage details.
