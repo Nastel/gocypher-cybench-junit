@@ -35,11 +35,11 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
         setTestPoint(testPoint);
         cleanContext();
 
-        Test2Benchmark.log("Starting Cybench Runner...");
+        Test2Benchmark.log("Starting CyBench Runner...");
         try {
             BenchmarkRunner.main(args);
         } finally {
-            Test2Benchmark.log("Cybench Runner completed...");
+            Test2Benchmark.log("CyBench Runner completed...");
         }
     }
 }

@@ -63,7 +63,7 @@ public class Test2BenchmarkAgent {
 
             Class<?> klass = org.openjdk.jmh.annotations.Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
-            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.32/jmh-core-1.32.jar!/org/openjdk/jmh/annotations/Benchmark.class
+            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.33/jmh-core-1.33.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
             Test2Benchmark.log("JMH: " + split[0]);
             File file = Paths.get(split[0]).toFile();
@@ -154,7 +154,7 @@ public class Test2BenchmarkAgent {
 
     public static Instrumentation getInstrumentation() {
         if (instrumentation == null) {
-            throw new UnsupportedOperationException("Cybench T2B agent was neither started via '-javaagent' (preMain) "
+            throw new UnsupportedOperationException("CyBench T2B agent was neither started via '-javaagent' (preMain) "
                     + "nor attached via 'VirtualMachine.loadAgent' (agentMain)");
         }
         return instrumentation;
