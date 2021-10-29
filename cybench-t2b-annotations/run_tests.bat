@@ -5,7 +5,7 @@ rem # Arguments:                                                       #
 rem ####################################################################
 rem #  junit4                               # to run JUnit 4 tests     #
 rem #  testng                               # to run TestNG tests      #
-rem #  junit5 (also works as fallback case) # to run JUnit 5 tests     #
+rem #  junit5 (also works as fallback case) # to run JUnit 5/4 tests   #
 rem ####################################################################
 
 set JAVA_HOME=d:\java\jdk-11

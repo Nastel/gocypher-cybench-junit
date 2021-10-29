@@ -172,7 +172,7 @@ task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
                 '-testclass', 'org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestNG'
         ]
     } else {
-        //    ### Config for JUnit5 runner ###
+        //    ### Config for JUnit5/JUnit4 runner ###
         main = 'org.junit.platform.console.ConsoleLauncher'
         args = [
                 '--scan-class-path'

@@ -1,8 +1,10 @@
 # cybench-t2b-agent
 
-This app running with Java agent builds JMH benchmarks for provided unit tests. It does not copy unit test code into
-benchmark - it just links unit test to be executed from benchmark, generated for that test. That way there is no need to
-change already existing unit tests in any way and they can be used for benchmarking.
+This app is based on Aspect Oriented Programming (AOP) framework `AspectJ`. `cybench-t2b-agent` provides `@Aspect`
+definitions for `AspectJ` allowing unit test to be executed as benchmarks. That way there is no need to change already
+existing unit tests in any way, and they can be used for benchmarking. To initiate tests execution unit test framework
+provided launcher class shall be used as Java main class. `AspectJ` binds as a JVM agent `-javaagent`
+and `cybench-t2b-agent` shall be referenced over class path.
 
 Supported unit testing frameworks:
 
@@ -36,8 +38,16 @@ Dependencies for your project:
     ```
 
 * Gradle:
-    ```groovy
-    runtime 'com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT'
+    ```groovy 
+    repositories {
+        mavenCentral()
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
+    }
+    // ...
+    dependencies {
+        // ... 
+        testRuntimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT'
+    }
     ```
 
 ## Configuration
@@ -53,36 +63,44 @@ Dependencies for your project:
     ```
 * Add Java agent argument:
     ```cmd
-    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-1.0.6-SNAPSHOT.jar
-    ```
+    -javaagent:<YOUR_PROJECT_PATH>/aspectjweaver-<VERSION>.jar
+    ``` 
+* Add `cybench-t2b-agent-1.0.6-SNAPSHOT.jar` into Java class path. It provides aspect definitions for `AspectJ`
+  framework to intercept unit tests execution and run them as benchmarks.
+* Set your project unit tests matching launcher as main class:
+    * `org.junit.platform.console.ConsoleLauncher` - to run JUnit5/JUnit4 tests
+    * `org.junit.runner.JUnitCore` - to run JUnit4 tests
+    * `org.testng.TestNG` - to run TestNG tests
+* Set unit tests launcher arguments, for details see:
+    * [JUnit5 Console Launcher options](https://junit.org/junit5/docs/current/user-guide/#running-tests-console-launcher-options)
+    * [JUnit4 wiki section "Test runners"](https://github.com/junit-team/junit4/wiki/Test-runners)
+    * [TestNG documentation section "4 - Running TestNG"](https://testng.org/doc/documentation-main.html)
 
 ##### Java system properties
 
-* `t2b.build.dir` - defines path where unit tests are build. It can be root dir for `Maven` or `Gradle` builders. App
-  will find inner paths for compiled app and test classes. **Default value**: java system property `user.dir` if
-  defined, `.` - otherwise.
-* `t2b.test.dir` - defines path of built unit tests directory. **Optional** property, shall be used if `t2b.build.dir`
-  fails to find where unit tests are compiled. Most likely it may happen if unit test are build using any other build
-  tool than `Maven` or `Gradle`. Also it may happen if your project uses non default `Maven`/`Gradle` build directories
-  layout.
-* `t2b.bench.dir` - defines path where to place generated benchmarks. **Default value**: `${t2b.build.dir}/t2b`.
-* `t2b.jdk.home` - defines JDK path to be used for generated benchmarks compilation. **Obsolete** - not used after
-  compilation migrated to JRE compiler API.
-* `t2b.metadata.cfg.path` - defines Cybench metadata annotations configuration file path. **Default
-  value**: `config/metadata.properties`
-* `t2b.bench.class.name.suffix` - defines suffix for T2B generated benchmark class names. **Default
-  value**: `BenchmarkByT2B`.
+* `t2b.aop.cfg.path` - defines CyBench T2B benchmarks runner configuration file path. **Default
+  value**: `config/t2b.properties`.
+* `t2b.metadata.cfg.path` - defines CyBench T2B metadata annotations configuration file path. **Default
+  value**: `config/metadata.properties`.
 
-#### Application
+### Benchmark runners configuration
 
-* Main class: `com.gocypher.cybench.Test2Benchmark`
+Benchmark runners used by CyBench T2B are configured using [t2b.properties](config/t2b.properties) file. It defines such
+properties:
 
-### CyBench Launcher configuration
+* `t2b.benchmark.runner.wrapper` - T2B wrapper class for benchmarks runner. It can be:
+    * `com.gocypher.cybench.t2b.aop.benchmark.runner.CybenchRunnerWrapper` - to use CyBench Launcher benchmarks runner
+    * `com.gocypher.cybench.t2b.aop.benchmark.runner.JMHRunnerWrapper` - to use JMH benchmarks runner
+    * custom one extending class `com.gocypher.cybench.t2b.aop.benchmark.runner.AbstractBenchmarkRunnerWrapper`
+* `t2b.benchmark.runner.wrapper.args` - benchmarks runner supported arguments.
+
+#### CyBench Launcher configuration
 
 To run [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) you'll need
 configuration file [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project
-scope and set it over `com.gocypher.cybench.launcher.BenchmarkRunner` class argument
-`cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties`.
+scope and bind it to CyBench Launcher wrapper `com.gocypher.cybench.t2b.aop.benchmark.runner.CybenchRunnerWrapper` class
+argument `cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties` in T2B benchmarks runner configuration
+file [t2b.properties](config/t2b.properties).
 
 Dependencies for your project:
 
@@ -98,27 +116,30 @@ Dependencies for your project:
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
+    testRuntimeOnly 'com.gocypher.cybench.client:gocypher-cybench-runner:1.1'
     ```
 
 See [CyBench Launcher Configuration document](https://github.com/K2NIO/gocypher-cybench-java#cybench-launcher-configuration)
 for configuration options and details.
 
-### JMH Runner configuration (optional)
+#### JMH Runner configuration (optional)
 
 [CyBench Launcher](https://github.com/K2NIO/gocypher-cybench-java#what-is-cybench-launcher) is preferred app to run
-generated benchmarks and have benchmarking report posted into [CyBench](https://cybench.io/)
-[repo](https://app.cybench.io/cybench/) for later comparison and evaluation of benchmark results.
+benchmarks and have benchmarking report posted
+into [CyBench](https://cybench.io/) [repo](https://app.cybench.io/cybench/) for later comparison and evaluation of
+benchmark results.
 
-But it is also possible to run generated benchmarks using original JMH runner. Difference is that instead of
-`com.gocypher.cybench.launcher.BenchmarkRunner` class you shall use `org.openjdk.jmh.Main` class.
+But it is also possible to run benchmarks using original JMH runner. Difference is that instead of
+`com.gocypher.cybench.t2b.aop.benchmark.runner.CybenchRunnerWrapper` class you shall
+use `com.gocypher.cybench.t2b.aop.benchmark.runner.JMHRunnerWrapper` class in T2B benchmarks runner configuration
+file [t2b.properties](config/t2b.properties).
 
 See [JMH Runner Configuration document](https://github.com/guozheng/jmh-tutorial/blob/master/README.md#jmh-command-line-options)
 for configuration options and details.
 
 ## Running Test2Benchmark (T2B)
 
-### From Maven
+### Maven
 
 * Step 1: to run T2B agent from Maven, edit POM of your project first by adding these properties and profiles:
     ```xml
@@ -127,7 +148,12 @@ for configuration options and details.
         <properties>
             <...>
             <!-- ### Java 9+ OPTIONS ### -->
-            <t2b.module.prop></t2b.module.prop>
+            <t2b.module.prop></t2b.module.prop> 
+            <!-- ### Config for JUnit5 launcher - default one, and it is also capable to run JUnit4 tests ### -->
+            <t2b.test.runner.class>org.junit.platform.console.ConsoleLauncher</t2b.test.runner.class>
+            <t2b.test.runner.class.args>
+                <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+            </t2b.test.runner.class.args>
             <...>
         </properties>
         <...>
@@ -142,6 +168,28 @@ for configuration options and details.
                     <t2b.module.prop>--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED
                         --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
                     </t2b.module.prop>
+                </properties>
+            </profile>    
+            <!-- Profile to use JUnit4 tests launcher --> 
+            <profile>
+                <id>run-junit4</id>
+                <properties>
+                    <!-- ### Config for JUnit4 launcher ### -->
+                    <t2b.test.runner.class>org.junit.runner.JUnitCore</t2b.test.runner.class>
+                    <t2b.test.runner.class.args>
+                        <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+                    </t2b.test.runner.class.args>
+                </properties>
+            </profile>
+            <!-- Profile to use TestNG tests launcher -->
+            <profile>
+                <id>run-testng</id>
+                <properties>
+                    <!-- ### Config for TestNG launcher ### -->
+                    <t2b.test.runner.class>org.testng.TestNG</t2b.test.runner.class>
+                    <t2b.test.runner.class.args>
+                        <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+                    </t2b.test.runner.class.args>
                 </properties>
             </profile>
             <profile>
@@ -167,11 +215,16 @@ for configuration options and details.
                         <version>1.0.6-SNAPSHOT</version>
                         <scope>test</scope>
                     </dependency>
-                    <!-- @@@ CyBench Launcher runner dependency @@@ -->
                     <dependency>
-                        <groupId>com.gocypher.cybench.client</groupId>
-                        <artifactId>gocypher-cybench-runner</artifactId>
-                        <version>1.2-SNAPSHOT</version>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.8.1</version>
+                        <scope>test</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-console-standalone</artifactId>
+                        <version>1.8.1</version>
                         <scope>test</scope>
                     </dependency>
                 </dependencies>
@@ -179,21 +232,17 @@ for configuration options and details.
                     <!-- ### Java executable to use ### -->
                     <t2b.java.home>${java.home}</t2b.java.home>
                     <t2b.java.exec>"${t2b.java.home}/bin/java"</t2b.java.exec>
-                    <!-- ### Java system properties used by benchmarks builder ###-->
-                    <!-- @@@ Additional Dir props to customize @@@ -->
-                    <!-- -Dt2b.test.dir="${project.build.testOutputDirectory}"-->
-                    <!-- -Dt2b.bench.dir="${project.build.directory}"/t2b--> 
-                    <!-- -Dt2b.metadata.cfg.path="${project.build.directory}"/t2b/metadata.properties-->
-                    <!-- -Dt2b.bench.class.name.suffix=T2BBenchmark-->
-                    <t2b.sys.props>-Dt2b.build.dir="${project.build.directory}"</t2b.sys.props>
-                    <!-- ### Skip running built benchmarks ### -->
+                    <!-- ### Java system properties used by T2B ###-->
+                    <t2b.sys.props>
+                        -Dt2b.aop.cfg.path="${project.basedir}"/t2b/t2b.properties
+                        -Dt2b.metadata.cfg.path="${project.basedir}"/t2b/metadata.properties
+                    </t2b.sys.props>
+                    <!--  ### Class path used to run tests: libs;classes;test-classes -->
+                    <t2b.run.class.path>
+                        ${t2b.compile.classpath}${path.separator}${project.build.outputDirectory}${path.separator}${project.build.testOutputDirectory}
+                    </t2b.run.class.path>
+                    <!-- ### Skip running unit tests as benchmarks ### -->
                     <t2b.bench.runner.skip>false</t2b.bench.runner.skip>
-                    <!-- ### Config for CyBench Launcher runner ### -->
-                    <t2b.bench.runner.class>com.gocypher.cybench.launcher.BenchmarkRunner</t2b.bench.runner.class>
-                    <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
-                    <!-- ### Config for JMH runner ### -->
-                    <!--<t2b.bench.runner.class>org.openjdk.jmh.Main</t2b.bench.runner.class>-->
-                    <!--<t2b.bench.runner.class.args>-f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput</t2b.bench.runner.class.args>-->
                 </properties>
                 <build>
                     <plugins>
@@ -221,57 +270,18 @@ for configuration options and details.
                                 </execution>
                             </executions>
                         </plugin>
-                        <!-- @@@ Load benchmarks run configuration made by t2b @@@ -->
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>properties-maven-plugin</artifactId>
-                            <version>1.0.0</version>
-                            <executions>
-                                <execution>
-                                    <phase>integration-test</phase>
-                                    <goals>
-                                        <goal>read-project-properties</goal>
-                                    </goals>
-                                    <configuration>
-                                        <files>
-                                            <file>.benchRunProps</file>
-                                        </files>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>exec-maven-plugin</artifactId>
                             <version>3.0.0</version>
                             <executions>
-                                <!-- @@@ Build benchmarks for project/module defined unit tests @@@ -->
-                                <execution>
-                                    <id>build-benchmarks</id>
-                                    <goals>
-                                        <goal>exec</goal>
-                                    </goals>
-                                    <!-- ### Maven phase when to build benchmarks for project/module defined unit tests ### -->
-                                    <phase>pre-integration-test</phase>
-                                    <configuration>
-                                        <executable>${t2b.java.exec}</executable>
-                                        <classpathScope>test</classpathScope>
-                                        <commandlineArgs>
-                                            ${t2b.module.prop}
-                                            -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
-                                            -cp ${t2b.compile.classpath}
-                                            ${t2b.sys.props}
-                                            com.gocypher.cybench.Test2Benchmark
-                                        </commandlineArgs>
-                                    </configuration>
-                                </execution>
-                                <!-- @@@ Run built benchmarks @@@ -->
+                                <!-- @@@ Run unit tests as benchmarks @@@ -->
                                 <execution>
                                     <id>run-benchmarks</id>
                                     <goals>
                                         <goal>exec</goal>
                                     </goals>
-                                    <!-- ### Maven phase when to run built benchmarks ### -->
+                                    <!-- ### Maven phase when to run unit tests as benchmarks ### -->
                                     <phase>integration-test</phase>
                                     <configuration>
                                         <skip>${t2b.bench.runner.skip}</skip>
@@ -279,9 +289,11 @@ for configuration options and details.
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
                                             ${t2b.module.prop}
-                                            -cp ${t2b.compile.classpath}${path.separator}${T2B_CLASS_PATH}
-                                            ${t2b.bench.runner.class}
-                                            ${t2b.bench.runner.class.args}
+                                            -javaagent:${org.aspectj:aspectjweaver:jar}
+                                            ${t2b.sys.props}
+                                            -cp ${t2b.run.class.path}
+                                            ${t2b.test.runner.class}
+                                            ${t2b.test.runner.class.args}
                                         </commandlineArgs>
                                     </configuration>
                                 </execution>
@@ -297,12 +309,19 @@ for configuration options and details.
     ```
   **Note:** configurable sections are marked with comments starting `<!-- ###`.
 
+  **Note:** since `cybench-t2b-agent` now is in pre-release state, you have to add maven central snapshots repo
+  `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
+
+  **Note:** replace `<YOUR_TESTS_LAUNCHER_ARGUMENTS>` placeholder with your project unit testing framework
+  configuration, e.g. `--scan-class-path` for JUnit5.
+
+  **Note:** change system properties defined path values to match your project layout.
+
   **Note:** to run CyBench Launcher runner you'll need configuration file
-  [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and set it
-  over `t2b.bench.runner.class.args` property:
-    ```xml
-    <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
-    ```
+  [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and bind it
+  to CyBench Launcher wrapper `com.gocypher.cybench.t2b.aop.benchmark.runner.CybenchRunnerWrapper` class
+  argument `cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties` in T2B benchmarks runner configuration
+  file [t2b.properties](config/t2b.properties).
 
 * Step 2: run your Maven script with `test-2-bench` profile enabled:
     ```cmd
@@ -311,10 +330,9 @@ for configuration options and details.
 
   **Note:**
     * `clean` - this goal is optional, but in most cases we want to have clean build
-    * `validate` - this goal is used to cover full build process lifecycle, since our default benchmark build and run
-      phases are bound to `pre-integration-test` and `integration-test`. But you may change accordingly to adopt your
-      project build lifecycle, but **note** those phases must go after `test-compile` phase, since we are dealing with
-      the product of this phase.
+    * `validate` - this goal is used to cover full build process lifecycle, since our predefined phase to run tests as
+      benchmarks is `integration-test`. But you may change accordingly to adopt your project build lifecycle, just
+      **note** those phases must go after `test-compile` phase, since we are dealing with the product of this phase.
     * `-f pom.xml` - you can replace it with any path and file name to match your environment
 
 ### Gradle
@@ -326,93 +344,90 @@ for configuration options and details.
         repositories {
             mavenCentral()
             maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-        }
+        }     
+        // ...
+        // System properties to choose unit testing framework. JUnit5 is default
+        ext {
+            // JUnit4
+            isJU4 = System.properties['unitTests'] == 'junit4'
+            // TestNG
+            isTNG = System.properties['unitTests'] == 'testng'
+        } 
         // ...
         configurations {
             t2b
-            cybench
+            aspectj
         }
         // ...
         dependencies {
             // ...
+            // Needed to run JUnit5 tests
+            testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+            testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
+            // T2B runtime dependency
             t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT'
-            cybench 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+            // To have agent reference
+            aspectj 'org.aspectj:aspectjweaver:1.9.7'
         }
         // ...
-        task buildBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
-            group = 'CyBench-T2B'
-            description = 'Run Test2Benchmark (T2B) benchmarks generator agent'
-            classpath = files(
-                    project.sourceSets.main.runtimeClasspath,
-                    project.sourceSets.test.runtimeClasspath,
-                    configurations.t2b
-            )
-            if (JavaVersion.current().isJava9Compatible()) {
+        task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
+           group = 'cybench-t2b'
+           description = 'Run unit tests as JMH benchmarks'
+           classpath = files(
+               project.sourceSets.main.runtimeClasspath,
+               project.sourceSets.test.runtimeClasspath,
+               configurations.t2b
+           )
+  
+           if (JavaVersion.current().isJava9Compatible()) {
                 jvmArgs = [
-                        "-javaagent:\"${configurations.t2b.iterator().next()}\"",
-                        '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
-                        '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
-                ]
-            } else {
+                    "-javaagent:\"${configurations.aspectj.iterator().next()}\"",
+                    '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
+                    '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
+               ]
+           } else {
                 jvmArgs = [
-                        "-javaagent:\"${configurations.t2b.iterator().next()}\""
+                    "-javaagent:\"${configurations.aspectj.iterator().next()}\""
                 ]
-            }
-            systemProperties = [
-                    't2b.build.dir': "$buildDir"
-            ]
-            main = 'com.gocypher.cybench.Test2Benchmark'
-        }
-  
-        task runBenchmarksFromUnitTestsCybench(type: JavaExec, dependsOn: buildBenchmarksFromUnitTests) {
-            def benchRunProps = new Properties()
-            def pFile = file(".benchRunProps")
-            if (pFile.exists()) {
-                pFile.withInputStream { benchRunProps.load(it) }
-            }
-  
-            def t2bClassPath = benchRunProps.getProperty('T2B_CLASS_PATH')
-            if (t2bClassPath != null) {
-                t2bClassPath = t2bClassPath.replaceAll("\"", "")
-            }
-  
-            group = 'CyBench-T2B'
-            description = 'Run T2B generated JMH benchmarks over Cybench Launcher runner'
-            classpath = files(
-                    project.sourceSets.main.runtimeClasspath,
-                    project.sourceSets.test.runtimeClasspath,
-                    [t2bClassPath],
-                    configurations.cybench
-            )
-            if (JavaVersion.current().isJava9Compatible()) {
-                jvmArgs = [
-                        '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
-                        '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
-                ]
-            }
-  
-            //    ### Config for CyBench Launcher runner ###
-            main = 'com.gocypher.cybench.launcher.BenchmarkRunner'
-            args = [
-                    'cfg=t2b/cybench-launcher.properties'
-            ]
-  
-            //    ### Config for JMH runner ###
-            //    main = 'org.openjdk.jmh.Main'
-            //    args = [
-            //            '-f', '1', '-w', '5s', '-wi', '0', '-i', '1', '-r', '5s', '-t', '1', '-bm', 'Throughput'
-            //    ]
+           }
+           systemProperties = [
+               't2b.aop.cfg.path'     : "$project.projectDir/t2b/t2b.properties",
+               't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties"
+           ]
+
+           if (isJU4) {
+               //    ### Config for JUnit4 runner ###
+               main = 'org.junit.runner.JUnitCore'
+               args = [
+                   <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+               ]
+           } else if (isTNG) {
+               //    ### Config for TestNG runner ###
+               main = 'org.testng.TestNG'
+               args = [
+                   <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+               ]
+           } else {
+               //    ### Config for JUnit5/JUnit4 runner ###
+               main = 'org.junit.platform.console.ConsoleLauncher'
+               args = [
+                   <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+               ]
+           }
         }
         ```
 
     * Kotlin
         ```kotlin
-        import java.util.Properties;
         // ...
         repositories {
-          mavenCentral();
+          mavenCentral() 
+          mavenLocal()
           maven {
             setUrl("https://s01.oss.sonatype.org/content/repositories/snapshots")
+            mavenContent {
+              snapshotsOnly()
+            }
           }
         }
         // ...
@@ -420,15 +435,20 @@ for configuration options and details.
           isCanBeResolved = true
           isCanBeConsumed = false
         }
-        val cybench by configurations.creating {
+        val aspectj by configurations.creating {
           isCanBeResolved = true
           isCanBeConsumed = false
         }
         // ...
         dependencies {
           // ...
+          // Needed to run JUnit5 tests      
+          testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+          testRuntimeOnly ("org.junit.platform:junit-platform-console-standalone:1.8.1")
+          // T2B runtime dependency
           t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT")
-          cybench ("com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT")
+          // To have agent reference
+          aspectj ("org.aspectj:aspectjweaver:1.9.7")
         }
         // ...
         val launcher = javaToolchains.launcherFor {
@@ -436,96 +456,54 @@ for configuration options and details.
         }
   
         tasks {
-          val buildBenchmarksFromUnitTests by registering(JavaExec::class) {
+          val runBenchmarksFromUnitTests by registering(JavaExec::class) {
             group = "cybench-t2b"
-            description = "Run Test2Benchmark (T2B) benchmarks generator agent"
+            description = "Run unit tests as JMH benchmarks"
             dependsOn(testClasses)
-            javaLauncher.set(launcher)
-  
+
             if (JavaVersion.current().isJava9Compatible) {
-              jvmArgs("-javaagent:\"${configurations.getByName("t2b").iterator().next()}\"")
+              jvmArgs("-javaagent:\"${configurations.getByName("aspectj").iterator().next()}\"")
               jvmArgs("--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED")
               jvmArgs("--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED")
             } else {
-              jvmArgs("-javaagent:\"${configurations.getByName("t2b").iterator().next()}\"");
+              jvmArgs("-javaagent:\"${configurations.getByName("aspectj").iterator().next()}\"")
             }
-  
-            systemProperty("t2b.build.dir", "$buildDir")
-  
+
+            systemProperty("t2b.aop.cfg.path", "${project.rootDir}/t2b/t2b.properties")
+            systemProperty("t2b.metadata.cfg.path", "${project.rootDir}/t2b/metadata.properties")
+
             classpath(
               sourceSets["main"].runtimeClasspath,
               sourceSets["test"].runtimeClasspath,
               configurations.getByName("t2b")
             )
-  
-            mainClass.set("com.gocypher.cybench.Test2Benchmark")
-          }
-  
-          val runBenchmarksFromUnitTestsCybench by registering(JavaExec::class) {
-            group = "cybench-t2b"
-            description = "Run T2B generated JMH benchmarks over Cybench Launcher runner"
-            dependsOn(buildBenchmarksFromUnitTests)
-            javaLauncher.set(launcher)
-  
-            if (JavaVersion.current().isJava9Compatible) {
-              jvmArgs("--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED")
-              jvmArgs("--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED")
-            }
-  
-            classpath(
-              sourceSets["main"].runtimeClasspath,
-              sourceSets["test"].runtimeClasspath,
-              configurations.getByName("cybench")
-            )
-  
-            val benchRunProps = Properties();
-            val pFile = file(".benchRunProps")
-            if (pFile.exists()) {
-              val fis = pFile.inputStream();
-              benchRunProps.load(fis);
-              fis.close();
-            }
-  
-            var t2bClassPath = benchRunProps.getProperty("T2B_CLASS_PATH")
-            if (t2bClassPath != null) {
-              t2bClassPath = t2bClassPath.replace("\"", "")
-  
-              classpath(
-                t2bClassPath.split("${File.pathSeparator}")
-              )
-            }
-  
-            //    ### Config for CyBench Launcher runner ###
-            mainClass.set("com.gocypher.cybench.launcher.BenchmarkRunner")
-            args ("cfg=t2b/cybench-launcher.properties")
-  
-            //    ### Config for JMH runner ###
-            //    mainClass.set("org.openjdk.jmh.Main")
-            //    args ("-f", "1", "-w", "5s", "-wi", "0", "-i", "1", "-r", "5s", "-t", "1", "-bm", "Throughput")
+
+            mainClass.set("org.junit.platform.console.ConsoleLauncher")
+            args("<YOUR_TESTS_LAUNCHER_ARGUMENTS>")
           }
         }
         ```
 
+  **Note:** `configurations` section defines custom ones to make it easier to access particular cybench dependencies.
+
   **Note:** since `cybench-t2b-agent` now is in pre-release state, you have to add maven central snapshots repo
   `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
-  **Note:** `configurations` section defines custom ones to make it easier to access particular cybench dependencies.
+  **Note:** replace `<YOUR_TESTS_LAUNCHER_ARGUMENTS>` placeholder with your project unit testing framework
+  configuration, e.g. `--scan-class-path` for JUnit5.
+
+  **Note:** change system properties defined path values to match your project layout.
 
   **Note:** to run CyBench Launcher runner you'll need configuration file
-  [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and set it
-  over `t2b.bench.runner.class.args` property:
-    ```xml
-    <t2b.bench.runner.class.args>cfg=t2b/cybench-launcher.properties</t2b.bench.runner.class.args>
-    ```
+  [cybench-launcher.properties](config/cybench-launcher.properties). Put it somewhere in your project scope and bind it
+  to CyBench Launcher wrapper `com.gocypher.cybench.t2b.aop.benchmark.runner.CybenchRunnerWrapper` class
+  argument `cfg=<YOUR_PROJECT_PATH>/cybench-launcher.properties` in T2B benchmarks runner configuration
+  file [t2b.properties](config/t2b.properties).
 
 * Step 2: run your Gradle script:
-    * To build benchmarks from unit tests
+    * To run your project unit tests as benchmarks
       ```cmd
-      gradle :buildBenchmarksFromUnitTests 
-      ```
-    * To build and run benchmarks
-      ```cmd
-      gradle :runBenchmarksFromUnitTestsCybench 
+      gradle :runBenchmarksFromUnitTests 
       ```
 
 ### OS shell
@@ -539,20 +517,13 @@ Use [runit.bat](bin/runit.bat) batch script file to run.
 Use [runit.sh](bin/runit.sh) bash script file to run.
 
 Bash scripts are kind of run wizards: it will ask you for you about your environment configuration and having required
-variables set, it will allow you to select options on what you want to do:
-
-* Build benchmarks from tests - it shall be run very fist time and after every rebuild of your project.
-* Run benchmarks using Cybench runner.
-* Run benchmarks using JMH runner.
+variables set, it will run your project tests as benchmarks.
 
 To change configuration to meet your environment, please edit these shell script files.
 See [Configuration](#configuration) section for details.
 
 ## Known Bugs
 
-* If test class has methods having same name just different casing, on Windows it creates file and class having
-  different casing and benchmarks compile fails with:
-  ```
-  class MyTests_testUsecTimestamp_jmhTest is public, should be declared in a file named MyTests_testUsecTimestamp_jmhTest.java
-  ```
-  On Linux it shall be OK, since files are case sensitive.
+* If test method is annotated as test using annotations of multiple unit test frameworks (
+  e.g. `@org.junit.jupiter.api.Test` and ` @org.junit.Test`), `AspectJ` can apply incorrect aspect (JUnit4 while it is
+  run using JUnit5) and test execution as benchmark will fail.
