@@ -180,4 +180,4 @@ task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
     }
 }
 
-build.finalizedBy(copyClientLibs)
+//build.finalizedBy(copyClientLibs)

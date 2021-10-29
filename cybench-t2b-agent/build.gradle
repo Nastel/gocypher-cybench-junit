@@ -42,19 +42,16 @@ ext.vendor = 'K2N.IO'
 defaultTasks 'clean', 'build'
 
 dependencies {
-    compile 'org.openjdk.jmh:jmh-core:1.32'
-    compile 'org.openjdk.jmh:jmh-generator-reflection:1.32'
-    compile 'org.javassist:javassist:3.28.0-GA'
-    compile 'org.testng:testng:7.4.0'
-    compile 'junit:junit:4.13.2'
-    compile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    compile 'com.gocypher.cybench.client:gocypher-cybench-annotations:1.2-SNAPSHOT'
-    compile 'org.aspectj:aspectjweaver:1.9.7'
-    compile 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
-    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.32'
-    testCompile 'org.testng:testng:7.4.0'
-    testCompile 'junit:junit:4.13.2'
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    implementation 'org.openjdk.jmh:jmh-core:1.33'
+    implementation 'org.openjdk.jmh:jmh-generator-reflection:1.33'
+    implementation 'org.javassist:javassist:3.28.0-GA'
+    implementation 'org.testng:testng:7.4.0'
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    implementation 'com.gocypher.cybench.client:gocypher-cybench-annotations:1.2-SNAPSHOT'
+    implementation 'org.aspectj:aspectjweaver:1.9.7'
+    implementation 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.33'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -148,9 +145,8 @@ clean {
 
 task copyClientLibs(type: Copy) {
     from {
-        configurations.compile
+        configurations.runtimeClasspath
     }
-    from configurations.runtime
     from jar
     into 'libs'
     include '*.jar'
