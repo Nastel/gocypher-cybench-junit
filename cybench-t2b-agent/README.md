@@ -32,7 +32,7 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench</groupId>
         <artifactId>cybench-t2b-agent</artifactId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
         <scope>test</scope>
     </dependency>
     ```
@@ -46,7 +46,7 @@ Dependencies for your project:
     // ...
     dependencies {
         // ... 
-        testRuntimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT'
+        testRuntimeOnly 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
     }
     ```
 
@@ -65,7 +65,7 @@ Dependencies for your project:
     ```cmd
     -javaagent:<YOUR_PROJECT_PATH>/aspectjweaver-<VERSION>.jar
     ``` 
-* Add `cybench-t2b-agent-1.0.6-SNAPSHOT.jar` into Java class path. It provides aspect definitions for `AspectJ`
+* Add `cybench-t2b-agent-1.0.7-SNAPSHOT.jar` into Java class path. It provides aspect definitions for `AspectJ`
   framework to intercept unit tests execution and run them as benchmarks.
 * Set your project unit tests matching launcher as main class:
     * `org.junit.platform.console.ConsoleLauncher` - to run JUnit5/JUnit4 tests
@@ -212,7 +212,7 @@ for configuration options and details.
                     <dependency>
                         <groupId>com.gocypher.cybench</groupId>
                         <artifactId>cybench-t2b-agent</artifactId>
-                        <version>1.0.6-SNAPSHOT</version>
+                        <version>1.0.7-SNAPSHOT</version>
                         <scope>test</scope>
                     </dependency>
                     <dependency>
@@ -365,7 +365,7 @@ for configuration options and details.
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
             testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
             // T2B runtime dependency
-            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT'
+            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
             // To have agent reference
             aspectj 'org.aspectj:aspectjweaver:1.9.7'
         }
@@ -442,11 +442,11 @@ for configuration options and details.
         // ...
         dependencies {
           // ...
-          // Needed to run JUnit5 tests      
+          // Needed to run JUnit5 tests
           testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.1")
           testRuntimeOnly ("org.junit.platform:junit-platform-console-standalone:1.8.1")
           // T2B runtime dependency
-          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.6-SNAPSHOT")
+          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT")
           // To have agent reference
           aspectj ("org.aspectj:aspectjweaver:1.9.7")
         }
