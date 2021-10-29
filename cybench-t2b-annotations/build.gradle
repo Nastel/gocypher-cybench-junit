@@ -60,7 +60,6 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     implementation files("${System.properties['java.home']}/../lib/tools.jar")
     // Needed to run JUnit5 tests
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
     // T2B runtime dependency
     t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'

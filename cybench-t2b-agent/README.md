@@ -216,12 +216,6 @@ for configuration options and details.
                         <scope>test</scope>
                     </dependency>
                     <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.8.1</version>
-                        <scope>test</scope>
-                    </dependency>
-                    <dependency>
                         <groupId>org.junit.platform</groupId>
                         <artifactId>junit-platform-console-standalone</artifactId>
                         <version>1.8.1</version>
@@ -362,7 +356,6 @@ for configuration options and details.
         dependencies {
             // ...
             // Needed to run JUnit5 tests
-            testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
             testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
             // T2B runtime dependency
             t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
@@ -443,7 +436,6 @@ for configuration options and details.
         dependencies {
           // ...
           // Needed to run JUnit5 tests
-          testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.1")
           testRuntimeOnly ("org.junit.platform:junit-platform-console-standalone:1.8.1")
           // T2B runtime dependency
           t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT")
