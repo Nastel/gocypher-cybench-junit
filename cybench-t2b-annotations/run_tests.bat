@@ -8,6 +8,9 @@ rem #  testng                               # to run TestNG tests      #
 rem #  junit5 (also works as fallback case) # to run JUnit 5/4 tests   #
 rem ####################################################################
 
+set RUNDIR=%~dp0
+
+rem set JAVA_HOME="c:\java\jdk_180"
 set JAVA_HOME=d:\java\jdk-11
 
 set JAVA_EXEC="java"
@@ -18,11 +21,15 @@ IF ["%JAVA_HOME%"] EQU [""] (
   set JAVA_EXEC="%JAVA_HOME%\bin\java"
 )
 
-set BUILD_DIR=".\build"
-set LIBS_DIR=".\libs"
+set LIBS_DIR="%RUNDIR%\libs"
+rem ### Gradle
+set BUILD_DIR="%RUNDIR%\build"
 set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\classes\java\test"
+rem ### Maven
+rem set BUILD_DIR="%RUNDIR%\target"
+rem set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
 
-set AGENT_OPTS=-Dt2b.aop.cfg.path=t2b/t2b.properties -Dt2b.metadata.cfg.path=t2b/metadata.properties
+set AGENT_OPTS=-Dt2b.aop.cfg.path=t2b\t2b.properties -Dt2b.metadata.cfg.path=t2b\metadata.properties
 
 set UNIT_FRAMEWORK=%1
 
@@ -35,7 +42,7 @@ IF /I ["%UNIT_FRAMEWORK%"] EQU ["junit4"] (
   set MAIN_CLASS=org.testng.TestNG
   set TEST_ARGS=-testclass org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestNG
 ) ELSE (
-  rem JUNIT5
+  rem JUNIT5/4
   set MAIN_CLASS=org.junit.platform.console.ConsoleLauncher
   set TEST_ARGS=--scan-class-path
 )
