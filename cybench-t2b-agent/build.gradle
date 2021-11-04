@@ -144,6 +144,8 @@ clean {
 }
 
 task copyClientLibs(type: Copy) {
+    group = 'distribution'
+    description = 'Collect and copy runtime libs into dedicated dir'
     from {
         configurations.runtimeClasspath
     }
@@ -218,9 +220,8 @@ distributions {
         distributionBaseName.set("$archivesBaseName")
         contents {
             into('libs') {
+                from configurations.runtimeClasspath
                 from jar
-                from configurations.compile
-                from configurations.runtime
             }
             into('bin') {
                 from('bin') {

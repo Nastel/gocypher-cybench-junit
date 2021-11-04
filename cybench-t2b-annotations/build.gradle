@@ -68,6 +68,8 @@ dependencies {
 }
 
 task copyClientLibs(type: Copy) {
+    group = 'distribution'
+    description = 'Collect and copy runtime libs into dedicated dir'
     from {
         configurations.runtimeClasspath
     }
