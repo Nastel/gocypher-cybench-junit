@@ -43,10 +43,10 @@ read -e -p "Enter your project root dir path: " -i "$PROJECT_DIR" PROJECT_DIR
 LIBS_DIR="$PROJECT_DIR/libs"
 ### Gradle
 BUILD_DIR="$PROJECT_DIR/build"
-CLASS_PATH="$LIBS_DIR/*;$BUILD_DIR/classes/java/test"
+CLASS_PATH="$LIBS_DIR/*:$BUILD_DIR/classes/java/test"
 ### Maven
 #BUILD_DIR="$PROJECT_DIR/target"
-#CLASS_PATH="$LIBS_DIR/*;$BUILD_DIR/test-classes"
+#CLASS_PATH="$LIBS_DIR/*:$BUILD_DIR/test-classes"
 read -e -p "Enter class path to use: " -i "$CLASS_PATH" CLASS_PATH
 CFG_DIR="$PROJECT_DIR/config"
 read -e -p "Enter configurations dir path: " -i "$CFG_DIR" CFG_DIR
