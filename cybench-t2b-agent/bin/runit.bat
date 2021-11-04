@@ -6,73 +6,81 @@ set RUNDIR=%~dp0
 rem set JAVA_HOME="c:\java\jdk_180"
 set /p JAVA_HOME= Enter your Java Home dir path: [%JAVA_HOME%] :
 
+set JAVA_EXEC="java"
+IF ["%JAVA_HOME%"] EQU [""] (
+  echo "JAVA_HOME" env. variable is not defined!..
+) else (
+  echo Will use java from: "%JAVA_HOME%"
+  set JAVA_EXEC="%JAVA_HOME%\bin\java"
+)
+
 rem #### Your project config ####
-set BUILD_PATH="c:\projects\my"
-set /p BUILD_PATH= Enter your project build dir path: [%BUILD_PATH%] :
+set PROJECT_DIR="c:\projects\my"
+set /p PROJECT_DIR= Enter your project root dir path: [%PROJECT_DIR%] :
 rem !!! DO not forget to add your app libs to class path !!!
-set CLASS_PATH="%RUNDIR%..\libs\*"
+set LIBS_DIR="%PROJECT_DIR%\libs"
+rem ### Gradle
+set BUILD_DIR="%PROJECT_DIR%\build"
+set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\classes\java\test"
+rem ### Maven
+rem set BUILD_DIR="%PROJECT_DIR%\target"
+rem set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
 set /p CLASS_PATH= Enter class path to use: [%CLASS_PATH%] :
+set CFG_DIR="%PROJECT_DIR%\config"
+set /p CFG_DIR= Enter configurations dir path: [%CFG_DIR%] :
 rem #############################
 
-rem ### Define your project build dir
-set AGENT_OPTS="-Dt2b.build.dir=%BUILD_PATH%"
-rem ### Define dir where compiled tests are
-rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.test.dir=%BUILD_PATH%\test-classes"
-rem ### Define dir where to place generated benchmarks
-rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.bench.dir=%BUILD_PATH%\t2b"
-rem ### Define metadata configuration path
-rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.metadata.cfg.path=%BUILD_PATH%\t2b\metadata.properties"
-rem ### Define class name suffix for generated benchmarks
-rem set AGENT_OPTS="%AGENT_OPTS% -Dt2b.bench.class.name.suffix=T2BBenchmark"
+rem ### Define configuration files to use
+set AGENT_OPTS="-Dt2b.aop.cfg.path=%CFG_DIR%\t2b.properties" "-Dt2b.metadata.cfg.path=%CFG_DIR%\metadata.properties"
 set /p AGENT_OPTS= Enter agent options: [%AGENT_OPTS%] :
 
-for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_HOME%\bin\java -fullversion 2^>^&1') do set "jver=%%j%%k"
+for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_EXEC% -fullversion 2^>^&1') do set "jver=%%j%%k"
 rem for early access versions replace "ea" part with "00" to get comparable number
 set jver=%jver:ea=00%
 
 IF %jver% GTR 18 set JAVA9_OPTS="--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED" "--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED"
 
+cd /D "%PROJECT_DIR%"
 
 :do
-    for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
-
     cls
     echo -----------------------------
     echo SETTINGS:
-    echo  Script Home Dir: %RUNDIR%
-    echo        Java Home: %JAVA_HOME%
-    echo       Class Path: %CLASS_PATH%
-    echo   Build Dir Path: %BUILD_PATH%
-    echo    Agent Options: %AGENT_OPTS%
-    echo   Java9+ Options: %JAVA9_OPTS%
-    echo   Benchmarks Dir: %BENCH_DIR%
-    echo   T2B Class Path: %T2B_CLASS_PATH%
+    echo        Script Home Dir: %RUNDIR%
+    echo              Java Home: %JAVA_HOME%
+    echo  Project Root Dir Path: %PROJECT_DIR%
+    echo     Configurations Dir: %CFG_DIR%
+    echo             Class Path: %CLASS_PATH%
+    echo          Agent Options: %AGENT_OPTS%
+    echo         Java9+ Options: %JAVA9_OPTS%
     echo -----------------------------
     echo Choose action:
-    echo 1. Compile Tests to Benchmarks
-    echo 2. Run benchmarks using Cybench runner
-    echo 3. Run benchmarks using JMH runner
+    echo 1. Run JUnit5/4 tests as benchmarks
+    echo 2. Run JUnit4 tests as benchmarks
+    echo 3. Run TestNG tests as benchmarks
     echo 9. Exit
     echo -----------------------------
 
     set /p yn= Type a number :
         if [%yn%] == [1] (
-            rem ### Compile Tests to benchmarks ###
-            %JAVA_HOME%\bin\java %JAVA9_OPTS% -javaagent:"%RUNDIR%..\libs\cybench-t2b-agent-1.0.6-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% com.gocypher.cybench.Test2Benchmark
+            rem ### Run JUnit5/4 tests as benchmarks ###
+            set TEST_ARGS=--scan-class-path
+            set /p TEST_ARGS= Enter JUnit5 tests arguments: [!TEST_ARGS!] :
+            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\aspectjweaver-1.9.7.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.platform.console.ConsoleLauncher !TEST_ARGS!
             goto done
             )
         if [%yn%] == [2] (
-rem            for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
-
-            rem ### Run benchmarks using CyBench ###
-            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp %CLASS_PATH%;!T2B_CLASS_PATH! com.gocypher.cybench.launcher.BenchmarkRunner cfg="%RUNDIR%..\config\cybench-launcher.properties"
+            rem ### Run JUnit4 tests as benchmarks ###
+            set TEST_ARGS=org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestJU4
+            set /p TEST_ARGS= Enter JUnit4 tests arguments: [!TEST_ARGS!] :
+            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\aspectjweaver-1.9.7.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.runner.JUnitCore !TEST_ARGS!
             goto done
             )
         if [%yn%] == [3] (
-rem            for /f "delims== tokens=1,2" %%G in (%RUNDIR%.benchRunProps) do set %%G=%%H
-
-            rem ### Run benchmarks using JMH Runner ###
-            %JAVA_HOME%\bin\java %JAVA9_OPTS% -cp %CLASS_PATH%;!T2B_CLASS_PATH! org.openjdk.jmh.Main -f 1 -w 5s -wi 0 -i 1 -r 5s -t 1 -bm Throughput
+            rem ### Run TestNG tests as benchmarks ###
+            set TEST_ARGS=-testclass org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestNG
+            set /p TEST_ARGS= Enter TestNG tests arguments: [!TEST_ARGS!] :
+            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\aspectjweaver-1.9.7.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.testng.TestNG !TEST_ARGS!
             goto done
             )
         if [%yn%] == [9] (

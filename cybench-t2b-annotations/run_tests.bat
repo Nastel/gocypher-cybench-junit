@@ -29,7 +29,7 @@ rem ### Maven
 rem set BUILD_DIR="%RUNDIR%\target"
 rem set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
 
-set AGENT_OPTS=-Dt2b.aop.cfg.path=t2b\t2b.properties -Dt2b.metadata.cfg.path=t2b\metadata.properties
+set AGENT_OPTS="-Dt2b.aop.cfg.path=t2b\t2b.properties" "-Dt2b.metadata.cfg.path=t2b\metadata.properties"
 
 set UNIT_FRAMEWORK=%1
 
