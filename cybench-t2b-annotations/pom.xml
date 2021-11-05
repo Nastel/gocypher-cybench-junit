@@ -44,6 +44,10 @@
         <t2b.test.runner.class.args>
             --scan-class-path
         </t2b.test.runner.class.args>
+        <!-- ### In case you dont want to run JUnit4 tests, exclude vintage engine -->
+        <!--t2b.test.runner.class.args>
+            &#45;&#45;scan-class-path -E=junit-vintage
+        </t2b.test.runner.class.args>-->
 
         <jmh.version>1.33</jmh.version>
     </properties>

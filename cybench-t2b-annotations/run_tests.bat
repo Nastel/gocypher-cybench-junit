@@ -45,6 +45,8 @@ IF /I ["%UNIT_FRAMEWORK%"] EQU ["junit4"] (
   rem JUNIT5/4
   set MAIN_CLASS=org.junit.platform.console.ConsoleLauncher
   set TEST_ARGS=--scan-class-path
+  rem ### In case you dont want to run JUnit4 tests, exclude vintage engine
+  rem set TEST_ARGS=--scan-class-path -E=junit-vintage
 )
 
 rem set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"

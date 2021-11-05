@@ -64,7 +64,7 @@ cd /D "%PROJECT_DIR%"
     set /p yn= Type a number :
         if [%yn%] == [1] (
             rem ### Run JUnit5/4 tests as benchmarks ###
-            set TEST_ARGS=--scan-class-path
+            set TEST_ARGS=--scan-class-path -E=junit-vintage
             set /p TEST_ARGS= Enter JUnit5 tests arguments: [!TEST_ARGS!] :
             %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\aspectjweaver-1.9.7.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.platform.console.ConsoleLauncher !TEST_ARGS!
             goto done

@@ -83,6 +83,56 @@ Dependencies for your project:
 * `t2b.metadata.cfg.path` - defines CyBench T2B metadata annotations configuration file path. **Default
   value**: `config/metadata.properties`.
 
+#### Benchmark metadata configuration
+
+CyBench Launcher allows benchmark to be annotated with a list of metadata annotations. Metadata annotation is simple key
+and value pair (kind of map entry). Both benchmark class and benchmark method can have own annotations, but in benchmark
+report class and method annotations are merged into single benchmark method metadata map.
+
+To configure metadata entries for benchmark classes and methods, provide system property `t2b.metadata.cfg.path` defined
+properties file (default is [config/metadata.properties](config/metadata.properties)),
+e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
+
+* Metadata scopes (property name prefix):
+    * `class.` - for class metadata
+    * `method.` (can be omitted) - for method metadata
+* Static value definition: `key=value`
+* Variable value definition:
+    * `key=${variable}` - to define single variable
+    * `key=${variable1}:${variable2}:{defaultValue}` - to define multiple variables. variables resolution stops on first
+      resolved variable value, or defined default value (optional, **note** - it has no `$` symbol before `{`)
+* Default unresolved variable value is `-`
+* Metadata value can combine both static and variable content like: `Method ${method.name} benchmark`
+* JVM ENVIRONMENT scope variables:
+    * `sys#<propName>` - JVM system property value
+    * `env#<varName>` - OS environment variable value
+    * `vm#<varName>` - JVM calculated variable value
+        * `time.millis` - current time in milliseconds (timestamp)
+        * `time.nanos` - current time in nanoseconds
+        * `uuid` - random UUID
+        * `random` - random integer number ranging `0-10000`
+* PACKAGE scope variables: **NOTE** - all package scope values (except `package.name`) are available only
+  when `META-INF/MANIFEST.MF` file is loaded by class loader!
+    * `package.name` - package name
+    * `package.version` - package implementation version
+    * `package.title` - package implementation title
+    * `package.vendor` - package implementation vendor
+    * `package.spec.version` - package specification version
+    * `package.spec.title` - package specification title
+    * `package.spec.vendor` - package specification vendor
+* CLASS scope variables:
+    * `class.name` - class name
+    * `class.qualified.name` - class qualified name
+    * `class.package` - class package name
+    * `class.super` - class superclass qualified name
+* METHOD scope variables:
+    * `method.name` - method name
+    * `method.signature` - method signature
+    * `method.class` - method declaring class qualified name
+    * `method.return.type` - method return type
+    * `method.qualified.name` - method qualified name
+    * `method.parameters` - method parameters list
+
 ### Benchmark runners configuration
 
 Benchmark runners used by CyBench T2B are configured using [t2b.properties](config/t2b.properties) file. It defines such
@@ -307,7 +357,7 @@ for configuration options and details.
   `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
   **Note:** replace `<YOUR_TESTS_LAUNCHER_ARGUMENTS>` placeholder with your project unit testing framework
-  configuration, e.g. `--scan-class-path` for JUnit5.
+  configuration, e.g. `--scan-class-path -E=junit-vintage` for JUnit5.
 
   **Note:** change system properties defined path values to match your project layout.
 
@@ -482,7 +532,7 @@ for configuration options and details.
   `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
   **Note:** replace `<YOUR_TESTS_LAUNCHER_ARGUMENTS>` placeholder with your project unit testing framework
-  configuration, e.g. `--scan-class-path` for JUnit5.
+  configuration, e.g. `--scan-class-path -E=junit-vintage` for JUnit5.
 
   **Note:** change system properties defined path values to match your project layout.
 

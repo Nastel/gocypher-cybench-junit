@@ -68,6 +68,8 @@ else
   #JUNIT5/4
   MAIN_CLASS="org.junit.platform.console.ConsoleLauncher"
   TEST_ARGS="--scan-class-path"
+  ### In case you dont want to run JUnit4 tests, exclude vintage engine
+  #TEST_ARGS="--scan-class-path -E=junit-vintage"
 fi
 
 #JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"

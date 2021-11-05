@@ -88,7 +88,7 @@ while true; do
         read -p "Type a number: " yn
         case $yn in
         1 ) ### Run JUnit5/4 tests as benchmarks ###
-            TEST_ARGS="--scan-class-path";
+            TEST_ARGS="--scan-class-path -E=junit-vintage";
             read -e -p "Enter JUnit5 tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
             "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/aspectjweaver-1.9.7.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.platform.console.ConsoleLauncher" $TEST_ARGS;
             break;;
