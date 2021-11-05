@@ -1,25 +1,33 @@
 ## DEVNotes (a.k.a TODO)
 
 * **P1** tasks:
-    * Test execution shall be intercepted by T2B and executed as benchmark. This would allow us to have fully prepared
-      test used parameters and fields. It would also cover dynamically generated test (JUnit5) benchmarking.
-    * Support for `@BeforeXXXX`, `@AfterXXXXX`, `@TearDown`, etc. test framework annotations. Some may not have direct
-      mapping to JMH, so will have to make it with use of some "wrapper" methods and listeners.
+    * Change sysout to logging
+    * Use shared memory to exchange `JoinPoint` between different JVM instances and allow JMH to have it's own VM
+      instance as it is by default.
     * Integrate T2B
       with [opentelemetry-java-instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
+    * Make test pointcut to check calle method and apply right aspect for tests having multiple frameworks test
+      annotations.
 * **P2** tasks:
-    * Add includes/excludes to narrow the scope of tests to use
-    * Large reports
+    * Method/class annotations definition over template file (something similar to metadata template). Needs to define
+      method name matcher (method,class,package) to allow individual method configurations.
 * **P3** tasks (optional at all):
     * Make skip with reason: throw exception with message from annotation
-    * Add arguments for shell script to define flow: `-tc` - transform and compile, `-r jmh` - run using JMH
-      runner, `-r cyb` - run using CyBench runner
     * Multi-module project support (Maven/Gradle) when running from bat/sh. Scan `workDir` for inner build dirs and run
       benchmarks for all of them
     * Make shell configuration from properties file. That way both `bat` and `sh` shall use same file and there would be
       no need to change shell scripts itself
     * Make gradle plugin
     * Make maven plugin
+    * Check why JMH generates empty files `./BenchmakList` and `./CompilerHints` after compilation.
+
+### Multiple agents
+
+It is possible to define multiple agents for `java` command:
+
+```cmd
+java -javaagent:agentA.jar -javaagent:agentB.jar MyJavaProgram
+```
 
 ### Debugging
 
@@ -58,4 +66,4 @@ Or simply enable java debugging agent using:
 * Shell
   ```cmd
     set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
-  ```
+  ```  
