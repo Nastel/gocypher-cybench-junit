@@ -100,10 +100,10 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
 * Variable value definition:
     * `key=${variable}` - to define single variable
     * `key=${variable1}:${variable2}:{defaultValue}` - to define multiple variables. variables resolution stops on first
-      resolved variable value, or defined default value (optional, **note** - it has no `$` symbol before `{`)
+      resolved variable value, or defined default value (optional, **NOTE** - it has no `$` symbol before `{`)
 * Default unresolved variable value is `-`
 * Metadata value can combine both static and variable content like: `Method ${method.name} benchmark`
-* JVM ENVIRONMENT scope variables:
+* **JVM ENVIRONMENT** scope variables:
     * `sys#<propName>` - JVM system property value
     * `env#<varName>` - OS environment variable value
     * `vm#<varName>` - JVM calculated variable value
@@ -111,7 +111,7 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
         * `time.nanos` - current time in nanoseconds
         * `uuid` - random UUID
         * `random` - random integer number ranging `0-10000`
-* PACKAGE scope variables: **NOTE** - all package scope values (except `package.name`) are available only
+* **PACKAGE** scope variables: **NOTE** - all package scope values (except `package.name`) are available only
   when `META-INF/MANIFEST.MF` file is loaded by class loader!
     * `package.name` - package name
     * `package.version` - package implementation version
@@ -120,12 +120,12 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
     * `package.spec.version` - package specification version
     * `package.spec.title` - package specification title
     * `package.spec.vendor` - package specification vendor
-* CLASS scope variables:
+* **CLASS** scope variables:
     * `class.name` - class name
     * `class.qualified.name` - class qualified name
     * `class.package` - class package name
     * `class.super` - class superclass qualified name
-* METHOD scope variables:
+* **METHOD** scope variables:
     * `method.name` - method name
     * `method.signature` - method signature
     * `method.class` - method declaring class qualified name
