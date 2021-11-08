@@ -34,7 +34,6 @@ fi
 ####################################################################
 
 #JAVA_HOME="/usr/local/java/jdk"
-JAVA_HOME=d:/java/jdk-11
 
 JAVA_EXEC="java"
 if [[ "$JAVA_HOME" == "" ]]; then

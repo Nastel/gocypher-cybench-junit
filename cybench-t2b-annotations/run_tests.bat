@@ -11,7 +11,6 @@ rem ####################################################################
 set RUNDIR=%~dp0
 
 rem set JAVA_HOME="c:\java\jdk_180"
-set JAVA_HOME=d:\java\jdk-11
 
 set JAVA_EXEC="java"
 IF ["%JAVA_HOME%"] EQU [""] (
