@@ -29,6 +29,8 @@ rem set BUILD_DIR="%RUNDIR%\target"
 rem set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
 
 set AGENT_OPTS="-Dt2b.aop.cfg.path=t2b\t2b.properties" "-Dt2b.metadata.cfg.path=t2b\metadata.properties"
+rem ### To use custom LOG4J configuration
+rem set AGENT_OPTS=%AGENT_OPTS% "-Dlog4j.configuration="file:t2b\log4j.properties"
 
 set UNIT_FRAMEWORK=%1
 
@@ -51,4 +53,4 @@ IF /I ["%UNIT_FRAMEWORK%"] EQU ["junit4"] (
 rem set JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 set JAVA_DEBUGGER=
 @echo on
-%JAVA_EXEC% %JAVA_DEBUGGER% -javaagent:"%LIBS_DIR%\aspectjweaver-1.9.7.jar" %AGENT_OPTS% -cp %CLASS_PATH% %MAIN_CLASS% %TEST_ARGS%
+%JAVA_EXEC% %JAVA_DEBUGGER% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.7-SNAPSHOT.jar" %AGENT_OPTS% -cp %CLASS_PATH% %MAIN_CLASS% %TEST_ARGS%

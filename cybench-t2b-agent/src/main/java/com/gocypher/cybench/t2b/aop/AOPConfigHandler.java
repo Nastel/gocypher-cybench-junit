@@ -23,10 +23,13 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.Properties;
 
-import com.gocypher.cybench.Test2Benchmark;
+import org.slf4j.Logger;
+
+import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.aop.benchmark.runner.BenchmarkRunnerWrapper;
 
 public class AOPConfigHandler {
+    private static Logger LOGGER = T2BUtils.getLogger(AOPConfigHandler.class);
 
     private static final String SYS_PROP_AOP_CONFIG = "t2b.aop.cfg.path"; // TODO: change name
     private static final String DEFAULT_AOP_CONFIG_PATH = "config/t2b.properties";
@@ -44,15 +47,15 @@ public class AOPConfigHandler {
             try (Reader rdr = new BufferedReader(new FileReader(cfgPath))) {
                 aopCfgProps.load(rdr);
             } catch (IOException exc) {
-                Test2Benchmark.err("failed to load aop config from: " + cfgPath, exc);
+                LOGGER.error("failed to load aop config from: {}, reason: {}", cfgPath, exc.getLocalizedMessage());
             }
         } else {
             String cfgProp = System.getProperty(SYS_PROP_AOP_CONFIG);
             if (cfgProp != null) {
-                Test2Benchmark.warn("system property " + SYS_PROP_AOP_CONFIG + " defined aop configuration file "
-                        + cfgPath + " not found!");
+                LOGGER.warn("system property {} defined aop configuration file {} not found!", SYS_PROP_AOP_CONFIG,
+                        cfgPath);
             } else {
-                Test2Benchmark.log("default metadata configuration file " + cfgPath + " not found!");
+                LOGGER.info("default metadata configuration file {} not found!", cfgPath);
             }
         }
 
@@ -67,7 +70,7 @@ public class AOPConfigHandler {
             Constructor<? extends BenchmarkRunnerWrapper> bwConstructor = bwClass.getConstructor(String.class);
             benchmarkRunner = bwConstructor.newInstance(bwArgs);
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to load benchmark runner wrapper", exc);
+            LOGGER.error("failed to load benchmark runner wrapper, reason: {}", exc);
         }
     }
 

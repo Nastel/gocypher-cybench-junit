@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.*;
 
 import org.apache.commons.math3.util.Pair;
@@ -31,9 +32,9 @@ import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.FieldInfo;
 import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
+import org.slf4j.Logger;
 
 import com.gocypher.cybench.T2BUtils;
-import com.gocypher.cybench.Test2Benchmark;
 import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
@@ -47,6 +48,7 @@ import javassist.Modifier;
 import javassist.bytecode.*;
 
 public abstract class AbstractClassTransformer {
+    private static Logger LOGGER = T2BUtils.getLogger(AbstractClassTransformer.class);
 
     private ClassInfo clsInfo;
     private CtClass alteredClass;
@@ -198,10 +200,11 @@ public abstract class AbstractClassTransformer {
         String clsName = getClassName(classInfo);
         try {
             addClassEnumAnnotation(clsName, annotationName, membersMap);
-            Test2Benchmark.log(
+            LOGGER.info(
                     String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            Test2Benchmark.errWithTrace("failed to add @" + annotationName + " annotation for class " + clsName, exc);
+            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for class {1}", annotationName, clsName),
+                    exc);
         }
     }
 
@@ -209,10 +212,11 @@ public abstract class AbstractClassTransformer {
         String clsName = getClassName(classInfo);
         try {
             addClassAnnotation(clsName, annotationName, membersMap);
-            Test2Benchmark.log(
+            LOGGER.info(
                     String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            Test2Benchmark.errWithTrace("failed to add @" + annotationName + " annotation for class " + clsName, exc);
+            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for class {1}", annotationName, clsName),
+                    exc);
         }
     }
 
@@ -221,10 +225,11 @@ public abstract class AbstractClassTransformer {
         String clsName = getClassName(classInfo);
         try {
             addClassAnnotation(clsName, arrayAnnotationName, annotationsName, memberList);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
+            LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + arrayAnnotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            Test2Benchmark.errWithTrace("failed to add @" + arrayAnnotationName + " annotation for class " + clsName,
+            LOGGER.error(
+                    MessageFormat.format("failed to add @{0} annotation for class {1}", arrayAnnotationName, clsName),
                     exc);
         }
     }
@@ -235,11 +240,11 @@ public abstract class AbstractClassTransformer {
             String methodName = method.getName();
 
             addMethodAnnotation(methodName, annotationName, membersMap);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
+            LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            Test2Benchmark.errWithTrace(
-                    "failed to add @" + annotationName + " annotation for method " + method.getQualifiedName(), exc);
+            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for method {1}", annotationName,
+                    method.getQualifiedName()), exc);
         }
     }
 
@@ -249,12 +254,11 @@ public abstract class AbstractClassTransformer {
             String methodName = method.getName();
 
             addMethodArrayAnnotation(methodName, arrayAnnotationName, annotationsName, memberList);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
+            LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + arrayAnnotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            Test2Benchmark.errWithTrace(
-                    "failed to add @" + arrayAnnotationName + " annotation for method " + method.getQualifiedName(),
-                    exc);
+            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for method {1}", arrayAnnotationName,
+                    method.getQualifiedName()), exc);
         }
     }
 
@@ -264,11 +268,11 @@ public abstract class AbstractClassTransformer {
             String methodName = method.getName();
 
             addMethodEnumAnnotation(methodName, annotationName, membersMap);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Added",
+            LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            Test2Benchmark.errWithTrace(
-                    "failed to add @" + annotationName + " annotation for method " + method.getQualifiedName(), exc);
+            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for method {1}", annotationName,
+                    method.getQualifiedName()), exc);
         }
 
         annotateClassState();
@@ -338,7 +342,7 @@ public abstract class AbstractClassTransformer {
     private static void makeClassPublic(CtClass ctClass) {
         if (!isNestedClass(ctClass) && !Modifier.isPublic(ctClass.getModifiers())) {
             ctClass.setModifiers(ctClass.getModifiers() | Modifier.PUBLIC);
-            Test2Benchmark.log(
+            LOGGER.info(
                     String.format("%-20.20s: %s", "Changed", "visibility to PUBLIC for class " + ctClass.getName()));
         }
     }
@@ -348,7 +352,7 @@ public abstract class AbstractClassTransformer {
             if (constructor.getParameterTypes().length < 2) {
                 if (!Modifier.isPublic(constructor.getModifiers())) {
                     constructor.setModifiers(constructor.getModifiers() | Modifier.PUBLIC);
-                    Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
+                    LOGGER.info(String.format("%-20.20s: %s", "Changed",
                             "visibility to PUBLIC for constructor " + constructor.getLongName()));
                 }
             }
@@ -410,7 +414,7 @@ public abstract class AbstractClassTransformer {
     private static void makeMethodPublic(CtMethod method) {
         if (!Modifier.isPublic(method.getModifiers())) {
             method.setModifiers(method.getModifiers() | Modifier.PUBLIC);
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Changed",
+            LOGGER.info(String.format("%-20.20s: %s", "Changed",
                     "visibility to PUBLIC for method " + method.getLongName()));
         }
     }

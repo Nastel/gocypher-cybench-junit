@@ -35,10 +35,12 @@ import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.CompilerHints;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
+import org.slf4j.Logger;
 
 import com.gocypher.cybench.t2b.transform.TestClassTransformer;
 
 public class Test2Benchmark {
+    private static Logger LOGGER = T2BUtils.getLogger(Test2Benchmark.class);
 
     static final String WORK_DIR_ARG = System.getProperty("t2b.build.dir");
     static final String TEST_DIR_ARG = System.getProperty("t2b.test.dir");
@@ -145,7 +147,7 @@ public class Test2Benchmark {
         }
         File workDir = new File(workDirPath);
         workDirPath = workDir.getCanonicalPath();
-        log("*** Setting Work dir to use: " + workDirPath);
+        LOGGER.info("*** Setting Work dir to use: {}", workDirPath);
 
         return workDirPath;
     }
@@ -175,7 +177,7 @@ public class Test2Benchmark {
 
         File testDir = new File(testDirPath);
         testDirPath = testDir.getCanonicalPath();
-        log("*** Setting Test Classes dir to use: " + testDirPath);
+        LOGGER.info("*** Setting Test Classes dir to use: {}", testDirPath);
         addClassPath(testDir.getCanonicalFile());
 
         return testDirPath;
@@ -194,13 +196,13 @@ public class Test2Benchmark {
         }
         File benchDir = new File(benchDirPath);
         benchDirPath = benchDir.getCanonicalPath();
-        log("*** Setting Benchmarks dir to use: " + benchDirPath);
+        LOGGER.info("*** Setting Benchmarks dir to use: {}", benchDirPath);
         if (benchDir.exists()) {
             try {
-                log("*** Removing existing benchmarks dir: " + benchDirPath);
+                LOGGER.info("*** Removing existing benchmarks dir: {}", benchDirPath);
                 Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             } catch (Exception exc) {
-                err("failed to delete benchmarks dir", exc);
+                LOGGER.error("failed to delete benchmarks dir, reason: {}", exc.getLocalizedMessage());
             }
         }
         addClassPath(benchDir.getCanonicalFile());
@@ -209,12 +211,12 @@ public class Test2Benchmark {
     }
 
     public static void main(String... args) throws Exception {
-        log("Starting Test2Benchmark transformer app...");
+        LOGGER.info("Starting Test2Benchmark transformer app...");
         try {
             Test2Benchmark test2Benchmark = new Test2Benchmark();
             test2Benchmark.buildBenchmarks();
         } catch (Throwable t) {
-            errWithTrace("failure occurred while running Test2Benchmark transformer app", t);
+            LOGGER.error("failure occurred while running Test2Benchmark transformer app", t);
         }
     }
 
@@ -223,14 +225,15 @@ public class Test2Benchmark {
             T2BUtils.addClassPath(classDir);
             t2bClassPath.add(classDir.getCanonicalPath());
         } catch (Exception exc) {
-            err("failed to add classpath entry: " + classDir.getAbsolutePath(), exc);
+            LOGGER.error("failed to add classpath entry: {}, reason: {}", classDir.getAbsolutePath(),
+                    exc.getLocalizedMessage());
         }
     }
 
     public static Multimap<ClassInfo, MethodInfo> buildT2BAnnotatedSet() {
         Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
         Collection<ClassInfo> testClasses = t2bGeneratorSource.getClasses();
-        log("Starting Test Classes Analysis: >>>>>>>>>>>>>>>>>>>>");
+        LOGGER.info("Starting Test Classes Analysis: >>>>>>>>>>>>>>>>>>>>");
         for (ClassInfo classInfo : testClasses) {
             if (classInfo.isAbstract()) {
                 continue;
@@ -244,7 +247,7 @@ public class Test2Benchmark {
                 result.putAll(clsTransform.getClassInfo(), clsTransform.getBenchmarkMethods());
             }
         }
-        log("Completed Test Classes Analysis: <<<<<<<<<<<<<<<<<<<");
+        LOGGER.info("Completed Test Classes Analysis: <<<<<<<<<<<<<<<<<<<");
 
         return result;
     }
@@ -260,27 +263,6 @@ public class Test2Benchmark {
 
     public static CompilerHints getCompilerHints() {
         return CompilerHints.fromFile(BENCH_DIR + "/META-INF/CompilerHints");
-    }
-
-    public static void log(String msg) {
-        System.out.println(msg);
-    }
-
-    public static void warn(String msg) {
-        System.out.println("WARN: " + msg);
-    }
-
-    public static void err(String msg) {
-        System.out.println("ERROR: " + msg);
-    }
-
-    public static void err(String msg, Throwable t) {
-        System.out.println("ERROR: " + msg + ", reason: " + t.getLocalizedMessage());
-    }
-
-    public static void errWithTrace(String msg, Throwable t) {
-        err(msg, t);
-        t.printStackTrace();
     }
 
     private void buildBenchmarks() throws Exception {
@@ -323,12 +305,12 @@ public class Test2Benchmark {
 
         if (dst.hasErrors()) {
             for (SourceError se : dst.getErrors()) {
-                err(se.toString());
+                LOGGER.error(se.toString());
             }
         }
         if (dst.hasWarnings()) {
             for (SourceWarning sw : dst.getWarnings()) {
-                log("WARNING: " + sw.toString());
+                LOGGER.warn(sw.toString());
             }
         }
     }
@@ -347,7 +329,7 @@ public class Test2Benchmark {
                 fos.flush();
             }
         } catch (IOException exc) {
-            errWithTrace("failed to write benchmark run configuration properties", exc);
+            LOGGER.error("failed to write benchmark run configuration properties", exc);
         }
     }
 
@@ -370,9 +352,9 @@ public class Test2Benchmark {
             }
 
             if (!testDir.exists()) {
-                Test2Benchmark.err("test dir does not exist: " + testDir);
+                LOGGER.error("test dir does not exist: {}", testDir);
             } else {
-                Test2Benchmark.log("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
+                LOGGER.info("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
                 Collection<File> includeClassFiles = T2BUtils.getUTClasses(testDir);
                 for (File classFile : includeClassFiles) {
                     try {
@@ -383,13 +365,13 @@ public class Test2Benchmark {
                         // TODO far from bulletproof
 
                         Class<?> clazz = Class.forName(className);
-                        Test2Benchmark.log("Found Test Class: " + clazz);
+                        LOGGER.info("Found Test Class: {}", clazz);
                         benchmarkClassList.add(new T2BClassInfo(clazz));
                     } catch (Throwable t) {
-                        Test2Benchmark.err("can't get test class: " + t);
+                        LOGGER.error("can't get test class: {}", t.getLocalizedMessage());
                     }
                 }
-                Test2Benchmark.log("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");
+                LOGGER.info("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");
             }
             return benchmarkClassList;
         }

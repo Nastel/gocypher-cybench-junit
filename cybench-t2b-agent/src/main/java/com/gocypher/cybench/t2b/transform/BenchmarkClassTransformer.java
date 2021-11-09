@@ -26,14 +26,16 @@ import java.util.Map;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.generators.core.ClassInfo;
+import org.slf4j.Logger;
 
-import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.transform.metadata.BenchmarkMetadata;
 
 import javassist.ClassPool;
 import javassist.CtClass;
 
 public class BenchmarkClassTransformer extends AbstractClassTransformer {
+    private static Logger LOGGER = T2BUtils.getLogger(BenchmarkClassTransformer.class);
 
     public BenchmarkClassTransformer(ClassInfo clsInfo) {
         super(clsInfo);
@@ -79,7 +81,7 @@ public class BenchmarkClassTransformer extends AbstractClassTransformer {
         if (getAlteredClass() == null) {
             ClassPool pool = ClassPool.getDefault();
             CtClass ctClass = pool.get(className);
-            Test2Benchmark.log(String.format("%-15.15s: %s", "Alter", "will change class " + className));
+            LOGGER.info(String.format("%-15.15s: %s", "Alter", "will change class " + className));
             setAlteredClass(ctClass);
 
             return ctClass;

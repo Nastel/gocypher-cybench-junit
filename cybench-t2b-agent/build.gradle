@@ -48,9 +48,11 @@ dependencies {
     implementation 'org.testng:testng:7.4.0'
     implementation 'junit:junit:4.13.2'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    implementation 'com.gocypher.cybench.client:gocypher-cybench-annotations:1.2-SNAPSHOT'
+    implementation 'com.gocypher.cybench.client:gocypher-cybench-annotations:1.2.0'
     implementation 'org.aspectj:aspectjweaver:1.9.7'
-    implementation 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2-SNAPSHOT'
+    implementation 'com.gocypher.cybench.client:gocypher-cybench-runner:1.2.0'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    runtimeOnly 'org.slf4j:slf4j-log4j12:1.7.32'
     annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.33'
 }
 

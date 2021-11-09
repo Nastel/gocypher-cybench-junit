@@ -27,13 +27,15 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.loadtime.Agent;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.reflection.T2BClassInfo;
+import org.slf4j.Logger;
 
-import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.aop.benchmark.T2BTestBenchmark;
 import com.gocypher.cybench.t2b.aop.benchmark.runner.BenchmarkRunnerWrapper;
 import com.gocypher.cybench.t2b.transform.BenchmarkClassTransformer;
 
 public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
+    private static Logger LOGGER = T2BUtils.getLogger(DefaultTestJoinPointHandler.class);
 
     private final BenchmarkRunnerWrapper benchmarkRunner = AOPConfigHandler.getBenchmarkRunner();
 
@@ -47,7 +49,7 @@ public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
                 try {
                     benchmarkRunner.run(testPoint);
                 } catch (Throwable exc) {
-                    Test2Benchmark.err("benchmark run failed", exc);
+                    LOGGER.error("benchmark run failed, reason: {}", exc);
                 } finally {
                     benchmarkRunner.cleanup();
                 }
@@ -71,7 +73,7 @@ public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
             ClassDefinition clsDefinition = new ClassDefinition(T2BTestBenchmark.class, clsBytes);
             instrumentation.redefineClasses(clsDefinition);
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to redefine benchmark class", exc);
+            LOGGER.error("failed to redefine benchmark class, reason: {}", exc.getLocalizedMessage());
         }
     }
 }

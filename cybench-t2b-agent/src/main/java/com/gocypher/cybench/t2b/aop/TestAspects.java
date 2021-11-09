@@ -29,11 +29,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.reflect.SourceLocation;
+import org.slf4j.Logger;
 
 import com.gocypher.cybench.T2BMapper;
+import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.Test2Benchmark;
 
 public class TestAspects {
+    private static Logger LOGGER = T2BUtils.getLogger(TestAspects.class);
 
     public abstract static class AbstractT2BAspect {
 
@@ -41,7 +44,7 @@ public class TestAspects {
         final T2BMapper testMapper;
 
         public AbstractT2BAspect(T2BMapper t2BMapper) {
-            Test2Benchmark.log("Initiating aspect " + getClass().getSimpleName() + "...");
+            LOGGER.info("Initiating aspect {} ...", getClass().getSimpleName());
 
             testMapper = t2BMapper;
         }
@@ -51,9 +54,8 @@ public class TestAspects {
         // }
 
         public void around(ProceedingJoinPoint testPoint) {
-            Test2Benchmark
-                    .log("test.around.before, class: " + testPoint.getSignature().getDeclaringType().getSimpleName()
-                            + ", method: " + testPoint.getSignature().getName());
+            LOGGER.info("test.around.before, class: {}, method: {}",
+                    testPoint.getSignature().getDeclaringType().getSimpleName(), testPoint.getSignature().getName());
 
             MethodSignature signature = (MethodSignature) testPoint.getSignature();
             Method testMethod = signature.getMethod();
@@ -63,11 +65,10 @@ public class TestAspects {
             if (state == T2BMapper.MethodState.VALID) {
                 testJoinPointHandler.runTestAsBenchmark(testMethod, testPoint);
             } else {
-                Test2Benchmark.warn("Skipping test: " + testPoint.getSignature().getName());
+                LOGGER.warn("Skipping test: {}", testPoint.getSignature().getName());
             }
 
-            Test2Benchmark
-                    .log("test.around.after, class: " + testPoint.getSignature().getDeclaringType().getSimpleName());
+            LOGGER.info("test.around.after, class: {}", testPoint.getSignature().getDeclaringType().getSimpleName());
         }
     }
 
@@ -118,7 +119,7 @@ public class TestAspects {
 
     public static void log(JoinPoint joinPoint) {
         if (joinPoint == null) {
-            Test2Benchmark.log("JointPoint: {null}");
+            LOGGER.debug("JointPoint: {null}");
             return;
         }
         Signature sig = joinPoint.getSignature();
@@ -128,14 +129,14 @@ public class TestAspects {
         Object target = joinPoint.getTarget();
         JoinPoint.StaticPart sp = joinPoint.getStaticPart();
         Object tis = joinPoint.getThis();
-        Test2Benchmark.log("JointPoint: {" //
-                + "\n\t signature=" + sig //
-                + "\n\t      kind=" + kind //
-                + "\n\t      args=" + Arrays.toString(args) //
-                + "\n\t    source=" + sl //
-                + "\n\t    target=" + target //
-                + "\n\t    static=" + sp //
-                + "\n\t      this=" + tis //
-                + "\n}");
+        LOGGER.debug("JointPoint: {" //
+                + System.lineSeparator() + "\t signature=" + sig //
+                + System.lineSeparator() + "\t      kind=" + kind //
+                + System.lineSeparator() + "\t      args=" + Arrays.toString(args) //
+                + System.lineSeparator() + "\t    source=" + sl //
+                + System.lineSeparator() + "\t    target=" + target //
+                + System.lineSeparator() + "\t    static=" + sp //
+                + System.lineSeparator() + "\t      this=" + tis //
+                + System.lineSeparator() + "}");
     }
 }

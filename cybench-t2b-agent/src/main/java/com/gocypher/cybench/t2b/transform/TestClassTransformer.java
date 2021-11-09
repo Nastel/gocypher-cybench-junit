@@ -20,6 +20,7 @@
 package com.gocypher.cybench.t2b.transform;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,14 +28,16 @@ import java.util.List;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.reflection.T2BClassInfo;
+import org.slf4j.Logger;
 
 import com.gocypher.cybench.T2BMapper;
-import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.T2BUtils;
 
 import javassist.ClassPool;
 import javassist.CtClass;
 
 public class TestClassTransformer extends AbstractClassTransformer {
+    private static Logger LOGGER = T2BUtils.getLogger(TestClassTransformer.class);
 
     private static final String SYS_PROP_CLASS_NAME_SUFFIX = "t2b.bench.class.name.suffix";
     private static final String DEFAULT_CLASS_NAME_SUFFIX = "BenchmarkByT2B";
@@ -84,7 +87,7 @@ public class TestClassTransformer extends AbstractClassTransformer {
                 storeClass(dir);
                 toClass();
             } catch (Exception exc) {
-                Test2Benchmark.errWithTrace("failed to use altered class: " + getAlteredClassName(), exc);
+                LOGGER.error(MessageFormat.format("failed to use altered class: {0}", getAlteredClassName()), exc);
             }
         }
     }
@@ -117,7 +120,7 @@ public class TestClassTransformer extends AbstractClassTransformer {
         if (getAlteredClass() == null) {
             ClassPool pool = ClassPool.getDefault();
             CtClass ctClass = pool.getAndRename(className, getAlteredClassName(className));
-            Test2Benchmark.log(String.format("%-15.15s: %s", "Rename",
+            LOGGER.info(String.format("%-15.15s: %s", "Rename",
                     "altering class " + className + " and named it " + ctClass.getName()));
             setAlteredClass(ctClass);
 
@@ -193,7 +196,7 @@ public class TestClassTransformer extends AbstractClassTransformer {
         } else if (isTearDownMethod(mi, t2BMappers)) {
             annotateMethodTearDown(mi);
         } else if (testValid != T2BMapper.MethodState.NOT_TEST) {
-            Test2Benchmark.log(String.format("%-20.20s: %s", "Skipping",
+            LOGGER.info(String.format("%-20.20s: %s", "Skipping",
                     "test method " + mi.getQualifiedName() + ", reason: " + testValid.name()));
         }
     }

@@ -20,11 +20,13 @@
 package com.gocypher.cybench.t2b.aop.benchmark.runner;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.slf4j.Logger;
 
-import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.launcher.BenchmarkRunner;
 
 public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
+    private static Logger LOGGER = T2BUtils.getLogger(CybenchRunnerWrapper.class);
 
     public CybenchRunnerWrapper(String args) {
         super(args);
@@ -35,11 +37,11 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
         setTestPoint(testPoint);
         cleanContext();
 
-        Test2Benchmark.log("Starting CyBench Runner...");
+        LOGGER.info("Starting CyBench Runner...");
         try {
             BenchmarkRunner.main(args);
         } finally {
-            Test2Benchmark.log("CyBench Runner completed...");
+            LOGGER.info("CyBench Runner completed...");
         }
     }
 }

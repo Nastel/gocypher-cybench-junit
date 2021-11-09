@@ -232,6 +232,8 @@
                 <t2b.sys.props>
                     -Dt2b.aop.cfg.path="${project.basedir}"/t2b/t2b.properties
                     -Dt2b.metadata.cfg.path="${project.basedir}"/t2b/metadata.properties
+                    <!-- ### To use custom LOG4J configuration -->
+                    <!-- -Dlog4j.configuration=file:"${project.basedir}"/t2b/log4j.properties-->
                 </t2b.sys.props>
                 <!--  ### Class path used to run tests: libs;classes;test-classes -->
                 <t2b.run.class.path>
@@ -285,7 +287,7 @@
                                     <classpathScope>test</classpathScope>
                                     <commandlineArgs>
                                         ${t2b.module.prop}
-                                        -javaagent:${org.aspectj:aspectjweaver:jar}
+                                        -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
                                         ${t2b.sys.props}
                                         -cp ${t2b.run.class.path}
                                         ${t2b.test.runner.class}

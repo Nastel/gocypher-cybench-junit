@@ -23,10 +23,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.CommandLineOptions;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.slf4j.Logger;
 
-import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.T2BUtils;
 
 public class JMHRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
+    private static Logger LOGGER = T2BUtils.getLogger(JMHRunnerWrapper.class);
 
     public JMHRunnerWrapper(String args) {
         super(args);
@@ -37,7 +39,7 @@ public class JMHRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
         setTestPoint(testPoint);
         cleanContext();
 
-        Test2Benchmark.log("Starting JMH Runner...");
+        LOGGER.info("Starting JMH Runner...");
         OptionsBuilder options = new OptionsBuilder();
         options.forks(0);
         options.warmupForks(0);
@@ -53,7 +55,7 @@ public class JMHRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
             Runner jmhRunner = new Runner(options);
             jmhRunner.run();
         } finally {
-            Test2Benchmark.log("JMH Runner completed...");
+            LOGGER.info("JMH Runner completed...");
         }
     }
 }

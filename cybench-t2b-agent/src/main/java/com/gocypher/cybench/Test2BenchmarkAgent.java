@@ -30,12 +30,16 @@ import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+
 import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
 public class Test2BenchmarkAgent {
+    private static Logger LOGGER = T2BUtils.getLogger(Test2BenchmarkAgent.class);
 
     static Instrumentation instrumentation;
 
@@ -57,17 +61,42 @@ public class Test2BenchmarkAgent {
             return;
         }
 
-        try {
-            instrumentation = inst;
-            Test2Benchmark.log("Test2Benchmark Agent Premain called...");
+        instrumentation = inst;
 
+        LOGGER.info("Test2Benchmark Agent Premain called...");
+
+        boolean translateAgent = isTranslateAgent(agentArgs);
+
+        if (translateAgent) {
+            translateAgent();
+        } else {
+            org.aspectj.weaver.loadtime.Agent.premain(agentArgs, inst);
+        }
+    }
+
+    private static boolean isTranslateAgent(String agentArgs) {
+        if (StringUtils.isNotEmpty(agentArgs)) {
+            String[] args = agentArgs.split(";");
+            for (String arg : args) {
+                String[] argPair = arg.split(":");
+                if (argPair[0].equalsIgnoreCase("mode")) {
+                    return argPair[1].equalsIgnoreCase("translate");
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static void translateAgent() {
+        try {
             Class<?> klass = org.openjdk.jmh.annotations.Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
             // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.33/jmh-core-1.33.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
-            Test2Benchmark.log("JMH: " + split[0]);
+            LOGGER.info("JMH: {}", split[0]);
             File file = Paths.get(split[0]).toFile();
-            Test2Benchmark.log("JMH: " + file.getAbsolutePath());
+            LOGGER.info("JMH: {}", file.getAbsolutePath());
 
             JarFile jarFile = new JarFile(file);
 
@@ -80,7 +109,7 @@ public class Test2BenchmarkAgent {
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", PLUG_T2B_BENCHMARK_LIST, origBenchmarkListBytes);
             replaceCode(COMPILER_HINTS_CLASS, "defaultList", PLUG_T2B_COMPILER_HINTS, origCompilerHintsBytes);
         } catch (Exception e) {
-            Test2Benchmark.errWithTrace("failed to initialize agent", e);
+            LOGGER.error("failed to initialize T2B agent", e);
         }
     }
 
@@ -101,9 +130,10 @@ public class Test2BenchmarkAgent {
             methods[0].insertBefore(plugCode);
             ClassDefinition clsDefinition = new ClassDefinition(Class.forName(className), ctClass.toBytecode());
             instrumentation.redefineClasses(clsDefinition);
-            Test2Benchmark.log("Modified method: " + className + "." + methodName);
+            LOGGER.info("Modified method: {}.{}", className, methodName);
         } catch (Throwable t) {
-            Test2Benchmark.log("Could not modify class method: " + className + "." + methodName + ", exc: " + t);
+            LOGGER.warn("Could not modify class method: {}.{}, exc: {}", className, methodName,
+                    t.getLocalizedMessage());
         }
     }
 
@@ -126,9 +156,9 @@ public class Test2BenchmarkAgent {
         try {
             ClassDefinition clsDefinition = new ClassDefinition(Class.forName(className), classBytes);
             instrumentation.redefineClasses(clsDefinition);
-            Test2Benchmark.log("Restored class: " + className);
+            LOGGER.info("Restored class: {}", className);
         } catch (Throwable t) {
-            Test2Benchmark.log("Could not restore class: " + className + ", exc: " + t);
+            LOGGER.warn("Could not restore class: {}, exc: {}", className, t.getLocalizedMessage());
         }
     }
 

@@ -24,11 +24,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gocypher.cybench.t2b.utils.LineReadingPrintStream;
 
 public final class T2BUtils {
 
@@ -135,5 +140,117 @@ public final class T2BUtils {
             }
         }
         return fileTree;
+    }
+
+    private static final Date sessionDate = new Date();
+
+    public static Logger getLogger(LoggerProvider loggerProvider) {
+        boolean addLogHeader = false;
+        synchronized (sessionDate) {
+            if (System.getProperty("t2b.session.time") == null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+                System.setProperty("t2b.session.time", dateFormat.format(sessionDate));
+
+                initSystemOutRedirectToLogger();
+
+                addLogHeader = true;
+            }
+        }
+
+        Logger logger = loggerProvider.getLogger();
+
+        if (addLogHeader) {
+            logger.info("CyBench T2B v.{} session starting..." + System.lineSeparator() + "Runtime environment: {}",
+                    pkgVersion(), runEnv());
+        }
+
+        return logger;
+    }
+
+    public static Logger getLogger(String name) {
+        return getLogger(new NameLoggerProvider(name));
+    }
+
+    public static Logger getLogger(Class<?> cls) {
+        return getLogger(new ClassLoggerProvider(cls));
+    }
+
+    private interface LoggerProvider {
+        Logger getLogger();
+    }
+
+    private static class NameLoggerProvider implements LoggerProvider {
+        private String loggerName;
+
+        NameLoggerProvider(String loggerName) {
+            this.loggerName = loggerName;
+        }
+
+        @Override
+        public Logger getLogger() {
+            return LoggerFactory.getLogger(loggerName);
+        }
+    }
+
+    private static class ClassLoggerProvider implements LoggerProvider {
+        private Class<?> loggerCls;
+
+        ClassLoggerProvider(Class<?> loggerCls) {
+            this.loggerCls = loggerCls;
+        }
+
+        @Override
+        public Logger getLogger() {
+            return LoggerFactory.getLogger(loggerCls);
+        }
+    }
+
+    private static void initSystemOutRedirectToLogger() {
+        System.setOut(new LineReadingPrintStream(new Consumer<String>() {
+            private Logger LOGGER = getLogger("out");
+
+            @Override
+            public void accept(String s) {
+                LOGGER.info(s);
+            }
+        }, System.out));
+
+        System.setErr(new LineReadingPrintStream(new Consumer<String>() {
+            private Logger LOGGER = getLogger("err");
+
+            @Override
+            public void accept(String s) {
+                LOGGER.error(s);
+            }
+        }, System.err));
+    }
+
+    private static String pkgVersion() {
+        Package sPkg = Test2BenchmarkAgent.class.getPackage();
+        return sPkg.getImplementationVersion();
+    }
+
+    private static String runEnv() {
+        Map<String, String> envProps = new LinkedHashMap<>();
+        envProps.put("java.version", "Java version");
+        envProps.put("java.vendor", "Java vendor");
+        envProps.put("java.vm.name", "VM name");
+        envProps.put("java.vm.version", "VM version");
+        envProps.put("os.name", "OS name");
+        envProps.put("os.version", "OS version");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(System.lineSeparator());
+        sb.append("------------------------------------------------------------------------")
+                .append(System.lineSeparator()); // NON-NLS
+        for (Map.Entry<String, String> property : envProps.entrySet()) {
+            sb.append(String.format("%20s: %s", // NON-NLS
+                    property.getValue(), System.getProperty(property.getKey())));
+            sb.append(System.lineSeparator());
+        }
+        sb.append("------------------------------------------------------------------------")
+                .append(System.lineSeparator()); // NON-NLS
+
+        return sb.toString();
     }
 }

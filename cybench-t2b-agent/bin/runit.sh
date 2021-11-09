@@ -54,6 +54,8 @@ read -e -p "Enter configurations dir path: " -i "$CFG_DIR" CFG_DIR
 
 ### Define configuration files to use
 AGENT_OPTS="-Dt2b.aop.cfg.path=$CFG_DIR/t2b.properties -Dt2b.metadata.cfg.path=$CFG_DIR/metadata.properties"
+### To use custom LOG4J configuration
+#AGENT_OPTS="$AGENT_OPTS -Dlog4j.configuration=file:$CFG_DIR/t2b/log4j.properties"
 read -e -p "Enter agent options: " -i "$AGENT_OPTS" AGENT_OPTS
 
 jver=$("${JAVA_PATH}" -fullversion 2>&1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1 | cut -d'-' -f1 | cut -d'+' -f1 | cut -d'_' -f1)
@@ -90,17 +92,17 @@ while true; do
         1 ) ### Run JUnit5/4 tests as benchmarks ###
             TEST_ARGS="--scan-class-path -E=junit-vintage";
             read -e -p "Enter JUnit5 tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
-            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/aspectjweaver-1.9.7.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.platform.console.ConsoleLauncher" $TEST_ARGS;
+            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.platform.console.ConsoleLauncher" $TEST_ARGS;
             break;;
         2 ) ### Run JUnit4 tests as benchmarks ###
             TEST_ARGS="org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestJU4";
             read -e -p "Enter JUnit4 tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
-            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/aspectjweaver-1.9.7.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.runner.JUnitCore" $TEST_ARGS
+            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.runner.JUnitCore" $TEST_ARGS
             break;;
         3 ) ### Run TestNG tests as benchmarks ###
             TEST_ARGS="-testclass org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestNG";
             read -e -p "Enter TestNG tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
-            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/aspectjweaver-1.9.7.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.testng.TestNG" $TEST_ARGS
+            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.testng.TestNG" $TEST_ARGS
             break;;
         9 ) exit; break;;
 

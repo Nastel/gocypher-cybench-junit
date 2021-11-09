@@ -28,11 +28,13 @@ import java.util.regex.Pattern;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
+import org.slf4j.Logger;
 
-import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.transform.AbstractClassTransformer;
 
 public class BenchmarkMetadata {
+    private static Logger LOGGER = T2BUtils.getLogger(BenchmarkMetadata.class);
 
     private static final String SYS_PROP_METADATA_CONFIG = "t2b.metadata.cfg.path";
     private static final String DEFAULT_METADATA_CONFIG_PATH = "config/metadata.properties";
@@ -72,15 +74,15 @@ public class BenchmarkMetadata {
             try (Reader rdr = new BufferedReader(new FileReader(cfgPath))) {
                 metaDataCfgProps.load(rdr);
             } catch (IOException exc) {
-                Test2Benchmark.err("failed to load metadata config from: " + cfgPath, exc);
+                LOGGER.error("failed to load metadata config from: {}, reason: {}", cfgPath, exc.getLocalizedMessage());
             }
         } else {
             String cfgProp = System.getProperty(SYS_PROP_METADATA_CONFIG);
             if (cfgProp != null) {
-                Test2Benchmark.warn("system property " + SYS_PROP_METADATA_CONFIG
-                        + " defined metadata configuration file " + cfgPath + " not found!");
+                LOGGER.warn("system property {} defined metadata configuration file {} not found!",
+                        SYS_PROP_METADATA_CONFIG, cfgPath);
             } else {
-                Test2Benchmark.log("default metadata configuration file " + cfgPath + " not found!");
+                LOGGER.info("default metadata configuration file {} not found!", cfgPath);
             }
         }
 
@@ -96,8 +98,8 @@ public class BenchmarkMetadata {
                     metadataConfig.get(CLASS_METADATA_MAP_KEY)
                             .put(mdpKey.substring(CLASS_METADATA_PROPS_PREFIX.length()), mdpValue);
                 } else {
-                    Test2Benchmark.warn("found invalid metadata configuration property for " + CLASS_METADATA_MAP_KEY
-                            + " scope: " + mdpKey + "=" + mdpValue);
+                    LOGGER.warn("found invalid metadata configuration property for {} scope: {}={}",
+                            CLASS_METADATA_MAP_KEY, mdpKey, mdpValue);
                 }
             } else if (mdpKey.startsWith(METHOD_METADATA_PROPS_PREFIX)) {
                 metadataConfig.get(METHOD_METADATA_MAP_KEY).put(mdpKey.substring(METHOD_METADATA_PROPS_PREFIX.length()),
@@ -238,7 +240,7 @@ public class BenchmarkMetadata {
                 } else if (metadataInfo instanceof MetadataInfo) {
                     classInfo = ((MethodInfo) metadataInfo).getDeclaringClass();
                 } else {
-                    Test2Benchmark.warn("unknown class metadata entity found: " + metadataInfo.getClass().getName());
+                    LOGGER.warn("unknown class metadata entity found: {}", metadataInfo.getClass().getName());
                     classInfo = null;
                 }
                 if (classInfo != null) {
@@ -249,7 +251,7 @@ public class BenchmarkMetadata {
                 if (metadataInfo instanceof MethodInfo) {
                     methodInfo = (MethodInfo) metadataInfo;
                 } else {
-                    Test2Benchmark.warn("unknown method metadata entity found: " + metadataInfo.getClass().getName());
+                    LOGGER.warn("unknown method metadata entity found: {}", metadataInfo.getClass().getName());
                     methodInfo = null;
                 }
                 if (methodInfo != null) {
@@ -263,7 +265,7 @@ public class BenchmarkMetadata {
                     pckg = AbstractClassTransformer.getClass(((MethodInfo) metadataInfo).getDeclaringClass())
                             .getPackage();
                 } else {
-                    Test2Benchmark.warn("unknown package metadata entity found: " + metadataInfo.getClass().getName());
+                    LOGGER.warn("unknown package metadata entity found: {}", metadataInfo.getClass().getName());
                     pckg = null;
                 }
 
@@ -276,9 +278,9 @@ public class BenchmarkMetadata {
 
             return varValue;
         } catch (InvalidVariableException exc) {
-            Test2Benchmark.warn(exc.getLocalizedMessage());
+            LOGGER.warn(exc.getLocalizedMessage());
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to resolve variable value for: " + variable, exc);
+            LOGGER.error("failed to resolve variable value for: {}, reason: {}", variable, exc.getLocalizedMessage());
         }
         return null;
     }
@@ -302,9 +304,9 @@ public class BenchmarkMetadata {
 
             return varValue;
         } catch (InvalidVariableException exc) {
-            Test2Benchmark.warn(exc.getLocalizedMessage());
+            LOGGER.warn(exc.getLocalizedMessage());
         } catch (Exception exc) {
-            Test2Benchmark.err("failed to resolve variable value for: " + variable, exc);
+            LOGGER.error("failed to resolve variable value for: {}, reason: {}", variable, exc.getLocalizedMessage());
         }
         return null;
     }

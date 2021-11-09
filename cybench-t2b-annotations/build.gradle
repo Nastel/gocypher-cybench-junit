@@ -44,7 +44,6 @@ ext {
 
 configurations {
     t2b
-    aspectj
 }
 
 // https://docs.gradle.org/current/userguide/tutorial_java_projects.html
@@ -63,8 +62,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
     // T2B runtime dependency
     t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
-    // To have agent reference
-    aspectj 'org.aspectj:aspectjweaver:1.9.7'
 }
 
 task copyClientLibs(type: Copy) {
@@ -146,18 +143,20 @@ task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
 //    }
     if (JavaVersion.current().isJava9Compatible()) {
         jvmArgs = [
-                "-javaagent:\"${configurations.aspectj.iterator().next()}\"",
+                "-javaagent:\"${configurations.t2b.iterator().next()}\"",
                 '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
                 '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
         ]
     } else {
         jvmArgs = [
-                "-javaagent:\"${configurations.aspectj.iterator().next()}\""
+                "-javaagent:\"${configurations.t2b.iterator().next()}\""
         ]
     }
     systemProperties = [
             't2b.aop.cfg.path'     : "$project.projectDir/t2b/t2b.properties",
-            't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties"
+            't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties",
+            // ### To use custom LOG4J configuration
+            //'log4j.configuration'  : "file:$project.projectDir/t2b/log4j.properties"
     ]
 
     if (isJU4) {

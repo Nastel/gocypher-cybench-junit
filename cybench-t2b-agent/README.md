@@ -63,7 +63,7 @@ Dependencies for your project:
     ```
 * Add Java agent argument:
     ```cmd
-    -javaagent:<YOUR_PROJECT_PATH>/aspectjweaver-<VERSION>.jar
+    -javaagent:<YOUR_PROJECT_PATH>/cybench-t2b-agent-<VERSION>.jar
     ``` 
 * Add `cybench-t2b-agent-1.0.7-SNAPSHOT.jar` into Java class path. It provides aspect definitions for `AspectJ`
   framework to intercept unit tests execution and run them as benchmarks.
@@ -82,6 +82,8 @@ Dependencies for your project:
   value**: `config/t2b.properties`.
 * `t2b.metadata.cfg.path` - defines CyBench T2B metadata annotations configuration file path. **Default
   value**: `config/metadata.properties`.
+* `log4j.configuration` - defines LOG4J configuration properties file path. **Default value** `log4j.properties` bundled
+  within `cybench-t2b-agent` jar.
 
 #### Benchmark metadata configuration
 
@@ -280,6 +282,8 @@ for configuration options and details.
                     <t2b.sys.props>
                         -Dt2b.aop.cfg.path="${project.basedir}"/t2b/t2b.properties
                         -Dt2b.metadata.cfg.path="${project.basedir}"/t2b/metadata.properties
+                        <!-- ### To use custom LOG4J configuration -->
+                        <!-- -Dlog4j.configuration=file:"${project.basedir}"/t2b/log4j.properties-->
                     </t2b.sys.props>
                     <!--  ### Class path used to run tests: libs;classes;test-classes -->
                     <t2b.run.class.path>
@@ -333,7 +337,7 @@ for configuration options and details.
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
                                             ${t2b.module.prop}
-                                            -javaagent:${org.aspectj:aspectjweaver:jar}
+                                            -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
                                             ${t2b.sys.props}
                                             -cp ${t2b.run.class.path}
                                             ${t2b.test.runner.class}
@@ -399,8 +403,7 @@ for configuration options and details.
         } 
         // ...
         configurations {
-            t2b
-            aspectj
+            t2b            
         }
         // ...
         dependencies {
@@ -408,9 +411,7 @@ for configuration options and details.
             // Needed to run JUnit5 tests
             testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
             // T2B runtime dependency
-            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
-            // To have agent reference
-            aspectj 'org.aspectj:aspectjweaver:1.9.7'
+            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'                        
         }
         // ...
         task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
@@ -424,18 +425,20 @@ for configuration options and details.
 
            if (JavaVersion.current().isJava9Compatible()) {
                 jvmArgs = [
-                    "-javaagent:\"${configurations.aspectj.iterator().next()}\"",
+                    "-javaagent:\"${configurations.t2b.iterator().next()}\"",
                     '--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED',
                     '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED'
                ]
            } else {
                 jvmArgs = [
-                    "-javaagent:\"${configurations.aspectj.iterator().next()}\""
+                    "-javaagent:\"${configurations.t2b.iterator().next()}\""
                 ]
            }
            systemProperties = [
                't2b.aop.cfg.path'     : "$project.projectDir/t2b/t2b.properties",
-               't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties"
+               't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties",
+               // ### To use custom LOG4J configuration
+               //'log4j.configuration'  : "file:$project.projectDir/t2b/log4j.properties"
            ]
 
            if (isJU4) {
@@ -478,19 +481,13 @@ for configuration options and details.
           isCanBeResolved = true
           isCanBeConsumed = false
         }
-        val aspectj by configurations.creating {
-          isCanBeResolved = true
-          isCanBeConsumed = false
-        }
         // ...
         dependencies {
           // ...
           // Needed to run JUnit5 tests
           testRuntimeOnly ("org.junit.platform:junit-platform-console-standalone:1.8.1")
           // T2B runtime dependency
-          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT")
-          // To have agent reference
-          aspectj ("org.aspectj:aspectjweaver:1.9.7")
+          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT")          
         }
         // ...
         val launcher = javaToolchains.launcherFor {
@@ -504,15 +501,17 @@ for configuration options and details.
             dependsOn(testClasses)
 
             if (JavaVersion.current().isJava9Compatible) {
-              jvmArgs("-javaagent:\"${configurations.getByName("aspectj").iterator().next()}\"")
+              jvmArgs("-javaagent:\"${configurations.getByName("t2b").iterator().next()}\"")
               jvmArgs("--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED")
               jvmArgs("--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED")
             } else {
-              jvmArgs("-javaagent:\"${configurations.getByName("aspectj").iterator().next()}\"")
+              jvmArgs("-javaagent:\"${configurations.getByName("t2b").iterator().next()}\"")
             }
 
             systemProperty("t2b.aop.cfg.path", "${project.rootDir}/t2b/t2b.properties")
             systemProperty("t2b.metadata.cfg.path", "${project.rootDir}/t2b/metadata.properties")
+            // ### To use custom LOG4J configuration
+            //systemProperty("log4j.configuration", "file:${project.rootDir}/t2b/log4j.properties")
 
             classpath(
               sourceSets["main"].runtimeClasspath,

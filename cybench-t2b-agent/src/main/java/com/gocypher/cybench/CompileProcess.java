@@ -29,7 +29,11 @@ import java.nio.file.Paths;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
+
 public abstract class CompileProcess {
+    private static Logger LOGGER = T2BUtils.getLogger(CompileProcess.class);
 
     static String makeSourcesList() {
         try {
@@ -49,7 +53,7 @@ public abstract class CompileProcess {
                         });
                 fos.flush();
             }
-            Test2Benchmark.log("Created sources file: " + f.getAbsolutePath());
+            LOGGER.info("Created sources file: {}", f.getAbsolutePath());
 
             return f.getAbsolutePath();
         } catch (IOException e) {
@@ -71,11 +75,11 @@ public abstract class CompileProcess {
             try {
                 String s = CompileProcess.makeSourcesList();
                 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-                Test2Benchmark.log("> Compiling T2B generated sources: @" + s);
+                LOGGER.info("> Compiling T2B generated sources: @{}", s);
                 int exitValue = compiler.run(System.in, System.out, System.err, "@" + s);
-                Test2Benchmark.log("< T2B generated sources compilation completed: exitValue=" + exitValue);
+                LOGGER.info("< T2B generated sources compilation completed: exitValue={}", exitValue);
             } catch (Throwable e) {
-                Test2Benchmark.errWithTrace("T2B generated sources compilation failed", e);
+                LOGGER.error("T2B generated sources compilation failed", e);
             }
         }
     }
@@ -116,12 +120,12 @@ public abstract class CompileProcess {
 
         private String getClassPath() throws Exception {
             String classPath = T2BUtils.getCurrentClassPath();
-            Test2Benchmark.log("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
+            LOGGER.info("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
             String[] cps = classPath.split(File.pathSeparator);
             for (String cpe : cps) {
-                Test2Benchmark.log("Class Path Entry: " + cpe);
+                LOGGER.info("Class Path Entry: {}", cpe);
             }
-            Test2Benchmark.log("Completed Class Path Listing: <<<<<<<<<<<<<<<<<<<<<<");
+            LOGGER.info("Completed Class Path Listing: <<<<<<<<<<<<<<<<<<<<<<");
 
             return classPath;
         }
@@ -132,26 +136,30 @@ public abstract class CompileProcess {
                 String s = CompileProcess.makeSourcesList();
                 runProcess(CMD_COMPILE.replace("<CLASSPATH>", "\"" + classPath + "\"") + s);
             } catch (Throwable e) {
-                Test2Benchmark.errWithTrace("cannot run compile", e);
+                LOGGER.error("cannot run compile", e);
             }
         }
 
-        static void printLines(String cmd, InputStream ins) throws Exception {
+        static void printLines(String cmd, InputStream ins, Level lvl) throws Exception {
             String line;
             BufferedReader in = new BufferedReader(new InputStreamReader(ins));
             while ((line = in.readLine()) != null) {
-                Test2Benchmark.log(cmd + " " + line.replaceAll("[\\r\\n]", ""));
+                if (lvl == Level.ERROR) {
+                    LOGGER.error("{} {}", cmd, line.replaceAll("[\\r\\n]", ""));
+                } else {
+                    LOGGER.info("{} {}", cmd, line.replaceAll("[\\r\\n]", ""));
+                }
             }
         }
 
         static void runProcess(String command) throws Exception {
             int cmdId = command.hashCode();
-            Test2Benchmark.log(">" + cmdId + "> Running command: " + command);
+            LOGGER.info(">{}> Running command: {}", cmdId, command);
             Process pro = Runtime.getRuntime().exec(command);
-            printLines(">" + cmdId + "> >> stdout:", pro.getInputStream());
-            printLines(">" + cmdId + "> >> stderr:", pro.getErrorStream());
+            printLines(">" + cmdId + "> >> stdout:", pro.getInputStream(), Level.INFO);
+            printLines(">" + cmdId + "> >> stderr:", pro.getErrorStream(), Level.ERROR);
             pro.waitFor();
-            Test2Benchmark.log("<" + cmdId + "< exitValue=" + pro.exitValue());
+            LOGGER.info("<{}< exitValue={}", cmdId, pro.exitValue());
         }
     }
 }
