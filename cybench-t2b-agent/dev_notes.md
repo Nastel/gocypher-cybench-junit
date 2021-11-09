@@ -1,13 +1,12 @@
 ## DEVNotes (a.k.a TODO)
 
 * **P1** tasks:
-    * Change sysout to logging
     * Use shared memory to exchange `JoinPoint` between different JVM instances and allow JMH to have it's own VM
       instance as it is by default.
-    * Integrate T2B
-      with [opentelemetry-java-instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
     * Make test pointcut to check calle method and apply right aspect for tests having multiple frameworks test
       annotations.
+    * Integrate T2B
+      with [opentelemetry-java-instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
 * **P2** tasks:
     * Method/class annotations definition over template file (something similar to metadata template). Needs to define
       method name matcher (method,class,package) to allow individual method configurations.
