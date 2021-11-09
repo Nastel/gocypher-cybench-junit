@@ -109,7 +109,7 @@ public class Test2BenchmarkAgent {
             replaceCode(BENCHMARK_LIST_CLASS, "defaultList", PLUG_T2B_BENCHMARK_LIST, origBenchmarkListBytes);
             replaceCode(COMPILER_HINTS_CLASS, "defaultList", PLUG_T2B_COMPILER_HINTS, origCompilerHintsBytes);
         } catch (Exception e) {
-            LOGGER.error("failed to initialize T2B agent", e);
+            LOGGER.error("Failed to initialize T2B agent", e);
         }
     }
 

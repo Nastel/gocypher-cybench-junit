@@ -55,7 +55,7 @@ public class JMHRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
             Runner jmhRunner = new Runner(options);
             jmhRunner.run();
         } finally {
-            LOGGER.info("JMH Runner completed...");
+            LOGGER.info("JMH Runner completed!..");
         }
     }
 }

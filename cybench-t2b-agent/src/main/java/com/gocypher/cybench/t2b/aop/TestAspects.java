@@ -54,7 +54,7 @@ public class TestAspects {
         // }
 
         public void around(ProceedingJoinPoint testPoint) {
-            LOGGER.info("test.around.before, class: {}, method: {}",
+            LOGGER.debug("Test around before, class: {}, method: {}",
                     testPoint.getSignature().getDeclaringType().getSimpleName(), testPoint.getSignature().getName());
 
             MethodSignature signature = (MethodSignature) testPoint.getSignature();
@@ -68,7 +68,7 @@ public class TestAspects {
                 LOGGER.warn("Skipping test: {}", testPoint.getSignature().getName());
             }
 
-            LOGGER.info("test.around.after, class: {}", testPoint.getSignature().getDeclaringType().getSimpleName());
+            LOGGER.debug("Test around after, class: {}", testPoint.getSignature().getDeclaringType().getSimpleName());
         }
     }
 

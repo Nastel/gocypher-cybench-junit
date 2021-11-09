@@ -202,7 +202,7 @@ public class Test2Benchmark {
                 LOGGER.info("*** Removing existing benchmarks dir: {}", benchDirPath);
                 Files.walk(benchDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             } catch (Exception exc) {
-                LOGGER.error("failed to delete benchmarks dir, reason: {}", exc.getLocalizedMessage());
+                LOGGER.error("Failed to delete benchmarks dir, reason: {}", exc.getLocalizedMessage());
             }
         }
         addClassPath(benchDir.getCanonicalFile());
@@ -216,7 +216,7 @@ public class Test2Benchmark {
             Test2Benchmark test2Benchmark = new Test2Benchmark();
             test2Benchmark.buildBenchmarks();
         } catch (Throwable t) {
-            LOGGER.error("failure occurred while running Test2Benchmark transformer app", t);
+            LOGGER.error("Failure occurred while running Test2Benchmark transformer app", t);
         }
     }
 
@@ -225,7 +225,7 @@ public class Test2Benchmark {
             T2BUtils.addClassPath(classDir);
             t2bClassPath.add(classDir.getCanonicalPath());
         } catch (Exception exc) {
-            LOGGER.error("failed to add classpath entry: {}, reason: {}", classDir.getAbsolutePath(),
+            LOGGER.error("Failed to add classpath entry: {}, reason: {}", classDir.getAbsolutePath(),
                     exc.getLocalizedMessage());
         }
     }
@@ -329,7 +329,7 @@ public class Test2Benchmark {
                 fos.flush();
             }
         } catch (IOException exc) {
-            LOGGER.error("failed to write benchmark run configuration properties", exc);
+            LOGGER.error("Failed to write benchmark run configuration properties", exc);
         }
     }
 
@@ -352,7 +352,7 @@ public class Test2Benchmark {
             }
 
             if (!testDir.exists()) {
-                LOGGER.error("test dir does not exist: {}", testDir);
+                LOGGER.error("Test dir does not exist: {}", testDir);
             } else {
                 LOGGER.info("Starting Test Classes Search: >>>>>>>>>>>>>>>>>>>>>>");
                 Collection<File> includeClassFiles = T2BUtils.getUTClasses(testDir);
@@ -368,7 +368,7 @@ public class Test2Benchmark {
                         LOGGER.info("Found Test Class: {}", clazz);
                         benchmarkClassList.add(new T2BClassInfo(clazz));
                     } catch (Throwable t) {
-                        LOGGER.error("can't get test class: {}", t.getLocalizedMessage());
+                        LOGGER.error("Can''t get test class: {}", t.getLocalizedMessage());
                     }
                 }
                 LOGGER.info("Completed Test Classes Search: <<<<<<<<<<<<<<<<<<<<<");

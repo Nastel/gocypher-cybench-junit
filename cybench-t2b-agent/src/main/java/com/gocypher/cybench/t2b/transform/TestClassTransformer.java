@@ -87,7 +87,7 @@ public class TestClassTransformer extends AbstractClassTransformer {
                 storeClass(dir);
                 toClass();
             } catch (Exception exc) {
-                LOGGER.error(MessageFormat.format("failed to use altered class: {0}", getAlteredClassName()), exc);
+                LOGGER.error(MessageFormat.format("Failed to use altered class: {0}", getAlteredClassName()), exc);
             }
         }
     }

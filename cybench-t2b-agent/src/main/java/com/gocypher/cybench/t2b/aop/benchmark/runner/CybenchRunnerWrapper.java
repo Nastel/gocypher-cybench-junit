@@ -41,7 +41,7 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
         try {
             BenchmarkRunner.main(args);
         } finally {
-            LOGGER.info("CyBench Runner completed...");
+            LOGGER.info("CyBench Runner completed!..");
         }
     }
 }

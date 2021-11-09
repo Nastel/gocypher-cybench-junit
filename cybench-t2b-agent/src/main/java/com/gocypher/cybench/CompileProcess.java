@@ -136,7 +136,7 @@ public abstract class CompileProcess {
                 String s = CompileProcess.makeSourcesList();
                 runProcess(CMD_COMPILE.replace("<CLASSPATH>", "\"" + classPath + "\"") + s);
             } catch (Throwable e) {
-                LOGGER.error("cannot run compile", e);
+                LOGGER.error("Cannot run compile", e);
             }
         }
 

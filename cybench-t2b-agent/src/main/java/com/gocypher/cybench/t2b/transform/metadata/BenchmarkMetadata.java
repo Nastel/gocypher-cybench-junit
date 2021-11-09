@@ -74,15 +74,15 @@ public class BenchmarkMetadata {
             try (Reader rdr = new BufferedReader(new FileReader(cfgPath))) {
                 metaDataCfgProps.load(rdr);
             } catch (IOException exc) {
-                LOGGER.error("failed to load metadata config from: {}, reason: {}", cfgPath, exc.getLocalizedMessage());
+                LOGGER.error("Failed to load metadata config from: {}, reason: {}", cfgPath, exc.getLocalizedMessage());
             }
         } else {
             String cfgProp = System.getProperty(SYS_PROP_METADATA_CONFIG);
             if (cfgProp != null) {
-                LOGGER.warn("system property {} defined metadata configuration file {} not found!",
+                LOGGER.warn("System property {} defined metadata configuration file {} not found!",
                         SYS_PROP_METADATA_CONFIG, cfgPath);
             } else {
-                LOGGER.info("default metadata configuration file {} not found!", cfgPath);
+                LOGGER.info("Default metadata configuration file {} not found!", cfgPath);
             }
         }
 
@@ -98,7 +98,7 @@ public class BenchmarkMetadata {
                     metadataConfig.get(CLASS_METADATA_MAP_KEY)
                             .put(mdpKey.substring(CLASS_METADATA_PROPS_PREFIX.length()), mdpValue);
                 } else {
-                    LOGGER.warn("found invalid metadata configuration property for {} scope: {}={}",
+                    LOGGER.warn("Found invalid metadata configuration property for {} scope: {}={}",
                             CLASS_METADATA_MAP_KEY, mdpKey, mdpValue);
                 }
             } else if (mdpKey.startsWith(METHOD_METADATA_PROPS_PREFIX)) {
@@ -240,7 +240,7 @@ public class BenchmarkMetadata {
                 } else if (metadataInfo instanceof MetadataInfo) {
                     classInfo = ((MethodInfo) metadataInfo).getDeclaringClass();
                 } else {
-                    LOGGER.warn("unknown class metadata entity found: {}", metadataInfo.getClass().getName());
+                    LOGGER.warn("Unknown class metadata entity found: {}", metadataInfo.getClass().getName());
                     classInfo = null;
                 }
                 if (classInfo != null) {
@@ -251,7 +251,7 @@ public class BenchmarkMetadata {
                 if (metadataInfo instanceof MethodInfo) {
                     methodInfo = (MethodInfo) metadataInfo;
                 } else {
-                    LOGGER.warn("unknown method metadata entity found: {}", metadataInfo.getClass().getName());
+                    LOGGER.warn("Unknown method metadata entity found: {}", metadataInfo.getClass().getName());
                     methodInfo = null;
                 }
                 if (methodInfo != null) {
@@ -265,7 +265,7 @@ public class BenchmarkMetadata {
                     pckg = AbstractClassTransformer.getClass(((MethodInfo) metadataInfo).getDeclaringClass())
                             .getPackage();
                 } else {
-                    LOGGER.warn("unknown package metadata entity found: {}", metadataInfo.getClass().getName());
+                    LOGGER.warn("Unknown package metadata entity found: {}", metadataInfo.getClass().getName());
                     pckg = null;
                 }
 
@@ -280,7 +280,7 @@ public class BenchmarkMetadata {
         } catch (InvalidVariableException exc) {
             LOGGER.warn(exc.getLocalizedMessage());
         } catch (Exception exc) {
-            LOGGER.error("failed to resolve variable value for: {}, reason: {}", variable, exc.getLocalizedMessage());
+            LOGGER.error("Failed to resolve variable value for: {}, reason: {}", variable, exc.getLocalizedMessage());
         }
         return null;
     }
@@ -306,7 +306,7 @@ public class BenchmarkMetadata {
         } catch (InvalidVariableException exc) {
             LOGGER.warn(exc.getLocalizedMessage());
         } catch (Exception exc) {
-            LOGGER.error("failed to resolve variable value for: {}, reason: {}", variable, exc.getLocalizedMessage());
+            LOGGER.error("Failed to resolve variable value for: {}, reason: {}", variable, exc.getLocalizedMessage());
         }
         return null;
     }

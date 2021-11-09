@@ -203,7 +203,7 @@ public abstract class AbstractClassTransformer {
             LOGGER.info(
                     String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for class {1}", annotationName, clsName),
+            LOGGER.error(MessageFormat.format("Failed to add @{0} annotation for class {1}", annotationName, clsName),
                     exc);
         }
     }
@@ -215,7 +215,7 @@ public abstract class AbstractClassTransformer {
             LOGGER.info(
                     String.format("%-20.20s: %s", "Added", "@" + annotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
-            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for class {1}", annotationName, clsName),
+            LOGGER.error(MessageFormat.format("Failed to add @{0} annotation for class {1}", annotationName, clsName),
                     exc);
         }
     }
@@ -229,7 +229,7 @@ public abstract class AbstractClassTransformer {
                     "@" + arrayAnnotationName + " annotation for class " + clsName));
         } catch (Exception exc) {
             LOGGER.error(
-                    MessageFormat.format("failed to add @{0} annotation for class {1}", arrayAnnotationName, clsName),
+                    MessageFormat.format("Failed to add @{0} annotation for class {1}", arrayAnnotationName, clsName),
                     exc);
         }
     }
@@ -243,7 +243,7 @@ public abstract class AbstractClassTransformer {
             LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for method {1}", annotationName,
+            LOGGER.error(MessageFormat.format("Failed to add @{0} annotation for method {1}", annotationName,
                     method.getQualifiedName()), exc);
         }
     }
@@ -257,7 +257,7 @@ public abstract class AbstractClassTransformer {
             LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + arrayAnnotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for method {1}", arrayAnnotationName,
+            LOGGER.error(MessageFormat.format("Failed to add @{0} annotation for method {1}", arrayAnnotationName,
                     method.getQualifiedName()), exc);
         }
     }
@@ -271,7 +271,7 @@ public abstract class AbstractClassTransformer {
             LOGGER.info(String.format("%-20.20s: %s", "Added",
                     "@" + annotationName + " annotation for method " + method.getQualifiedName()));
         } catch (Exception exc) {
-            LOGGER.error(MessageFormat.format("failed to add @{0} annotation for method {1}", annotationName,
+            LOGGER.error(MessageFormat.format("Failed to add @{0} annotation for method {1}", annotationName,
                     method.getQualifiedName()), exc);
         }
 

@@ -49,7 +49,7 @@ public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
                 try {
                     benchmarkRunner.run(testPoint);
                 } catch (Throwable exc) {
-                    LOGGER.error("benchmark run failed, reason: {}", exc);
+                    LOGGER.error("Benchmark run failed, reason: {}", exc);
                 } finally {
                     benchmarkRunner.cleanup();
                 }
@@ -73,7 +73,7 @@ public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
             ClassDefinition clsDefinition = new ClassDefinition(T2BTestBenchmark.class, clsBytes);
             instrumentation.redefineClasses(clsDefinition);
         } catch (Exception exc) {
-            LOGGER.error("failed to redefine benchmark class, reason: {}", exc.getLocalizedMessage());
+            LOGGER.error("Failed to redefine benchmark class, reason: {}", exc.getLocalizedMessage());
         }
     }
 }

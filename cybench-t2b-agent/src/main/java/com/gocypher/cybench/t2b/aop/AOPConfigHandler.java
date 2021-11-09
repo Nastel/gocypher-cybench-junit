@@ -47,15 +47,15 @@ public class AOPConfigHandler {
             try (Reader rdr = new BufferedReader(new FileReader(cfgPath))) {
                 aopCfgProps.load(rdr);
             } catch (IOException exc) {
-                LOGGER.error("failed to load aop config from: {}, reason: {}", cfgPath, exc.getLocalizedMessage());
+                LOGGER.error("Failed to load aop config from: {}, reason: {}", cfgPath, exc.getLocalizedMessage());
             }
         } else {
             String cfgProp = System.getProperty(SYS_PROP_AOP_CONFIG);
             if (cfgProp != null) {
-                LOGGER.warn("system property {} defined aop configuration file {} not found!", SYS_PROP_AOP_CONFIG,
+                LOGGER.warn("System property {} defined aop configuration file {} not found!", SYS_PROP_AOP_CONFIG,
                         cfgPath);
             } else {
-                LOGGER.info("default metadata configuration file {} not found!", cfgPath);
+                LOGGER.info("Default metadata configuration file {} not found!", cfgPath);
             }
         }
 
@@ -70,7 +70,7 @@ public class AOPConfigHandler {
             Constructor<? extends BenchmarkRunnerWrapper> bwConstructor = bwClass.getConstructor(String.class);
             benchmarkRunner = bwConstructor.newInstance(bwArgs);
         } catch (Exception exc) {
-            LOGGER.error("failed to load benchmark runner wrapper, reason: {}", exc);
+            LOGGER.error("Failed to load benchmark runner wrapper, reason: {}", exc);
         }
     }
 
