@@ -137,7 +137,7 @@ uploadArchives {
 task release(type: Zip) {
     from 'build/libs/'
     include '*'
-    destinationDir(file('./release'))
+    destinationDirectory.set(file('./release'))
 }
 
 clean {
@@ -181,7 +181,7 @@ jar {
     manifest {
         attributes 'Implementation-Vendor': "$vendor",
                 'Implementation-Title': "$archivesBaseName",
-                'Implementation-Version': "$version-${getBuildTimestamp()}",
+                'Implementation-Version': "$archiveVersion-${getBuildTimestamp()}",
                 'Can-Retransform-Classes': true,
                 'Can-Redefine-Classes': true,
                 'Premain-Class': 'com.gocypher.cybench.Test2BenchmarkAgent'
@@ -264,6 +264,12 @@ distTar {
 
 distZip {
     dependsOn('javadocJar', 'sourceJar')
+}
+
+task buildLibsDir(type: GradleBuild) {
+    tasks = ['clean', 'build', 'copyClientLibs']
+    group = 'distribution'
+    description = 'Build runtime libs package'
 }
 
 //build.finalizedBy(copyClientLibs)
