@@ -176,12 +176,16 @@ task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
         main = 'org.junit.platform.console.ConsoleLauncher'
         args = [
                 '--scan-class-path'
+                // ### In case you dont want to run JUnit4 tests, exclude vintage engine
+                //'--scan-class-path', '-E=junit-vintage'
         ]
-        //    ### In case you dont want to run JUnit4 tests, exclude vintage engine
-//        args = [
-//                '--scan-class-path', '-E=junit-vintage'
-//        ]
     }
+}
+
+task buildLibsDir(type: GradleBuild) {
+    tasks = ['clean', 'build', 'copyClientLibs']
+    group = 'distribution'
+    description = 'Build runtime libs package'
 }
 
 //build.finalizedBy(copyClientLibs)
