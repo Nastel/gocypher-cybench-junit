@@ -53,8 +53,8 @@ public class TestAspects {
         // public void transactionalMethod() {
         // }
 
-        public void around(ProceedingJoinPoint testPoint) {
-            LOGGER.debug("Test around before, class: {}, method: {}",
+        public void aroundTest(ProceedingJoinPoint testPoint) {
+            LOGGER.debug("Around test enter, class: {}, method: {}",
                     testPoint.getSignature().getDeclaringType().getSimpleName(), testPoint.getSignature().getName());
 
             MethodSignature signature = (MethodSignature) testPoint.getSignature();
@@ -68,7 +68,7 @@ public class TestAspects {
                 LOGGER.warn("Skipping test: {}", testPoint.getSignature().getName());
             }
 
-            LOGGER.debug("Test around after, class: {}", testPoint.getSignature().getDeclaringType().getSimpleName());
+            LOGGER.debug("Around test exit, class: {}", testPoint.getSignature().getDeclaringType().getSimpleName());
         }
     }
 
@@ -82,8 +82,8 @@ public class TestAspects {
 
         @Override
         @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
-        public void around(ProceedingJoinPoint testPoint) {
-            super.around(testPoint);
+        public void aroundTest(ProceedingJoinPoint testPoint) {
+            super.aroundTest(testPoint);
         }
     }
 
@@ -97,8 +97,8 @@ public class TestAspects {
 
         @Override
         @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
-        public void around(ProceedingJoinPoint testPoint) {
-            super.around(testPoint);
+        public void aroundTest(ProceedingJoinPoint testPoint) {
+            super.aroundTest(testPoint);
         }
     }
 
@@ -112,8 +112,8 @@ public class TestAspects {
 
         @Override
         @Around("@annotation(" + TEST_ANNOTATION_CLASS + ")")
-        public void around(ProceedingJoinPoint testPoint) {
-            super.around(testPoint);
+        public void aroundTest(ProceedingJoinPoint testPoint) {
+            super.aroundTest(testPoint);
         }
     }
 
