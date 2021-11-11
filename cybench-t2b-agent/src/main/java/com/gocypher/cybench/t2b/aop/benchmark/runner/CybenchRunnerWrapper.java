@@ -22,11 +22,11 @@ package com.gocypher.cybench.t2b.aop.benchmark.runner;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.Logger;
 
-import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.launcher.BenchmarkRunner;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
-    private static Logger LOGGER = T2BUtils.getLogger(CybenchRunnerWrapper.class);
+    private static Logger LOGGER = LogUtils.getLogger(CybenchRunnerWrapper.class);
 
     public CybenchRunnerWrapper(String args) {
         super(args);

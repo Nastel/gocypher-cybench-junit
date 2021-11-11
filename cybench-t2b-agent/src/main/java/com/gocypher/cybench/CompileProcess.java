@@ -32,8 +32,11 @@ import javax.tools.ToolProvider;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
+import com.gocypher.cybench.t2b.utils.LogUtils;
+import com.gocypher.cybench.t2b.utils.T2BUtils;
+
 public abstract class CompileProcess {
-    private static Logger LOGGER = T2BUtils.getLogger(CompileProcess.class);
+    private static Logger LOGGER = LogUtils.getLogger(CompileProcess.class);
 
     static String makeSourcesList() {
         try {
@@ -119,7 +122,7 @@ public abstract class CompileProcess {
         }
 
         private String getClassPath() throws Exception {
-            String classPath = T2BUtils.getCurrentClassPath();
+            String cp = T2BUtils.getCurrentClassPath();
             LOGGER.info("Starting Class Path Listing: >>>>>>>>>>>>>>>>>>>>>>>");
             String[] cps = classPath.split(File.pathSeparator);
             for (String cpe : cps) {
@@ -127,7 +130,7 @@ public abstract class CompileProcess {
             }
             LOGGER.info("Completed Class Path Listing: <<<<<<<<<<<<<<<<<<<<<<");
 
-            return classPath;
+            return cp;
         }
 
         @Override

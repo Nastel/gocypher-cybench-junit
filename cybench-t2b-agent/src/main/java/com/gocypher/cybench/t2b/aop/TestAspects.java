@@ -32,11 +32,11 @@ import org.aspectj.lang.reflect.SourceLocation;
 import org.slf4j.Logger;
 
 import com.gocypher.cybench.T2BMapper;
-import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.Test2Benchmark;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class TestAspects {
-    private static Logger LOGGER = T2BUtils.getLogger(TestAspects.class);
+    private static Logger LOGGER = LogUtils.getLogger(TestAspects.class);
 
     public abstract static class AbstractT2BAspect {
 

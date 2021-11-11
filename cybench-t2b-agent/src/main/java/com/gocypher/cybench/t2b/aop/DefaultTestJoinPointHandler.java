@@ -29,13 +29,13 @@ import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.reflection.T2BClassInfo;
 import org.slf4j.Logger;
 
-import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.aop.benchmark.T2BTestBenchmark;
 import com.gocypher.cybench.t2b.aop.benchmark.runner.BenchmarkRunnerWrapper;
 import com.gocypher.cybench.t2b.transform.BenchmarkClassTransformer;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
-    private static Logger LOGGER = T2BUtils.getLogger(DefaultTestJoinPointHandler.class);
+    private static Logger LOGGER = LogUtils.getLogger(DefaultTestJoinPointHandler.class);
 
     private final BenchmarkRunnerWrapper benchmarkRunner = AOPConfigHandler.getBenchmarkRunner();
 
@@ -49,7 +49,7 @@ public class DefaultTestJoinPointHandler implements TestJoinPointHandler {
                 try {
                     benchmarkRunner.run(testPoint);
                 } catch (Throwable exc) {
-                    LOGGER.error("Benchmark run failed, reason: {}", exc);
+                    LOGGER.error("Benchmark run failed, reason: ", exc);
                 } finally {
                     benchmarkRunner.cleanup();
                 }

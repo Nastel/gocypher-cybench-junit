@@ -38,9 +38,11 @@ import org.openjdk.jmh.util.Multimap;
 import org.slf4j.Logger;
 
 import com.gocypher.cybench.t2b.transform.TestClassTransformer;
+import com.gocypher.cybench.t2b.utils.LogUtils;
+import com.gocypher.cybench.t2b.utils.T2BUtils;
 
 public class Test2Benchmark {
-    private static Logger LOGGER = T2BUtils.getLogger(Test2Benchmark.class);
+    private static Logger LOGGER = LogUtils.getLogger(Test2Benchmark.class);
 
     static final String WORK_DIR_ARG = System.getProperty("t2b.build.dir");
     static final String TEST_DIR_ARG = System.getProperty("t2b.test.dir");

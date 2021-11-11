@@ -30,11 +30,11 @@ import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 import org.slf4j.Logger;
 
-import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.transform.AbstractClassTransformer;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class BenchmarkMetadata {
-    private static Logger LOGGER = T2BUtils.getLogger(BenchmarkMetadata.class);
+    private static Logger LOGGER = LogUtils.getLogger(BenchmarkMetadata.class);
 
     private static final String SYS_PROP_METADATA_CONFIG = "t2b.metadata.cfg.path";
     private static final String DEFAULT_METADATA_CONFIG_PATH = "config/metadata.properties";

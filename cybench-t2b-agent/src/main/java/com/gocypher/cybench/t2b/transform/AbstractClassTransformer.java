@@ -34,12 +34,13 @@ import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.ParameterInfo;
 import org.slf4j.Logger;
 
-import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
 import com.gocypher.cybench.t2b.transform.annotation.*;
 import com.gocypher.cybench.t2b.transform.metadata.BenchmarkMetadata;
+import com.gocypher.cybench.t2b.utils.LogUtils;
+import com.gocypher.cybench.t2b.utils.T2BUtils;
 
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -48,7 +49,7 @@ import javassist.Modifier;
 import javassist.bytecode.*;
 
 public abstract class AbstractClassTransformer {
-    private static Logger LOGGER = T2BUtils.getLogger(AbstractClassTransformer.class);
+    private static Logger LOGGER = LogUtils.getLogger(AbstractClassTransformer.class);
 
     private ClassInfo clsInfo;
     private CtClass alteredClass;

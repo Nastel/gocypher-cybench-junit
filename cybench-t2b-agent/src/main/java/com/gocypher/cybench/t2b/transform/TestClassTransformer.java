@@ -31,13 +31,13 @@ import org.openjdk.jmh.generators.reflection.T2BClassInfo;
 import org.slf4j.Logger;
 
 import com.gocypher.cybench.T2BMapper;
-import com.gocypher.cybench.T2BUtils;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 import javassist.ClassPool;
 import javassist.CtClass;
 
 public class TestClassTransformer extends AbstractClassTransformer {
-    private static Logger LOGGER = T2BUtils.getLogger(TestClassTransformer.class);
+    private static Logger LOGGER = LogUtils.getLogger(TestClassTransformer.class);
 
     private static final String SYS_PROP_CLASS_NAME_SUFFIX = "t2b.bench.class.name.suffix";
     private static final String DEFAULT_CLASS_NAME_SUFFIX = "BenchmarkByT2B";

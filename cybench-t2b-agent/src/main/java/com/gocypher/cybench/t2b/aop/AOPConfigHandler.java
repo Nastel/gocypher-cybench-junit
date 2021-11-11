@@ -25,11 +25,11 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 
-import com.gocypher.cybench.T2BUtils;
 import com.gocypher.cybench.t2b.aop.benchmark.runner.BenchmarkRunnerWrapper;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class AOPConfigHandler {
-    private static Logger LOGGER = T2BUtils.getLogger(AOPConfigHandler.class);
+    private static Logger LOGGER = LogUtils.getLogger(AOPConfigHandler.class);
 
     private static final String SYS_PROP_AOP_CONFIG = "t2b.aop.cfg.path"; // TODO: change name
     private static final String DEFAULT_AOP_CONFIG_PATH = "config/t2b.properties";
@@ -70,7 +70,7 @@ public class AOPConfigHandler {
             Constructor<? extends BenchmarkRunnerWrapper> bwConstructor = bwClass.getConstructor(String.class);
             benchmarkRunner = bwConstructor.newInstance(bwArgs);
         } catch (Exception exc) {
-            LOGGER.error("Failed to load benchmark runner wrapper, reason: {}", exc);
+            LOGGER.error("Failed to load benchmark runner wrapper, reason: ", exc);
         }
     }
 

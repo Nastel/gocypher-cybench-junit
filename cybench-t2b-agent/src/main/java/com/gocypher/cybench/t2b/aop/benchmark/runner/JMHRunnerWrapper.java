@@ -25,10 +25,10 @@ import org.openjdk.jmh.runner.options.CommandLineOptions;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.slf4j.Logger;
 
-import com.gocypher.cybench.T2BUtils;
+import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class JMHRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
-    private static Logger LOGGER = T2BUtils.getLogger(JMHRunnerWrapper.class);
+    private static Logger LOGGER = LogUtils.getLogger(JMHRunnerWrapper.class);
 
     public JMHRunnerWrapper(String args) {
         super(args);

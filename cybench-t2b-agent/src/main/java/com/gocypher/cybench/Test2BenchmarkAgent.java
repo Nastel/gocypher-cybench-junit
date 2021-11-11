@@ -33,13 +33,15 @@ import java.util.jar.JarFile;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import com.gocypher.cybench.t2b.utils.LogUtils;
+
 import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
 public class Test2BenchmarkAgent {
-    private static Logger LOGGER = T2BUtils.getLogger(Test2BenchmarkAgent.class);
+    private static Logger LOGGER = LogUtils.getLogger(Test2BenchmarkAgent.class);
 
     static Instrumentation instrumentation;
 
