@@ -467,8 +467,8 @@ for configuration options and details.
         ```kotlin
         // ...
         repositories {
-          mavenCentral() 
           mavenLocal()
+          mavenCentral()
           maven {
             setUrl("https://s01.oss.sonatype.org/content/repositories/snapshots")
             mavenContent {

@@ -23,9 +23,9 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-    mavenLocal()
 }
 
 group = 'com.gocypher'
@@ -50,7 +50,7 @@ configurations {
 // https://mvnrepository.com/
 
 dependencies {
-    implementation 'com.google.auto.service:auto-service:1.0'
+    implementation 'com.google.auto.service:auto-service:1.0.1'
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
     implementation 'org.openjdk.jmh:jmh-core:1.33'
     implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.33'
