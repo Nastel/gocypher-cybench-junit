@@ -82,7 +82,7 @@ Dependencies for your project:
   value**: `config/t2b.properties`.
 * `t2b.metadata.cfg.path` - defines CyBench T2B metadata annotations configuration file path. **Default
   value**: `config/metadata.properties`.
-* `log4j.configuration` - defines LOG4J configuration properties file path. **Default value** `log4j.properties` bundled
+* `log4j2.configurationFile` - defines LOG4J configuration properties file path. **Default value** `log4j2.xml` bundled
   within `cybench-t2b-agent` jar.
 
 #### Benchmark metadata configuration
@@ -283,7 +283,7 @@ for configuration options and details.
                         -Dt2b.aop.cfg.path="${project.basedir}"/t2b/t2b.properties
                         -Dt2b.metadata.cfg.path="${project.basedir}"/t2b/metadata.properties
                         <!-- ### To use custom LOG4J configuration -->
-                        <!-- -Dlog4j.configuration=file:"${project.basedir}"/t2b/log4j.properties-->
+                        <!-- -Dlog4j2.configurationFile=file:"${project.basedir}"/t2b/log4j2.xml-->
                     </t2b.sys.props>
                     <!--  ### Class path used to run tests: libs;classes;test-classes -->
                     <t2b.run.class.path>
@@ -403,7 +403,7 @@ for configuration options and details.
         } 
         // ...
         configurations {
-            t2b            
+            t2b
         }
         // ...
         dependencies {
@@ -411,7 +411,7 @@ for configuration options and details.
             // Needed to run JUnit5 tests
             testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.1'
             // T2B runtime dependency
-            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'                        
+            t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
         }
         // ...
         task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
@@ -438,7 +438,7 @@ for configuration options and details.
                't2b.aop.cfg.path'     : "$project.projectDir/t2b/t2b.properties",
                't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties",
                // ### To use custom LOG4J configuration
-               //'log4j.configuration'  : "file:$project.projectDir/t2b/log4j.properties"
+               //'log4j2.configurationFile'  : "file:$project.projectDir/t2b/log4j2.xml"
            ]
 
            if (isJU4) {
@@ -487,7 +487,7 @@ for configuration options and details.
           // Needed to run JUnit5 tests
           testRuntimeOnly ("org.junit.platform:junit-platform-console-standalone:1.8.1")
           // T2B runtime dependency
-          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT")          
+          t2b ("com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT")
         }
         // ...
         val launcher = javaToolchains.launcherFor {
@@ -511,7 +511,7 @@ for configuration options and details.
             systemProperty("t2b.aop.cfg.path", "${project.rootDir}/t2b/t2b.properties")
             systemProperty("t2b.metadata.cfg.path", "${project.rootDir}/t2b/metadata.properties")
             // ### To use custom LOG4J configuration
-            //systemProperty("log4j.configuration", "file:${project.rootDir}/t2b/log4j.properties")
+            //systemProperty("log4j2.configurationFile", "file:${project.rootDir}/t2b/log4j2.xml")
 
             classpath(
               sourceSets["main"].runtimeClasspath,

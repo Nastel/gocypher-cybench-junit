@@ -53,7 +53,7 @@ CLASS_PATH="$LIBS_DIR/*:$BUILD_DIR/classes/java/test"
 
 AGENT_OPTS="-Dt2b.aop.cfg.path=./t2b/t2b.properties -Dt2b.metadata.cfg.path=./t2b/metadata.properties"
 ### To use custom LOG4J configuration
-#AGENT_OPTS="$AGENT_OPTS -Dlog4j.configuration="file:./t2b/log4j.properties"
+#AGENT_OPTS="$AGENT_OPTS -Dlog4j2.configurationFile="file:./t2b/log4j2.xml"
 
 UNIT_FRAMEWORK=$1
 

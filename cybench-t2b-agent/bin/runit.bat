@@ -33,7 +33,7 @@ rem #############################
 rem ### Define configuration files to use
 set AGENT_OPTS="-Dt2b.aop.cfg.path=%CFG_DIR%\t2b.properties" "-Dt2b.metadata.cfg.path=%CFG_DIR%\metadata.properties"
 rem ### To use custom LOG4J configuration
-rem set AGENT_OPTS=%AGENT_OPTS% "-Dlog4j.configuration=file:%CFG_DIR%\t2b\log4j.properties"
+rem set AGENT_OPTS=%AGENT_OPTS% "-Dlog4j2.configurationFile=file:%CFG_DIR%\t2b\log4j2.xml"
 set /p AGENT_OPTS= Enter agent options: [%AGENT_OPTS%] :
 
 for /f tokens^=2-5^ delims^=.+-_^" %%j in ('%JAVA_EXEC% -fullversion 2^>^&1') do set "jver=%%j%%k"

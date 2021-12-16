@@ -55,7 +55,7 @@ read -e -p "Enter configurations dir path: " -i "$CFG_DIR" CFG_DIR
 ### Define configuration files to use
 AGENT_OPTS="-Dt2b.aop.cfg.path=$CFG_DIR/t2b.properties -Dt2b.metadata.cfg.path=$CFG_DIR/metadata.properties"
 ### To use custom LOG4J configuration
-#AGENT_OPTS="$AGENT_OPTS -Dlog4j.configuration=file:$CFG_DIR/t2b/log4j.properties"
+#AGENT_OPTS="$AGENT_OPTS -Dlog4j2.configurationFile=file:$CFG_DIR/t2b/log4j2.xml"
 read -e -p "Enter agent options: " -i "$AGENT_OPTS" AGENT_OPTS
 
 jver=$("${JAVA_PATH}" -fullversion 2>&1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1 | cut -d'-' -f1 | cut -d'+' -f1 | cut -d'_' -f1)

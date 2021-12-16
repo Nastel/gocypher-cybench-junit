@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.1</version>
+            <version>5.8.2</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -233,7 +233,7 @@
                     -Dt2b.aop.cfg.path="${project.basedir}"/t2b/t2b.properties
                     -Dt2b.metadata.cfg.path="${project.basedir}"/t2b/metadata.properties
                     <!-- ### To use custom LOG4J configuration -->
-                    <!-- -Dlog4j.configuration=file:"${project.basedir}"/t2b/log4j.properties-->
+                    <!-- -Dlog4j2.configurationFile=file:"${project.basedir}"/t2b/log4j2.xml-->
                 </t2b.sys.props>
                 <!--  ### Class path used to run tests: libs;classes;test-classes -->
                 <t2b.run.class.path>

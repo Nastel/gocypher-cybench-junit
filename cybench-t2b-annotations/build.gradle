@@ -156,7 +156,7 @@ task runBenchmarksFromUnitTests(type: JavaExec, dependsOn: testClasses) {
             't2b.aop.cfg.path'     : "$project.projectDir/t2b/t2b.properties",
             't2b.metadata.cfg.path': "$project.projectDir/t2b/metadata.properties",
             // ### To use custom LOG4J configuration
-            //'log4j.configuration'  : "file:$project.projectDir/t2b/log4j.properties"
+            //'log4j2.configurationFile'  : "file:$project.projectDir/t2b/log4j2.xml"
     ]
 
     if (isJU4) {
