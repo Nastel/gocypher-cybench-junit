@@ -92,17 +92,17 @@ while true; do
         1 ) ### Run JUnit5/4 tests as benchmarks ###
             TEST_ARGS="--scan-class-path -E=junit-vintage";
             read -e -p "Enter JUnit5 tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
-            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.platform.console.ConsoleLauncher" $TEST_ARGS;
+            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.8-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.platform.console.ConsoleLauncher" $TEST_ARGS;
             break;;
         2 ) ### Run JUnit4 tests as benchmarks ###
             TEST_ARGS="org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestJU4";
             read -e -p "Enter JUnit4 tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
-            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.runner.JUnitCore" $TEST_ARGS
+            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.8-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.junit.runner.JUnitCore" $TEST_ARGS
             break;;
         3 ) ### Run TestNG tests as benchmarks ###
             TEST_ARGS="-testclass org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestNG";
             read -e -p "Enter TestNG tests arguments: " -i "$TEST_ARGS" TEST_ARGS;
-            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.testng.TestNG" $TEST_ARGS
+            "$JAVA_EXEC" $JAVA9_OPTS -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.8-SNAPSHOT.jar -cp "$CLASS_PATH" $AGENT_OPTS "org.testng.TestNG" $TEST_ARGS
             break;;
         9 ) exit; break;;
 

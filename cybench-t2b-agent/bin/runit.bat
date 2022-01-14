@@ -68,21 +68,21 @@ cd /D "%PROJECT_DIR%"
             rem ### Run JUnit5/4 tests as benchmarks ###
             set TEST_ARGS=--scan-class-path -E=junit-vintage
             set /p TEST_ARGS= Enter JUnit5 tests arguments: [!TEST_ARGS!] :
-            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.7-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.platform.console.ConsoleLauncher !TEST_ARGS!
+            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.8-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.platform.console.ConsoleLauncher !TEST_ARGS!
             goto done
             )
         if [%yn%] == [2] (
             rem ### Run JUnit4 tests as benchmarks ###
             set TEST_ARGS=org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestJU4
             set /p TEST_ARGS= Enter JUnit4 tests arguments: [!TEST_ARGS!] :
-            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.7-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.runner.JUnitCore !TEST_ARGS!
+            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.8-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.junit.runner.JUnitCore !TEST_ARGS!
             goto done
             )
         if [%yn%] == [3] (
             rem ### Run TestNG tests as benchmarks ###
             set TEST_ARGS=-testclass org.openjdk.jmh.generators.core.TestScopeBenchmarkGeneratorTestNG
             set /p TEST_ARGS= Enter TestNG tests arguments: [!TEST_ARGS!] :
-            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.7-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.testng.TestNG !TEST_ARGS!
+            %JAVA_EXEC% %JAVA9_OPTS% -javaagent:"%LIBS_DIR%\cybench-t2b-agent-1.0.8-SNAPSHOT.jar" -cp %CLASS_PATH% %AGENT_OPTS% org.testng.TestNG !TEST_ARGS!
             goto done
             )
         if [%yn%] == [9] (

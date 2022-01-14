@@ -76,4 +76,4 @@ fi
 #JAVA_DEBUGGER="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 JAVA_DEBUGGER=
 
-"$JAVA_EXEC" $JAVA_DEBUGGER -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.7-SNAPSHOT.jar $AGENT_OPTS -cp "$CLASS_PATH" $MAIN_CLASS "$TEST_ARGS"
+"$JAVA_EXEC" $JAVA_DEBUGGER -javaagent:"$LIBS_DIR"/cybench-t2b-agent-1.0.8-SNAPSHOT.jar $AGENT_OPTS -cp "$CLASS_PATH" $MAIN_CLASS "$TEST_ARGS"

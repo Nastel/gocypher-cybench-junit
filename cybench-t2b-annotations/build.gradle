@@ -61,7 +61,7 @@ dependencies {
     // Needed to run JUnit5 tests
     testRuntimeOnly 'org.junit.platform:junit-platform-console-standalone:1.8.2'
     // T2B runtime dependency
-    t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.7-SNAPSHOT'
+    t2b 'com.gocypher.cybench:cybench-t2b-agent:1.0.8-SNAPSHOT'
 }
 
 task copyClientLibs(type: Copy) {
