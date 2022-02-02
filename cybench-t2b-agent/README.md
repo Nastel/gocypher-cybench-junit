@@ -84,6 +84,8 @@ Dependencies for your project:
   value**: `config/metadata.properties`.
 * `log4j2.configurationFile` - defines LOG4J configuration properties file path. **Default value** `log4j2.xml` bundled
   within `cybench-t2b-agent` jar.
+* `t2b.session.id` - allows defining custom benchmarking session identifier. **Default value** none, T2B setts random 
+  UUID at runtime if it is not provided.
 
 #### Benchmark metadata configuration
 
@@ -107,6 +109,9 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
 * Metadata value can combine both static and variable content like: `Method ${method.name} benchmark`
 * **JVM ENVIRONMENT** scope variables:
     * `sys#<propName>` - JVM system property value
+        * JVM system properties set by T2B at runtime:
+            * `t2b.session.id` - T2B runtime session identifier            - UUID string
+            * `t2b.session.time` - T2B runtime session start date and time - string formatted as `yyyy-MM-dd_HHmmss`
     * `env#<varName>` - OS environment variable value
     * `vm#<varName>` - JVM calculated variable value
         * `time.millis` - current time in milliseconds (timestamp)
@@ -161,7 +166,7 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-runner</artifactId>
-        <version>1.1</version>
+        <version>1.3.0</version>
         <scope>test</scope>
     </dependency>
     ```

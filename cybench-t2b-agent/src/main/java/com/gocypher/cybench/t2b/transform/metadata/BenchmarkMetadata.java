@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openjdk.jmh.generators.core.ClassInfo;
 import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
@@ -56,6 +57,9 @@ public class BenchmarkMetadata {
     private static final String METHOD_METADATA_MAP_KEY = "method";
     private static final String CLASS_METADATA_PROPS_PREFIX = "class.";
     private static final String METHOD_METADATA_PROPS_PREFIX = "method.";
+
+    private static final String SESSION_ENTRY_KEY = "session";
+    private static final String SESSION_VALUE_EXP = "${sys#t2b.session.id}";
 
     private static final String FALLBACK_VALUE = "-";
 
@@ -107,6 +111,19 @@ public class BenchmarkMetadata {
             } else {
                 metadataConfig.get(METHOD_METADATA_MAP_KEY).put(mdpKey, mdpValue);
             }
+        }
+
+        verify(metadataConfig);
+    }
+
+    protected static void verify(Map<String, Map<String, String>> metadataCfg) {
+        // Map<String, String> cMetadataMap = metadataCfg.get(CLASS_METADATA_MAP_KEY);
+        // String cSessionEntry = cMetadataMap.get(SESSION_ENTRY_KEY);
+        Map<String, String> mMetadataMap = metadataCfg.get(METHOD_METADATA_MAP_KEY);
+        String mSessionEntry = mMetadataMap.get(SESSION_ENTRY_KEY);
+
+        if (StringUtils.isAllEmpty(mSessionEntry)) {
+            mMetadataMap.put(SESSION_ENTRY_KEY, SESSION_VALUE_EXP);
         }
     }
 

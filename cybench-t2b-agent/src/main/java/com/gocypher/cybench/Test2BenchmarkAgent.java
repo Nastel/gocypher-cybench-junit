@@ -27,6 +27,7 @@ import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -41,6 +42,10 @@ import javassist.CtClass;
 import javassist.CtMethod;
 
 public class Test2BenchmarkAgent {
+    static {
+        initSession();
+    }
+
     private static Logger LOGGER = LogUtils.getLogger(Test2BenchmarkAgent.class);
 
     static Instrumentation instrumentation;
@@ -56,6 +61,14 @@ public class Test2BenchmarkAgent {
     private static byte[] origBenchmarkListBytes;
     private static byte[] origCompilerHintsBytes;
     private static byte[] origBenchmarkGeneratorBytes;
+
+    private static void initSession() {
+        synchronized (System.getProperties()) {
+            if (System.getProperty("t2b.session.id") == null) {
+                System.setProperty("t2b.session.id", UUID.randomUUID().toString());
+            }
+        }
+    }
 
     public static void premain(String agentArgs, Instrumentation inst) {
         // Handle duplicate agents
@@ -94,7 +107,7 @@ public class Test2BenchmarkAgent {
         try {
             Class<?> klass = org.openjdk.jmh.annotations.Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
-            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.33/jmh-core-1.33.jar!/org/openjdk/jmh/annotations/Benchmark.class
+            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.34/jmh-core-1.34.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
             LOGGER.info("JMH: {}", split[0]);
             File file = Paths.get(split[0]).toFile();
