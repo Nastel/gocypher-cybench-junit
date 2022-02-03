@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set RUNDIR=%~dp0
+set "RUNDIR=%~dp0"
 
-rem set JAVA_HOME="c:\java\jdk_180"
+rem set "JAVA_HOME=c:\java\jdk_180"
 set /p JAVA_HOME= Enter your Java Home dir path: [%JAVA_HOME%] :
 
 set JAVA_EXEC="java"
@@ -11,22 +11,22 @@ IF ["%JAVA_HOME%"] EQU [""] (
   echo "JAVA_HOME" env. variable is not defined!..
 ) else (
   echo Will use java from: "%JAVA_HOME%"
-  set JAVA_EXEC="%JAVA_HOME%\bin\java"
+  set "JAVA_EXEC=%JAVA_HOME%\bin\java"
 )
 
 rem #### Your project config ####
-set PROJECT_DIR="c:\projects\my"
+set "PROJECT_DIR=c:\projects\my"
 set /p PROJECT_DIR= Enter your project root dir path: [%PROJECT_DIR%] :
 rem !!! DO not forget to add your app libs to class path !!!
-set LIBS_DIR="%PROJECT_DIR%\libs"
+set "LIBS_DIR=%PROJECT_DIR%\libs"
 rem ### Gradle
-set BUILD_DIR="%PROJECT_DIR%\build"
-set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\classes\java\test"
+set "BUILD_DIR=%PROJECT_DIR%\build"
+set "CLASS_PATH=%LIBS_DIR%\*;%BUILD_DIR%\classes\java\test"
 rem ### Maven
-rem set BUILD_DIR="%PROJECT_DIR%\target"
-rem set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
+rem set "BUILD_DIR=%PROJECT_DIR%\target"
+rem set "CLASS_PATH=%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
 set /p CLASS_PATH= Enter class path to use: [%CLASS_PATH%] :
-set CFG_DIR="%PROJECT_DIR%\config"
+set "CFG_DIR=%PROJECT_DIR%\config"
 set /p CFG_DIR= Enter configurations dir path: [%CFG_DIR%] :
 rem #############################
 

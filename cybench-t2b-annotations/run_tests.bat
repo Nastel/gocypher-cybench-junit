@@ -8,25 +8,25 @@ rem #  testng                               # to run TestNG tests      #
 rem #  junit5 (also works as fallback case) # to run JUnit 5/4 tests   #
 rem ####################################################################
 
-set RUNDIR=%~dp0
+set "RUNDIR=%~dp0"
 
-rem set JAVA_HOME="c:\java\jdk_180"
+rem set "JAVA_HOME=c:\java\jdk_180"
 
 set JAVA_EXEC="java"
 IF ["%JAVA_HOME%"] EQU [""] (
   echo "JAVA_HOME" env. variable is not defined!..
 ) else (
   echo Will use java from: "%JAVA_HOME%"
-  set JAVA_EXEC="%JAVA_HOME%\bin\java"
+  set "JAVA_EXEC=%JAVA_HOME%\bin\java"
 )
 
-set LIBS_DIR="%RUNDIR%\libs"
+set "LIBS_DIR=%RUNDIR%\libs"
 rem ### Gradle
-set BUILD_DIR="%RUNDIR%\build"
-set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\classes\java\test"
+set "BUILD_DIR=%RUNDIR%\build"
+set "CLASS_PATH=%LIBS_DIR%\*;%BUILD_DIR%\classes\java\test"
 rem ### Maven
-rem set BUILD_DIR="%RUNDIR%\target"
-rem set CLASS_PATH="%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
+rem set "BUILD_DIR=%RUNDIR%\target"
+rem set "CLASS_PATH=%LIBS_DIR%\*;%BUILD_DIR%\test-classes"
 
 set AGENT_OPTS="-Dt2b.aop.cfg.path=t2b\t2b.properties" "-Dt2b.metadata.cfg.path=t2b\metadata.properties"
 rem ### To use custom LOG4J configuration
