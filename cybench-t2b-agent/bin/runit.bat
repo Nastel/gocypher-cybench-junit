@@ -6,7 +6,7 @@ set "RUNDIR=%~dp0"
 rem set "JAVA_HOME=c:\java\jdk_180"
 set /p JAVA_HOME= Enter your Java Home dir path: [%JAVA_HOME%] :
 
-set JAVA_EXEC="java"
+set "JAVA_EXEC=java"
 IF ["%JAVA_HOME%"] EQU [""] (
   echo "JAVA_HOME" env. variable is not defined!..
 ) else (
