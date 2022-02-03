@@ -132,6 +132,8 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
     * `class.qualified.name` - class qualified name
     * `class.package` - class package name
     * `class.super` - class superclass qualified name
+    * `class.project` - class project name for cybench app
+    * `class.project.version` - class project version for comparisons on cybench app
 * **METHOD** scope variables:
     * `method.name` - method name
     * `method.signature` - method signature
@@ -139,6 +141,48 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
     * `method.return.type` - method return type
     * `method.qualified.name` - method qualified name
     * `method.parameters` - method parameters list
+
+**NOTE:** Some metadata values can be determined dynamically during benchmark tests with the newest version of CyBench 
+runner, specifically project and version. For Maven (`pom.xml`) projects, no additional build profiles or instructions 
+are needed. For Gradle (both groovy and kotlin) projects, users must modify their build task to include generating a 
+`project.properties` file containing this metadata. Instructions for modifying your gradle build file to generate this 
+properties file are given below.
+
+* Gradle (Groovy)
+    * For Gradle build projects written in Groovy, modify one of your build tasks (or use the runBenchmark task detailed
+      in lower sections) to generate a `project.properties` file via an ant task:
+      ```groovy
+      String fileName = "project.properties"
+      ant.propertyfile(file: "${projectDir}/config/${fileName}") {
+          entry(key: "PROJECT_ARTIFACT", value: project.name)
+          entry(key: "PROJECT_ROOT", value: project.rootProject)
+          entry(key: "PROJECT_VERSION", value: project.version)
+          entry(key: "PROJECT_PARENT", value: project.parent)
+          entry(key: "PROJECT_BUILD_DATE", value: new Date())
+          entry(key: "PROJECT_GROUP", value: project.group)
+      }
+      ```
+    * This will generate `project.properties` inside the config folder (with other cybench configuration files) in your 
+      build directory. This file will contain project name, version, build date, and group if detailed.
+* Gradle (Kotlin)
+    * For Gradle build projects written in Kotlin (.kts), add the following ant task anywhere in your main 
+      `build.gradle.kts` build file:
+      ```kotlin
+      ant.withGroovyBuilder {
+         "propertyfile"("file" to "$projectDir/config/project.properties") {
+             "entry"("key" to "PROJECT_ARTIFACT", "value" to project.name)
+             "entry"("key" to "PROJECT_ROOT", "value" to project.rootProject)
+             "entry"("key" to "PROJECT_VERSION", "value" to project.version)
+             "entry"("key" to "PROJECT_PARENT", "value" to project.parent)
+             "entry"("key" to "PROJECT_GROUP", "value" to project.group)
+         }
+      }
+      ```
+    * This will generate `project.properties` inside the config folder (along with other cybench configuration files) in 
+      your build directory. This file will contain project name and version.
+* Maven
+    * For Maven projects, no additional modification is needed, and project name/version will automatically be grabbed 
+      dynamically if possible.
 
 ### Benchmark runners configuration
 
