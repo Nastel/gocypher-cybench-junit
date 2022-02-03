@@ -132,8 +132,6 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
     * `class.qualified.name` - class qualified name
     * `class.package` - class package name
     * `class.super` - class superclass qualified name
-    * `class.project` - class project name for cybench app
-    * `class.project.version` - class project version for comparisons on cybench app
 * **METHOD** scope variables:
     * `method.name` - method name
     * `method.signature` - method signature
