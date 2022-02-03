@@ -132,8 +132,6 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
     * `class.qualified.name` - class qualified name
     * `class.package` - class package name
     * `class.super` - class superclass qualified name
-    * `class.project` - class project name for cybench app
-    * `class.project.version` - class project version for comparisons on cybench app
 * **METHOD** scope variables:
     * `method.name` - method name
     * `method.signature` - method signature
@@ -142,9 +140,11 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
     * `method.qualified.name` - method qualified name
     * `method.parameters` - method parameters list
 
-**NOTE:** Some metadata values can be determined dynamically during benchmark tests with the newest version of CyBench 
-runner, specifically project and version. For Maven (`pom.xml`) projects, no additional build profiles or instructions 
-are needed. For Gradle (both groovy and kotlin) projects, users must modify their build task to include generating a 
+#### CyBench runner metadata
+
+Some metadata values can be determined dynamically during benchmark tests with the newest version of CyBench runner,
+specifically project and version. For Maven (`pom.xml`) projects, no additional build profiles or instructions are 
+needed. For Gradle (both groovy and kotlin) projects, users must modify their build task to include generating a 
 `project.properties` file containing this metadata. Instructions for modifying your gradle build file to generate this 
 properties file are given below.
 
