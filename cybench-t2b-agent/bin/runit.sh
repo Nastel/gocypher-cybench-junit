@@ -106,7 +106,7 @@ while true; do
             break;;
         9 ) exit; break;;
 
-        * ) echo "Please select a number";;
+        * ) echo "Please select a valid option...";;
         esac
     done
     read -p "Press any key to continue... " -n1 -s

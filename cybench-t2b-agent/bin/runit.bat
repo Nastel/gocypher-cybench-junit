@@ -89,7 +89,7 @@ cd /D "%PROJECT_DIR%"
             goto exit
             )
 
-        echo Please select a number
+        echo Please select a valid option...
 :done
         set /p yn=Press Enter to continue...
 
