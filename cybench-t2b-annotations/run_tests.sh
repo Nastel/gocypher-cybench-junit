@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (C) 2020-2021, K2N.IO.
+# Copyright (C) 2020-2022, K2N.IO.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
