@@ -152,8 +152,8 @@ properties file are given below.
     * For Gradle build projects written in Groovy, modify one of your build tasks (or use the runBenchmark task detailed
       in lower sections) to generate a `project.properties` file via an ant task:
       ```groovy
-      String fileName = "project.properties"
-      ant.propertyfile(file: "${projectDir}/config/${fileName}") {
+      ant.mkdir(dir: "${projectDir}/config/")
+      ant.propertyfile(file: "${projectDir}/config/project.properties") {
           entry(key: "PROJECT_ARTIFACT", value: project.name)
           entry(key: "PROJECT_ROOT", value: project.rootProject)
           entry(key: "PROJECT_VERSION", value: project.version)
@@ -169,6 +169,7 @@ properties file are given below.
       `build.gradle.kts` build file:
       ```kotlin
       ant.withGroovyBuilder {
+         "mkdir"("dir" to "${projectDir}/config/")
          "propertyfile"("file" to "$projectDir/config/project.properties") {
              "entry"("key" to "PROJECT_ARTIFACT", "value" to project.name)
              "entry"("key" to "PROJECT_ROOT", "value" to project.rootProject)
@@ -509,6 +510,16 @@ for configuration options and details.
                    <YOUR_TESTS_LAUNCHER_ARGUMENTS>
                ]
            }
+           
+          ant.mkdir(dir: "${projectDir}/config/")
+          ant.propertyfile(file: "${projectDir}/config/project.properties") {
+              entry(key: "PROJECT_ARTIFACT", value: project.name)
+              entry(key: "PROJECT_ROOT", value: project.rootProject)
+              entry(key: "PROJECT_VERSION", value: project.version)
+              entry(key: "PROJECT_PARENT", value: project.parent)
+              entry(key: "PROJECT_BUILD_DATE", value: new Date())
+              entry(key: "PROJECT_GROUP", value: project.group)
+          }
         }
         ```
 
@@ -570,6 +581,17 @@ for configuration options and details.
 
             mainClass.set("org.junit.platform.console.ConsoleLauncher")
             args("<YOUR_TESTS_LAUNCHER_ARGUMENTS>")
+            
+            ant.withGroovyBuilder {
+               "mkdir"("dir" to "${projectDir}/config/")
+               "propertyfile"("file" to "$projectDir/config/project.properties") {
+                "entry"("key" to "PROJECT_ARTIFACT", "value" to project.name)
+                "entry"("key" to "PROJECT_ROOT", "value" to project.rootProject)
+                "entry"("key" to "PROJECT_VERSION", "value" to project.version)
+                "entry"("key" to "PROJECT_PARENT", "value" to project.parent)
+                "entry"("key" to "PROJECT_GROUP", "value" to project.group)
+               }
+            }
           }
         }
         ```
