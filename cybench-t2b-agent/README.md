@@ -84,7 +84,7 @@ Dependencies for your project:
   value**: `config/metadata.properties`.
 * `log4j2.configurationFile` - defines LOG4J configuration properties file path. **Default value** `log4j2.xml` bundled
   within `cybench-t2b-agent` jar.
-* `t2b.session.id` - allows defining custom benchmarking session identifier. **Default value** none, T2B setts random 
+* `t2b.session.id` - allows defining custom benchmarking session identifier. **Default value** none, T2B setts random
   UUID at runtime if it is not provided.
 
 #### Benchmark metadata configuration
@@ -110,7 +110,7 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
 * **JVM ENVIRONMENT** scope variables:
     * `sys#<propName>` - JVM system property value
         * JVM system properties set by T2B at runtime:
-            * `t2b.session.id` - T2B runtime session identifier            - UUID string
+            * `t2b.session.id` - T2B runtime session identifier - UUID string
             * `t2b.session.time` - T2B runtime session start date and time - string formatted as `yyyy-MM-dd_HHmmss`
     * `env#<varName>` - OS environment variable value
     * `vm#<varName>` - JVM calculated variable value
@@ -143,9 +143,9 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
 #### CyBench runner metadata
 
 Some metadata values can be determined dynamically during benchmark tests with the newest version of CyBench runner,
-specifically project and version. For Maven (`pom.xml`) projects, no additional build profiles or instructions are 
-needed. For Gradle (both groovy and kotlin) projects, users must modify their build task to include generating a 
-`project.properties` file containing this metadata. Instructions for modifying your gradle build file to generate this 
+specifically project and version. For Maven (`pom.xml`) projects, no additional build profiles or instructions are
+needed. For Gradle (both groovy and kotlin) projects, users must modify their build task to include generating a
+`project.properties` file containing this metadata. Instructions for modifying your gradle build file to generate this
 properties file are given below.
 
 * Gradle (Groovy)
@@ -162,10 +162,10 @@ properties file are given below.
           entry(key: "PROJECT_GROUP", value: project.group)
       }
       ```
-    * This will generate `project.properties` inside the config folder (with other cybench configuration files) in your 
+    * This will generate `project.properties` inside the config folder (with other cybench configuration files) in your
       build directory. This file will contain project name, version, build date, and group if detailed.
 * Gradle (Kotlin)
-    * For Gradle build projects written in Kotlin (.kts), add the following ant task anywhere in your main 
+    * For Gradle build projects written in Kotlin (.kts), add the following ant task anywhere in your main
       `build.gradle.kts` build file:
       ```kotlin
       ant.withGroovyBuilder {
@@ -179,10 +179,10 @@ properties file are given below.
          }
       }
       ```
-    * This will generate `project.properties` inside the config folder (along with other cybench configuration files) in 
+    * This will generate `project.properties` inside the config folder (along with other cybench configuration files) in
       your build directory. This file will contain project name and version.
 * Maven
-    * For Maven projects, no additional modification is needed, and project name/version will automatically be grabbed 
+    * For Maven projects, no additional modification is needed, and project name/version will automatically be grabbed
       dynamically if possible.
 
 ### Benchmark runners configuration
@@ -510,7 +510,7 @@ for configuration options and details.
                    <YOUR_TESTS_LAUNCHER_ARGUMENTS>
                ]
            }
-           
+
           ant.mkdir(dir: "${projectDir}/config/")
           ant.propertyfile(file: "${projectDir}/config/project.properties") {
               entry(key: "PROJECT_ARTIFACT", value: project.name)
@@ -581,15 +581,15 @@ for configuration options and details.
 
             mainClass.set("org.junit.platform.console.ConsoleLauncher")
             args("<YOUR_TESTS_LAUNCHER_ARGUMENTS>")
-            
+
             ant.withGroovyBuilder {
                "mkdir"("dir" to "${projectDir}/config/")
                "propertyfile"("file" to "$projectDir/config/project.properties") {
-                "entry"("key" to "PROJECT_ARTIFACT", "value" to project.name)
-                "entry"("key" to "PROJECT_ROOT", "value" to project.rootProject)
-                "entry"("key" to "PROJECT_VERSION", "value" to project.version)
-                "entry"("key" to "PROJECT_PARENT", "value" to project.parent)
-                "entry"("key" to "PROJECT_GROUP", "value" to project.group)
+                   "entry"("key" to "PROJECT_ARTIFACT", "value" to project.name)
+                   "entry"("key" to "PROJECT_ROOT", "value" to project.rootProject)
+                   "entry"("key" to "PROJECT_VERSION", "value" to project.version)
+                   "entry"("key" to "PROJECT_PARENT", "value" to project.parent)
+                   "entry"("key" to "PROJECT_GROUP", "value" to project.group)
                }
             }
           }
