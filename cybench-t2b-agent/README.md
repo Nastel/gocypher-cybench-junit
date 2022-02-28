@@ -253,8 +253,8 @@ for configuration options and details.
             <t2b.module.prop></t2b.module.prop> 
             <!-- ### Config for JUnit5 launcher - default one, and it is also capable to run JUnit4 tests ### -->
             <t2b.test.runner.class>org.junit.platform.console.ConsoleLauncher</t2b.test.runner.class>
-            <t2b.test.runner.class.args>
-                <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+            <t2b.test.runner.class.args> <!-- YOUR TEST LAUNCHER ARGUMENTS -->
+                --scan-class-path -E=junit-jupiter
             </t2b.test.runner.class.args>
             <...>
         </properties>
@@ -267,8 +267,7 @@ for configuration options and details.
                 </activation>
                 <properties>
                     <!-- ### Java 9+ OPTIONS ### -->
-                    <t2b.module.prop>--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED
-                        --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
+                    <t2b.module.prop>--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
                     </t2b.module.prop>
                 </properties>
             </profile>
@@ -278,8 +277,8 @@ for configuration options and details.
                 <properties>
                     <!-- ### Config for JUnit4 launcher ### -->
                     <t2b.test.runner.class>org.junit.runner.JUnitCore</t2b.test.runner.class>
-                    <t2b.test.runner.class.args>
-                        <YOUR_TESTS_LAUNCHER_ARGUMENTS>
+                    <t2b.test.runner.class.args> <!-- YOUR TEST LAUNCHER ARGUMENTS -->
+                        --scan-class-path -E=junit-jupiter
                     </t2b.test.runner.class.args>
                 </properties>
             </profile>
@@ -330,8 +329,7 @@ for configuration options and details.
                     <t2b.java.exec>"${t2b.java.home}/bin/java"</t2b.java.exec>
                     <!-- ### Java system properties used by T2B ###-->
                     <t2b.sys.props>
-                        -Dt2b.aop.cfg.path="${project.basedir}"/t2b/t2b.properties
-                        -Dt2b.metadata.cfg.path="${project.basedir}"/t2b/metadata.properties
+                        -Dt2b.aop.cfg.path="${project.basedir}"/config/t2b.properties -Dt2b.metadata.cfg.path="${project.basedir}"/config/metadata.properties
                         <!-- ### To use custom LOG4J configuration -->
                         <!-- -Dlog4j2.configurationFile=file:"${project.basedir}"/t2b/log4j2.xml-->
                     </t2b.sys.props>
@@ -386,12 +384,7 @@ for configuration options and details.
                                         <executable>${t2b.java.exec}</executable>
                                         <classpathScope>test</classpathScope>
                                         <commandlineArgs>
-                                            ${t2b.module.prop}
-                                            -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar}
-                                            ${t2b.sys.props}
-                                            -cp ${t2b.run.class.path}
-                                            ${t2b.test.runner.class}
-                                            ${t2b.test.runner.class.args}
+                                            ${t2b.module.prop} -javaagent:${com.gocypher.cybench:cybench-t2b-agent:jar} ${t2b.sys.props} -cp ${t2b.run.class.path} ${t2b.test.runner.class} ${t2b.test.runner.class.args}
                                         </commandlineArgs>
                                     </configuration>
                                 </execution>
