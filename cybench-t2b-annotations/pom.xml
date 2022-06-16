@@ -49,7 +49,7 @@
             &#45;&#45;scan-class-path -E=junit-vintage
         </t2b.test.runner.class.args>-->
 
-        <jmh.version>1.34</jmh.version>
+        <jmh.version>1.35</jmh.version>
     </properties>
 
     <dependencies>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
-            <version>3.24.0</version>
+            <version>3.24.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
