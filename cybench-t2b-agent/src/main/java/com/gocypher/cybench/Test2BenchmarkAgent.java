@@ -107,7 +107,7 @@ public class Test2BenchmarkAgent {
         try {
             Class<?> klass = org.openjdk.jmh.annotations.Benchmark.class;
             URL location = klass.getResource('/' + klass.getName().replace('.', '/') + ".class");
-            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.34/jmh-core-1.34.jar!/org/openjdk/jmh/annotations/Benchmark.class
+            // jar:file:/C:/Users/slabs/.m2/repository/org/openjdk/jmh/jmh-core/1.35/jmh-core-1.35.jar!/org/openjdk/jmh/annotations/Benchmark.class
             String[] split = location.toString().replaceFirst("jar:file:/", "").split("!");
             LOGGER.info("JMH: {}", split[0]);
             File file = Paths.get(split[0]).toFile();

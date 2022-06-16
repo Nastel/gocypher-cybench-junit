@@ -54,7 +54,7 @@ dependencies {
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.24.2'
     implementation 'org.openjdk.jmh:jmh-core:1.35'
     implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.35'
-    implementation 'org.testng:testng:7.6.0'
+    implementation 'org.testng:testng:7.5'
     implementation 'junit:junit:4.13.2'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     implementation files("${System.properties['java.home']}/../lib/tools.jar")
