@@ -34,6 +34,7 @@ import java.util.jar.JarFile;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import com.gocypher.cybench.t2b.aop.AOPConfigHandler;
 import com.gocypher.cybench.t2b.utils.LogUtils;
 
 import javassist.ByteArrayClassPath;
@@ -86,6 +87,7 @@ public class Test2BenchmarkAgent {
             translateAgent();
         } else {
             org.aspectj.weaver.loadtime.Agent.premain(agentArgs, inst);
+            AOPConfigHandler.getBenchmarkRunner().complete();
         }
     }
 

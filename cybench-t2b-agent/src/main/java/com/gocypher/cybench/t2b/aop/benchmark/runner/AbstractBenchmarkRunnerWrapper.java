@@ -52,4 +52,8 @@ public abstract class AbstractBenchmarkRunnerWrapper implements BenchmarkRunnerW
     @Override
     public void cleanup() {
     }
+
+    @Override
+    public void complete() {
+    }
 }

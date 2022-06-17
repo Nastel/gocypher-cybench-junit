@@ -25,4 +25,6 @@ public interface BenchmarkRunnerWrapper {
     void run(ProceedingJoinPoint testPoint) throws Throwable;
 
     void cleanup();
+
+    void complete();
 }

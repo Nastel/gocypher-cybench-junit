@@ -23,13 +23,18 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.Logger;
 
 import com.gocypher.cybench.launcher.BenchmarkRunner;
+import com.gocypher.cybench.launcher.model.BenchmarkingContext;
 import com.gocypher.cybench.t2b.utils.LogUtils;
 
 public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
     private static Logger LOGGER = LogUtils.getLogger(CybenchRunnerWrapper.class);
 
+    protected final BenchmarkingContext benchmarkContext;
+
     public CybenchRunnerWrapper(String args) {
         super(args);
+
+        benchmarkContext = BenchmarkRunner.initContext(System.currentTimeMillis(), args);
     }
 
     @Override
@@ -39,9 +44,16 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
 
         LOGGER.info("Starting CyBench Runner...");
         try {
-            BenchmarkRunner.main(args);
+            BenchmarkRunner.runBenchmarks(benchmarkContext);
         } finally {
             LOGGER.info("CyBench Runner completed!..");
+        }
+    }
+
+    @Override
+    public void complete() {
+        if (benchmarkContext != null) {
+            BenchmarkRunner.processResults(benchmarkContext);
         }
     }
 }
