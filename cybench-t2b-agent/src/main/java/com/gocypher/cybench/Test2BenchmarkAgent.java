@@ -87,7 +87,10 @@ public class Test2BenchmarkAgent {
             translateAgent();
         } else {
             org.aspectj.weaver.loadtime.Agent.premain(agentArgs, inst);
-            AOPConfigHandler.getBenchmarkRunner().complete();
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOGGER.info("Completing benchmarks run...");
+                AOPConfigHandler.getBenchmarkRunner().complete();
+            }));
         }
     }
 
