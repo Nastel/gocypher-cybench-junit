@@ -34,7 +34,23 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
     public CybenchRunnerWrapper(String args) {
         super(args);
 
-        benchmarkContext = BenchmarkRunner.initContext(System.currentTimeMillis(), args);
+        benchmarkContext = initBenchmarkingContext();
+    }
+
+    protected BenchmarkingContext initBenchmarkingContext() {
+        BenchmarkingContext benchmarkContext = BenchmarkRunner.initContext(System.currentTimeMillis(), args);
+
+        try {
+            BenchmarkRunner.initStaticContext(benchmarkContext);
+            BenchmarkRunner.checkProjectMetadataExists(benchmarkContext.getProjectMetadata());
+
+            BenchmarkRunner.analyzeBenchmarkClasses(benchmarkContext);
+            BenchmarkRunner.buildOptions(benchmarkContext);
+        } catch (Exception exc) {
+            LOGGER.error("Benchmarking context initialization failed", exc);
+        }
+
+        return benchmarkContext;
     }
 
     @Override
