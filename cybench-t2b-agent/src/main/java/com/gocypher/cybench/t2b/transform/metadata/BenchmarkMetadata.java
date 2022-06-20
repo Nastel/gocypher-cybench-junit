@@ -31,6 +31,7 @@ import org.openjdk.jmh.generators.core.MetadataInfo;
 import org.openjdk.jmh.generators.core.MethodInfo;
 import org.slf4j.Logger;
 
+import com.gocypher.cybench.core.utils.SecurityUtils;
 import com.gocypher.cybench.t2b.transform.AbstractClassTransformer;
 import com.gocypher.cybench.t2b.utils.LogUtils;
 
@@ -60,6 +61,9 @@ public class BenchmarkMetadata {
 
     private static final String SESSION_ENTRY_KEY = "session";
     private static final String SESSION_VALUE_EXP = "${sys#t2b.session.id}";
+
+    private static final String WRAPPED_API_METHOD_NAME = "wrappedApiMethodName";
+    private static final String WRAPPED_API_METHOD_HASH = "wrappedApiMethodHash";
 
     private static final String FALLBACK_VALUE = "-";
 
@@ -118,12 +122,22 @@ public class BenchmarkMetadata {
 
     protected static void verify(Map<String, Map<String, String>> metadataCfg) {
         // Map<String, String> cMetadataMap = metadataCfg.get(CLASS_METADATA_MAP_KEY);
-        // String cSessionEntry = cMetadataMap.get(SESSION_ENTRY_KEY);
+        // String mEntry = cMetadataMap.get(SESSION_ENTRY_KEY);
         Map<String, String> mMetadataMap = metadataCfg.get(METHOD_METADATA_MAP_KEY);
-        String mSessionEntry = mMetadataMap.get(SESSION_ENTRY_KEY);
+        String mEntry = mMetadataMap.get(SESSION_ENTRY_KEY);
 
-        if (StringUtils.isAllEmpty(mSessionEntry)) {
+        if (StringUtils.isAllEmpty(mEntry)) {
             mMetadataMap.put(SESSION_ENTRY_KEY, SESSION_VALUE_EXP);
+        }
+
+        mEntry = mMetadataMap.get(WRAPPED_API_METHOD_NAME);
+        if (StringUtils.isEmpty(mEntry)) {
+            mMetadataMap.put(WRAPPED_API_METHOD_NAME, "${method.qualified.name}");
+        }
+
+        mEntry = mMetadataMap.get(WRAPPED_API_METHOD_HASH);
+        if (StringUtils.isEmpty(mEntry)) {
+            mMetadataMap.put(WRAPPED_API_METHOD_HASH, "${method.signature.hash}");
         }
     }
 
@@ -415,6 +429,7 @@ public class BenchmarkMetadata {
         static final String VAR_RETURN_TYPE = VAR_PREFIX + "return.type";
         static final String VAR_QUALIFIED_NAME = VAR_PREFIX + "qualified.name";
         static final String VAR_PARAMETERS = VAR_PREFIX + "parameters";
+        static final String VAR_SIGNATURE_HASH = VAR_PREFIX + "signature.hash";
 
         static String getValue(String variable, MethodInfo methodInfo) {
             switch (variable) {
@@ -430,6 +445,8 @@ public class BenchmarkMetadata {
                 return methodInfo.getQualifiedName();
             case VAR_PARAMETERS:
                 return methodInfo.getParameters().toString();
+            case VAR_SIGNATURE_HASH:
+                return SecurityUtils.computeStringHash(AbstractClassTransformer.getSignature(methodInfo));
             default:
                 throw new InvalidVariableException("Unknown METHOD scope variable: " + variable);
             }
@@ -449,6 +466,8 @@ public class BenchmarkMetadata {
                 return method.getDeclaringClass().getName() + "." + method.getName();
             case VAR_PARAMETERS:
                 return Arrays.toString(method.getParameters());
+            case VAR_SIGNATURE_HASH:
+                return SecurityUtils.computeStringHash(AbstractClassTransformer.getSignature(method));
             default:
                 throw new InvalidVariableException("Unknown METHOD scope variable: " + variable);
             }

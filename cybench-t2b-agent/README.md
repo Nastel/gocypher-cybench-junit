@@ -135,6 +135,7 @@ e.g. `-Dt2b.metadata.cfg.path=t2b/metadata.properties`
 * **METHOD** scope variables:
     * `method.name` - method name
     * `method.signature` - method signature
+    * `method.signature.hash` - method signature hash
     * `method.class` - method declaring class qualified name
     * `method.return.type` - method return type
     * `method.qualified.name` - method qualified name
