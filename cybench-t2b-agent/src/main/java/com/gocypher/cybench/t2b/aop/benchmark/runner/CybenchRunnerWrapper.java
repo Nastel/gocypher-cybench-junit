@@ -19,7 +19,10 @@
 
 package com.gocypher.cybench.t2b.aop.benchmark.runner;
 
+import java.util.Collection;
+
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.openjdk.jmh.results.RunResult;
 import org.slf4j.Logger;
 
 import com.gocypher.cybench.launcher.BenchmarkRunner;
@@ -43,8 +46,6 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
         try {
             BenchmarkRunner.initStaticContext(benchmarkContext);
             BenchmarkRunner.checkProjectMetadataExists(benchmarkContext.getProjectMetadata());
-
-            BenchmarkRunner.analyzeBenchmarkClasses(benchmarkContext);
             BenchmarkRunner.buildOptions(benchmarkContext);
         } catch (Exception exc) {
             LOGGER.error("Benchmarking context initialization failed", exc);
@@ -60,7 +61,10 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
 
         LOGGER.info("Starting CyBench Runner...");
         try {
-            BenchmarkRunner.runBenchmarks(benchmarkContext);
+            BenchmarkRunner.analyzeBenchmarkClasses(benchmarkContext);
+
+            Collection<RunResult> results = BenchmarkRunner.runBenchmarks(benchmarkContext);
+            BenchmarkRunner.processResults(benchmarkContext, results);
         } finally {
             LOGGER.info("CyBench Runner completed!..");
         }
@@ -69,7 +73,7 @@ public class CybenchRunnerWrapper extends AbstractBenchmarkRunnerWrapper {
     @Override
     public void complete() {
         if (benchmarkContext != null) {
-            BenchmarkRunner.processResults(benchmarkContext);
+            BenchmarkRunner.sendReport(benchmarkContext, benchmarkContext.getReport());
         }
     }
 }
